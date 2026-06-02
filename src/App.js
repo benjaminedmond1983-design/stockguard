@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
-  "Reorder Center", "Purchase Orders", "Audit Trail", "Business Insights", "Import Products", "Pricing"
+  "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail", "Business Insights", "Import Products", "Pricing"
 ];
 
 const INIT_INVENTORY = [
@@ -142,7 +142,7 @@ export default function App() {
   const [editPOForm, setEditPOForm] = useState({});
   const [poCounter, setPOCounter] = useState(1);
 
-  const [aiLoading, setAiloading] = useState(false); 
+
   const [aiAnalysis,     setAiAnalysis]     = useState("");
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
@@ -247,22 +247,22 @@ export default function App() {
     setMoveForm(emptyMove);
   }
 
- function handleReorder(item) {
-  const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
-  const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
-  setPOCounter(c => c + 1);
-  const newPO = {
-    id: Date.now(), poNumber, status: "Draft",
-    sku: item.sku, itemName: item.name,
-    description: `Reorder for ${item.name} — SKU ${item.sku}`,
-    supplier: item.supplier, qty: suggestedQty,
-    unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
-    deliveryDate: "", notes: "", createdFrom: "Reorder Center"
-  };
-  setPOs(p => [newPO, ...p]);
-  setReorders(r => [{id:Date.now(), sku:item.sku, name:item.name, supplier:item.supplier, qty:suggestedQty, status:"Sent", date:new Date().toISOString().slice(0,10), urgency:item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal"}, ...r]);
-  addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
-} 
+  function handleReorder(item) {
+    const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
+    const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
+    setPOCounter(c => c + 1);
+    const newPO = {
+      id: Date.now(), poNumber, status: "Draft",
+      sku: item.sku, itemName: item.name,
+      description: `Reorder for ${item.name} — SKU ${item.sku}`,
+      supplier: item.supplier, qty: suggestedQty,
+      unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
+      deliveryDate: "", notes: "", createdFrom: "Reorder Center"
+    };
+    setPOs(p => [newPO, ...p]);
+    setReorders(r => [{ id: Date.now(), sku: item.sku, name: item.name, supplier: item.supplier, qty: suggestedQty, status: "Sent", date: new Date().toISOString().slice(0,10), urgency: item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal" }, ...r]);
+    addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
+  }
 
   function handleCSVUpload(e) {
     const file=e.target.files[0]; if (!file) return;
@@ -826,7 +826,130 @@ export default function App() {
         </div>
       )}
 
-      {/* ── AUDIT TRAIL ── */}
+      {/* ── SUPPLIERS ── */}
+      {tab==="Suppliers"&&(
+        <div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <div>
+              <div style={{fontWeight:600,fontSize:15}}>Supplier Management</div>
+              <div style={{fontSize:12,color:C.muted,marginTop:2}}>All your supplier contacts, terms and linked products in one place</div>
+            </div>
+            <button onClick={()=>setShowAddSup(s=>!s)} style={btn("#185FA5")}>+ Add Supplier</button>
+          </div>
+
+          {/* Add supplier form */}
+          {showAddSup&&(
+            <div style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:16,background:"#F0F4FF"}}>
+              <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>New Supplier</div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+                {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
+                  f==="paymentTerms"
+                    ? <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
+                        <select value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>
+                          {["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}
+                        </select>
+                      </div>
+                    : <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
+                        <input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp} />
+                      </div>
+                ))}
+                <div style={{gridColumn:"1/-1"}}>
+                  <label style={{fontSize:12,color:C.muted}}>Notes</label>
+                  <textarea value={newSupForm.notes} onChange={e=>setNewSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} placeholder="e.g. Call before ordering, ships Mondays only..." />
+                </div>
+              </div>
+              <div style={{display:"flex",gap:8}}>
+                <button onClick={()=>{
+                  if (!newSupForm.name.trim()) return;
+                  setSuppliers(s=>[...s,{...newSupForm,id:Date.now()}]);
+                  setNewSupForm(emptySup); setShowAddSup(false);
+                }} style={btn("#3B6D11")}>Save supplier</button>
+                <button onClick={()=>{setShowAddSup(false);setNewSupForm(emptySup);}} style={btn("#888")}>Cancel</button>
+              </div>
+            </div>
+          )}
+
+          {suppliers.length===0&&(
+            <div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}>
+              <div style={{fontSize:28,marginBottom:8}}>🏭</div>
+              <div style={{fontWeight:600,marginBottom:4,color:C.text}}>No suppliers yet</div>
+              <div>Click "+ Add Supplier" to add your first supplier.</div>
+            </div>
+          )}
+
+          {suppliers.map(sup=>{
+            const linkedProducts = inventory.filter(i=>i.supplier===sup.name);
+            const isEditing = editSupId===sup.id;
+
+            if (isEditing) return (
+              <div key={sup.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}>
+                <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>Editing: {sup.name}</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
+                  {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
+                    f==="paymentTerms"
+                      ? <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
+                          <select value={editSupForm[f]} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>
+                            {["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}
+                          </select>
+                        </div>
+                      : <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
+                          <input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={editSupForm[f]||""} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp} />
+                        </div>
+                  ))}
+                  <div style={{gridColumn:"1/-1"}}>
+                    <label style={{fontSize:12,color:C.muted}}>Notes</label>
+                    <textarea value={editSupForm.notes||""} onChange={e=>setEditSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} />
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <button onClick={()=>{setSuppliers(s=>s.map(x=>x.id===sup.id?{...editSupForm,id:sup.id}:x));setEditSupId(null);setEditSupForm({});}} style={btn("#3B6D11")}>Save</button>
+                  <button onClick={()=>{setEditSupId(null);setEditSupForm({});}} style={btn("#888")}>Cancel</button>
+                </div>
+              </div>
+            );
+
+            return (
+              <div key={sup.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{sup.name}</div>
+                    {sup.contact&&<div style={{fontSize:13,color:C.muted,marginBottom:6}}>👤 {sup.contact}</div>}
+                    <div style={{display:"flex",gap:12,flexWrap:"wrap",fontSize:13,marginBottom:8}}>
+                      {sup.phone&&<a href={`tel:${sup.phone}`} style={{color:"#185FA5",textDecoration:"none"}}>📞 {sup.phone}</a>}
+                      {sup.email&&<a href={`mailto:${sup.email}`} style={{color:"#185FA5",textDecoration:"none"}}>✉️ {sup.email}</a>}
+                      {sup.website&&<a href={sup.website.startsWith("http")?sup.website:`https://${sup.website}`} target="_blank" rel="noreferrer" style={{color:"#185FA5",textDecoration:"none"}}>🌐 {sup.website}</a>}
+                    </div>
+                    <div style={{display:"flex",gap:16,flexWrap:"wrap",fontSize:12,marginBottom:8}}>
+                      {sup.leadTime&&<span style={{background:"#E6F1FB",color:"#185FA5",padding:"2px 8px",borderRadius:8}}>⏱ {sup.leadTime} day lead time</span>}
+                      {sup.minOrder&&<span style={{background:"#EAF3DE",color:"#3B6D11",padding:"2px 8px",borderRadius:8}}>📦 Min order: {sup.minOrder} units</span>}
+                      {sup.paymentTerms&&<span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 8px",borderRadius:8}}>💳 {sup.paymentTerms}</span>}
+                    </div>
+                    {sup.notes&&<div style={{fontSize:12,color:C.muted,fontStyle:"italic",marginBottom:8}}>📝 {sup.notes}</div>}
+                    {linkedProducts.length>0&&(
+                      <div style={{marginTop:8}}>
+                        <div style={{fontSize:11,color:C.muted,marginBottom:4,fontWeight:600}}>LINKED PRODUCTS ({linkedProducts.length})</div>
+                        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                          {linkedProducts.map(p=>{
+                            const s=statusBadge(p.qty,p.minQty);
+                            return <span key={p.sku} style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{p.name} ({p.qty} in stock)</span>;
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
+                    <button onClick={()=>{setEditSupId(sup.id);setEditSupForm({...sup});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button>
+                    <button onClick={()=>setSuppliers(s=>s.filter(x=>x.id!==sup.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button>
+                    {sup.email&&<button onClick={()=>window.open(`mailto:${sup.email}?subject=Purchase Order&body=Hi ${sup.contact||sup.name},%0A%0AWe would like to place an order.`)} style={{...btn("#3B6D11"),padding:"4px 12px",fontSize:11}}>✉️ Email</button>}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+
       {tab==="Audit Trail"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Full inventory activity log</div>
