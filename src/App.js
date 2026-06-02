@@ -370,7 +370,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const btn = (bg)=>({padding:"7px 14px",borderRadius:6,border:"none",background:bg,color:"#fff",fontSize:13,cursor:"pointer",fontWeight:500});
 
   return (
-    <div style={{fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:900,margin:"0 auto",padding:"1rem 0.75rem",background:C.bg,minHeight:"100vh"}}>
+    <div style={{fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:900,margin:"0 auto",padding:"1rem 0.75rem",background:"#EEF2F7",minHeight:"100vh"}}>
 
       {/* Header */}
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
