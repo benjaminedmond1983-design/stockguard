@@ -64,7 +64,7 @@ function buildInitAudit(inventory) {
 const CSV_TEMPLATE = `SKU,Name,Category,Qty,MinQty,Supplier,UnitCost,SellingPrice,Location\nSKU-101,Sample Product,Apparel,50,10,My Supplier,19.99,49.99,Aisle A1`;
 
 const PLANS = [
-  { name:"Starter", color:"#185FA5", price:0,  ap:0,  cta:"Start for free",         badge:null,           inc:["Up to 50 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],                                                              exc:["AI reorder analysis","SWOT and Porter's Five Forces","Shopify integration"] },
+  { name:"Starter", color:"#185FA5", price:0,  ap:0,  cta:"Start for free",         badge:null,           inc:["Up to 25 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],                                                              exc:["AI reorder analysis","SWOT and Porter's Five Forces","Shopify integration"] },
   { name:"Growth",  color:"#3B6D11", price:29, ap:23, cta:"Start 14-Day Free Trial", badge:"Most popular", badgeBg:"#EAF3DE", badgeColor:"#3B6D11", featured:true,          inc:["Up to 500 SKUs","3 users","AI reorder analysis","SWOT and Porter's Five Forces","Money strategies","Shopify integration"], exc:["Priority support"] },
   { name:"Pro",     color:"#534AB7", price:79, ap:63, cta:"Start 14-Day Free Trial", badge:"Best value",   badgeBg:"#EEEDFE", badgeColor:"#534AB7",                          inc:["Unlimited SKUs","10 users","Everything in Growth","Priority support","Custom branding"], exc:[] },
 ];
