@@ -142,7 +142,20 @@ export default function App() {
   const [editPOForm, setEditPOForm] = useState({});
   const [poCounter, setPOCounter] = useState(1);
 
-
+const [aiLoading, setAiLoading] = useState(false);
+const [suppliers, setSuppliers] = useState([
+  {id:1, name:"DenimCo",     contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:2, name:"SoleSupply",  contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:3, name:"TechGear Inc",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:4, name:"FabricWorld", contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:5, name:"LeatherCraft",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:6, name:"CapMakers",   contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+]);
+const [editSupId,   setEditSupId]   = useState(null);
+const [editSupForm, setEditSupForm] = useState({});
+const [showAddSup,  setShowAddSup]  = useState(false);
+const emptySup = {name:"",contact:"",phone:"",email:"",website:"",leadTime:"",minOrder:"",paymentTerms:"Net 30",notes:""};
+const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const [aiAnalysis,     setAiAnalysis]     = useState("");
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
