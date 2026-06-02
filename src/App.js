@@ -372,24 +372,35 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   return (
     <div style={{fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:900,margin:"0 auto",padding:"1rem 0.75rem",background:"#EEF2F7",minHeight:"100vh"}}>
 
-      {/* Header */}
-      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-        <div style={{width:36,height:36,borderRadius:8,background:"#185FA5",display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-        </div>
-        <div>
-          <h2 style={{fontSize:20,fontWeight:600,margin:0}}>StockGuard</h2>
-          <p style={{fontSize:12,color:C.muted,margin:0}}>Supply Chain Inventory Tracker</p>
-        </div>
+     {/* Sidebar */}
+<div style={{width:220,minWidth:220,background:"#1B2B4B",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
+  <div style={{padding:"20px 16px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
+    <div style={{display:"flex",alignItems:"center",gap:10}}>
+      <div style={{width:40,height:40,borderRadius:10,background:"rgba(255,255,255,0.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><text x="2" y="28" fontSize="22" fontWeight="700" fill="white" fontFamily="system-ui">S</text><text x="18" y="28" fontSize="22" fontWeight="700" fill="white" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="white" opacity="0.9"/><rect x="29" y="14" width="9" height="2" rx="1" fill="white" opacity="0.9"/></svg>
       </div>
-      <p style={{fontSize:13,color:C.muted,margin:"0 0 1.25rem"}}>Track inventory from receiving to sale — eliminate lost stock and shrinkage.</p>
-
-      {/* Nav */}
-      <div style={{display:"flex",gap:4,marginBottom:20,flexWrap:"wrap"}}>
-        {TABS.map(t=>(
-          <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:tab===t?C.text:"transparent",color:tab===t?C.bg:C.muted,fontSize:12,cursor:"pointer",fontWeight:tab===t?600:400}}>{t}</button>
-        ))}
+      <div>
+        <div style={{color:"#fff",fontWeight:700,fontSize:15}}>StockGuard</div>
+        <div style={{color:"rgba(255,255,255,0.45)",fontSize:10,marginTop:2}}>Supply Chain Tracker</div>
       </div>
+    </div>
+  </div>
+  <nav style={{flex:1,padding:"10px 8px"}}>
+    {TABS.map(t=>{
+      const active=tab===t;
+      return (
+        <button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#fff":"rgba(255,255,255,0.55)",fontSize:13,fontWeight:active?600:400,marginBottom:2,textAlign:"left"}}>
+          <span>{t}</span>
+          {t==="Reorder Center"&&lowItems.length>0&&<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>}
+        </button>
+      );
+    })}
+  </nav>
+  <div style={{padding:"14px 16px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
+    <div style={{color:"rgba(255,255,255,0.35)",fontSize:10,textAlign:"center",lineHeight:1.6,fontStyle:"italic"}}>"Commit to the Lord whatever you do"<br/>Proverbs 16:3</div>
+  </div>
+</div>
+<div style={{marginLeft:220,flex:1,padding:"24px 28px",maxWidth:900}}></div> 
 
       {/* ── DASHBOARD ── */}
       {tab==="Dashboard" && (
@@ -1078,5 +1089,6 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
     </div>
-  );
+  </div>
+ );
 }
