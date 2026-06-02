@@ -370,8 +370,39 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const btn = (bg)=>({padding:"7px 14px",borderRadius:6,border:"none",background:bg,color:"#fff",fontSize:13,cursor:"pointer",fontWeight:500});
 
   return (
-    <div style={{fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:900,margin:"0 auto",padding:"1rem 0.75rem",background:"#EEF2F7",minHeight:"100vh"}}>
+    return (
+  <div style={{display:"flex", minHeight:"100vh"}}>
+    {/* Sidebar */}
+    <div style={{width:220, minWidth:220, background:"#1B2B4B", display:"flex", flexDirection:"column", padding:"24px 0"}}>
+      {/* Logo */}
+      <div style={{padding:"0 24px 32px"}}>
+        <div style={{fontSize:22, fontWeight:700, color:"#fff", letterSpacing:1}}>
+          Stock<span style={{color:"#4A90D9"}}>G</span>uard
+        </div>
+        <div style={{fontSize:11, color:"#8899BB", marginTop:2}}>Inventory Management</div>
+      </div>
 
+      {/* Nav Items */}
+      {["Dashboard","Receiving","Movements","Sales","Reorder Center","Purchase Orders","Suppliers","Audit Trail","Business Insights","Import Products","Pricing"].map(tab => (
+        <div key={tab} onClick={() => setActiveTab(tab)}
+          style={{padding:"10px 24px", cursor:"pointer", fontSize:13,
+            color: activeTab===tab ? "#fff" : "#8899BB",
+            background: activeTab===tab ? "rgba(255,255,255,0.1)" : "transparent",
+            borderLeft: activeTab===tab ? "3px solid #4A90D9" : "3px solid transparent",
+            fontWeight: activeTab===tab ? 600 : 400}}>
+          {tab}
+        </div>
+      ))}
+
+      {/* Scripture Footer */}
+      <div style={{marginTop:"auto", padding:"24px", fontSize:11, color:"#556688", lineHeight:1.5}}>
+        "Commit to the Lord whatever you do, and he will establish your plans."
+        <div style={{marginTop:4, color:"#4A90D9"}}>Proverbs 16:3</div>
+      </div>
+    </div>
+
+    {/* Main Content */}
+    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto"}}>
      {/* Sidebar */}
 <div style={{width:220,minWidth:220,background:"#1B2B4B",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
   <div style={{padding:"20px 16px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
