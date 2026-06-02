@@ -247,22 +247,22 @@ export default function App() {
     setMoveForm(emptyMove);
   }
 
-  function handleReorder(item) {
-    const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
-    const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
-    setPOCounter(c => c + 1);
-    const newPO = {
-      id: Date.now(), poNumber, status: "Draft",
-      sku: item.sku, itemName: item.name,
-      description: `Reorder for ${item.name} — SKU ${item.sku}`,
-      supplier: item.supplier, qty: suggestedQty,
-      unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
-      deliveryDate: "", notes: "", createdFrom: "Reorder Center"
-    };
-    setPOs(p => [newPO, ...p]);
-    setReorders(r => [{ id: Date.now(), sku: item.sku, name: item.name, supplier: item.supplier, qty: suggestedQty, status: "Sent", date: new Date().toISOString().slice(0,10), urgency: item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal" }, ...r]);
-    addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
-  }
+ function handleReorder(item) {
+  const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
+  const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
+  setPOCounter(c => c + 1);
+  const newPO = {
+    id: Date.now(), poNumber, status: "Draft",
+    sku: item.sku, itemName: item.name,
+    description: `Reorder for ${item.name} — SKU ${item.sku}`,
+    supplier: item.supplier, qty: suggestedQty,
+    unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
+    deliveryDate: "", notes: "", createdFrom: "Reorder Center"
+  };
+  setPOs(p => [newPO, ...p]);
+  setReorders(r => [{id:Date.now(), sku:item.sku, name:item.name, supplier:item.supplier, qty:suggestedQty, status:"Sent", date:new Date().toISOString().slice(0,10), urgency:item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal"}, ...r]);
+  addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
+} 
 
   function handleCSVUpload(e) {
     const file=e.target.files[0]; if (!file) return;
