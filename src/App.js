@@ -142,7 +142,20 @@ export default function App() {
   const [editPOForm, setEditPOForm] = useState({});
   const [poCounter, setPOCounter] = useState(1);
 
-
+const [aiLoading, setAiLoading] = useState(false);
+const [suppliers, setSuppliers] = useState([
+  {id:1, name:"DenimCo",     contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:2, name:"SoleSupply",  contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:3, name:"TechGear Inc",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:4, name:"FabricWorld", contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:5, name:"LeatherCraft",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  {id:6, name:"CapMakers",   contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+]);
+const [editSupId,   setEditSupId]   = useState(null);
+const [editSupForm, setEditSupForm] = useState({});
+const [showAddSup,  setShowAddSup]  = useState(false);
+const emptySup = {name:"",contact:"",phone:"",email:"",website:"",leadTime:"",minOrder:"",paymentTerms:"Net 30",notes:""};
+const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const [aiAnalysis,     setAiAnalysis]     = useState("");
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
@@ -352,127 +365,31 @@ export default function App() {
     setInsightLoading(false);
   }
 
-  const SIDEBAR_W = 200;
-  const TAB_ICONS = {
-    "Dashboard":        "ti-layout-dashboard",
-    "Receiving":        "ti-package",
-    "Movements":        "ti-arrows-transfer-up",
-    "Sales":            "ti-receipt",
-    "Reorder Center":   "ti-bell",
-    "Purchase Orders":  "ti-file-invoice",
-    "Suppliers":        "ti-building-factory",
-    "Audit Trail":      "ti-clipboard-list",
-    "Business Insights":"ti-chart-bar",
-    "Import Products":  "ti-file-upload",
-    "Pricing":          "ti-credit-card",
-  };
-  const TAB_COLORS = {
-    "Dashboard":        "#185FA5",
-    "Receiving":        "#0F6E56",
-    "Movements":        "#534AB7",
-    "Sales":            "#A32D2D",
-    "Reorder Center":   "#854F0B",
-    "Purchase Orders":  "#185FA5",
-    "Suppliers":        "#0F6E56",
-    "Audit Trail":      "#444441",
-    "Business Insights":"#534AB7",
-    "Import Products":  "#185FA5",
-    "Pricing":          "#3B6D11",
-  };
+  const C   = {bg:"#ffffff",bg2:"#f5f5f5",text:"#111111",muted:"#666666",border:"#e0e0e0"};
   const inp = {padding:"7px 10px",borderRadius:6,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:13,width:"100%",boxSizing:"border-box"};
   const btn = (bg)=>({padding:"7px 14px",borderRadius:6,border:"none",background:bg,color:"#fff",fontSize:13,cursor:"pointer",fontWeight:500});
 
   return (
-    <div style={{display:"flex", minHeight:"100vh", fontFamily:"system-ui,-apple-system,sans-serif", color:C.text, background:"#EEF2F7"}}>
+    <div style={{fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,maxWidth:900,margin:"0 auto",padding:"1rem 0.75rem",background:C.bg,minHeight:"100vh"}}>
 
-      {/* ── SIDEBAR ── */}
-      <div style={{width:SIDEBAR_W, minWidth:SIDEBAR_W, background:SIDEBAR, display:"flex", flexDirection:"column", position:"fixed", top:0, left:0, height:"100vh", zIndex:100, overflowY:"auto"}}>
-
-        {/* Logo */}
-        <div style={{padding:"24px 16px 20px", borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
-          <div style={{display:"flex", alignItems:"center", gap:10}}>
-            {/* SG Logo with cross in G */}
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/>
-              {/* S letter */}
-              <text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text>
-              {/* G with cross */}
-              <text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text>
-              {/* Cross integrated — vertical bar */}
-              <rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/>
-              {/* Cross — horizontal bar */}
-              <rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/>
-            </svg>
-            <div>
-              <div style={{color:"#ffffff", fontWeight:700, fontSize:16, lineHeight:1}}>StockGuard</div>
-              <div style={{color:"rgba(255,255,255,0.5)", fontSize:10, marginTop:3}}>Supply Chain Tracker</div>
-            </div>
-          </div>
+      {/* Header */}
+      <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+        <div style={{width:36,height:36,borderRadius:8,background:"#185FA5",display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         </div>
-
-        {/* Nav tabs */}
-        <nav style={{flex:1, padding:"12px 8px"}}>
-          {TABS.map(t => {
-            const active = tab === t;
-            return (
-              <button key={t} onClick={()=>setTab(t)} style={{
-                display:"flex", alignItems:"center", gap:10, width:"100%",
-                padding:"10px 12px", borderRadius:8, border:"none", cursor:"pointer",
-                background: active ? "rgba(255,255,255,0.15)" : "transparent",
-                color: active ? "#ffffff" : "rgba(255,255,255,0.6)",
-                fontSize:13, fontWeight: active ? 600 : 400,
-                marginBottom:2, transition:"all 0.15s", textAlign:"left",
-              }}
-              onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}}
-              onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}
-              >
-                <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:18, minWidth:18}} aria-hidden="true"/>
-                <span>{t}</span>
-                {t==="Reorder Center" && lowItems.length>0 && (
-                  <span style={{marginLeft:"auto", background:"#E24B4A", color:"#fff", fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:10}}>{lowItems.length}</span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Faith footer */}
-        <div style={{padding:"16px", borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-          <div style={{color:"rgba(255,255,255,0.35)", fontSize:10, textAlign:"center", lineHeight:1.5, fontStyle:"italic"}}>
-            "Commit to the Lord whatever you do"<br/>Proverbs 16:3
-          </div>
+        <div>
+          <h2 style={{fontSize:20,fontWeight:600,margin:0}}>StockGuard</h2>
+          <p style={{fontSize:12,color:C.muted,margin:0}}>Supply Chain Inventory Tracker</p>
         </div>
       </div>
+      <p style={{fontSize:13,color:C.muted,margin:"0 0 1.25rem"}}>Track inventory from receiving to sale — eliminate lost stock and shrinkage.</p>
 
-      {/* ── MAIN CONTENT ── */}
-      <div style={{marginLeft:SIDEBAR_W, flex:1, display:"flex", flexDirection:"column", minHeight:"100vh"}}>
-
-        {/* Tab header banner */}
-        <div style={{background: TAB_COLORS[tab]||"#185FA5", padding:"20px 28px 16px", color:"#fff"}}>
-          <div style={{display:"flex", alignItems:"center", gap:12}}>
-            <i className={`ti ${TAB_ICONS[tab]}`} style={{fontSize:28, opacity:0.9}} aria-hidden="true"/>
-            <div>
-              <h1 style={{fontSize:22, fontWeight:600, margin:0, color:"#fff"}}>{tab}</h1>
-              <p style={{fontSize:12, margin:0, opacity:0.75}}>
-                {tab==="Dashboard" && "Your inventory at a glance"}
-                {tab==="Receiving" && "Log incoming shipments"}
-                {tab==="Movements" && "Track stock movements"}
-                {tab==="Sales" && "Record sales and dispatches"}
-                {tab==="Reorder Center" && `${lowItems.length} item${lowItems.length!==1?"s":""} need attention`}
-                {tab==="Purchase Orders" && `${pos.length} purchase order${pos.length!==1?"s":""}`}
-                {tab==="Suppliers" && `${suppliers.length} supplier${suppliers.length!==1?"s":""} on file`}
-                {tab==="Audit Trail" && "Full activity history"}
-                {tab==="Business Insights" && "AI-powered business analysis"}
-                {tab==="Import Products" && "Bulk import your inventory"}
-                {tab==="Pricing" && "Choose the right plan"}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Page content */}
-        <div style={{flex:1, padding:"24px 28px", maxWidth:920}}>
-
+      {/* Nav */}
+      <div style={{display:"flex",gap:4,marginBottom:20,flexWrap:"wrap"}}>
+        {TABS.map(t=>(
+          <button key={t} onClick={()=>setTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:tab===t?C.text:"transparent",color:tab===t?C.bg:C.muted,fontSize:12,cursor:"pointer",fontWeight:tab===t?600:400}}>{t}</button>
+        ))}
+      </div>
 
       {/* ── DASHBOARD ── */}
       {tab==="Dashboard" && (
@@ -1160,8 +1077,6 @@ export default function App() {
         </div>
       )}
 
-        </div>
-      </div>
     </div>
   );
 }
