@@ -402,36 +402,8 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
     </div>
 
     {/* Main Content */}
-    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto"}}>
-     {/* Sidebar */}
-<div style={{width:220,minWidth:220,background:"#1B2B4B",display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
-  <div style={{padding:"20px 16px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
-    <div style={{display:"flex",alignItems:"center",gap:10}}>
-      <div style={{width:40,height:40,borderRadius:10,background:"rgba(255,255,255,0.12)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-        <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><text x="2" y="28" fontSize="22" fontWeight="700" fill="white" fontFamily="system-ui">S</text><text x="18" y="28" fontSize="22" fontWeight="700" fill="white" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="white" opacity="0.9"/><rect x="29" y="14" width="9" height="2" rx="1" fill="white" opacity="0.9"/></svg>
-      </div>
-      <div>
-        <div style={{color:"#fff",fontWeight:700,fontSize:15}}>StockGuard</div>
-        <div style={{color:"rgba(255,255,255,0.45)",fontSize:10,marginTop:2}}>Supply Chain Tracker</div>
-      </div>
-    </div>
-  </div>
-  <nav style={{flex:1,padding:"10px 8px"}}>
-    {TABS.map(t=>{
-      const active=tab===t;
-      return (
-        <button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#fff":"rgba(255,255,255,0.55)",fontSize:13,fontWeight:active?600:400,marginBottom:2,textAlign:"left"}}>
-          <span>{t}</span>
-          {t==="Reorder Center"&&lowItems.length>0&&<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>}
-        </button>
-      );
-    })}
-  </nav>
-  <div style={{padding:"14px 16px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-    <div style={{color:"rgba(255,255,255,0.35)",fontSize:10,textAlign:"center",lineHeight:1.6,fontStyle:"italic"}}>"Commit to the Lord whatever you do"<br/>Proverbs 16:3</div>
-  </div>
-</div>
-<div style={{marginLeft:220,flex:1,padding:"24px 28px",maxWidth:900}}></div> 
+    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto", marginLeft:220}}>
+
 
       {/* ── DASHBOARD ── */}
       {tab==="Dashboard" && (
