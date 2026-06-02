@@ -370,7 +370,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const btn = (bg)=>({padding:"7px 14px",borderRadius:6,border:"none",background:bg,color:"#fff",fontSize:13,cursor:"pointer",fontWeight:500});
 
   return (
-    return (
+    
   <div style={{display:"flex", minHeight:"100vh"}}>
     {/* Sidebar */}
     <div style={{width:220, minWidth:220, background:"#1B2B4B", display:"flex", flexDirection:"column", padding:"24px 0"}}>
