@@ -142,7 +142,7 @@ export default function App() {
   const [editPOForm, setEditPOForm] = useState({});
   const [poCounter, setPOCounter] = useState(1);
 
-
+  const [aiLoading, setAiloading] = useState(false); 
   const [aiAnalysis,     setAiAnalysis]     = useState("");
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
