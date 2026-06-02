@@ -1,4 +1,3 @@
-import {exportCSV} from "./exportCSV";
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  StockGuard — Supply Chain Inventory Tracker                     ║
 // ║  Full deployable React component v5 + Daily Sales Summary       ║
@@ -8,7 +7,7 @@ import { useState } from "react";
 
 const TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
-  "Reorder Center", "Audit Trail", "Business Insights", "Import Products", "Pricing"
+  "Reorder Center", "Purchase Orders", "Audit Trail", "Business Insights", "Import Products", "Pricing"
 ];
 
 const INIT_INVENTORY = [
@@ -64,9 +63,23 @@ function buildInitAudit(inventory) {
 const CSV_TEMPLATE = `SKU,Name,Category,Qty,MinQty,Supplier,UnitCost,SellingPrice,Location\nSKU-101,Sample Product,Apparel,50,10,My Supplier,19.99,49.99,Aisle A1`;
 
 const PLANS = [
-  { name:"Starter", color:"#185FA5", price:0,  ap:0,  cta:"Start for free",         badge:null,           inc:["Up to 25 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],                                                              exc:["AI reorder analysis","SWOT and Porter's Five Forces","Shopify integration"] },
-  { name:"Growth",  color:"#3B6D11", price:29, ap:23, cta:"Start 14-Day Free Trial", badge:"Most popular", badgeBg:"#EAF3DE", badgeColor:"#3B6D11", featured:true,          inc:["Up to 500 SKUs","3 users","AI reorder analysis","SWOT and Porter's Five Forces","Money strategies","Shopify integration"], exc:["Priority support"] },
-  { name:"Pro",     color:"#534AB7", price:79, ap:63, cta:"Start 14-Day Free Trial", badge:"Best value",   badgeBg:"#EEEDFE", badgeColor:"#534AB7",                          inc:["Unlimited SKUs","10 users","Everything in Growth","Priority support","Custom branding"], exc:[] },
+  {
+    name:"Starter", color:"#185FA5", price:0, ap:0, cta:"Start for free", badge:null,
+    inc:["Up to 25 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],
+    exc:["Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary","Business Insights (SWOT, Porter's, Money Strategies)","Shopify integration"]
+  },
+  {
+    name:"Growth", color:"#3B6D11", price:29, ap:23, cta:"Start 14-Day Free Trial",
+    badge:"Most popular", badgeBg:"#EAF3DE", badgeColor:"#3B6D11", featured:true,
+    inc:["Up to 500 SKUs","3 users","Everything in Starter","Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary + 7-day chart"],
+    exc:["Business Insights (SWOT, Porter's, Money Strategies)","Priority support","Custom branding","Shopify integration"]
+  },
+  {
+    name:"Pro", color:"#534AB7", price:79, ap:63, cta:"Start 14-Day Free Trial",
+    badge:"Best value", badgeBg:"#EEEDFE", badgeColor:"#534AB7",
+    inc:["Unlimited SKUs","10 users","Everything in Growth","Business Insights (SWOT, Porter's, Money Strategies)","Shopify integration","Priority support","Custom branding"],
+    exc:[]
+  },
 ];
 
 function statusBadge(qty,min) {
@@ -124,7 +137,12 @@ export default function App() {
   const [saleForm, setSaleForm] = useState(emptySale);
   const [moveForm, setMoveForm] = useState(emptyMove);
 
-  const [aiLoading,      setAiLoading]      = useState(false);
+  const [pos, setPOs] = useState([]);
+  const [editPOId, setEditPOId] = useState(null);
+  const [editPOForm, setEditPOForm] = useState({});
+  const [poCounter, setPOCounter] = useState(1);
+
+
   const [aiAnalysis,     setAiAnalysis]     = useState("");
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
@@ -230,9 +248,20 @@ export default function App() {
   }
 
   function handleReorder(item) {
-    const suggestedQty=Math.max(item.minQty*2-item.qty,10);
-    setReorders(r=>[{id:Date.now(),sku:item.sku,name:item.name,supplier:item.supplier,qty:suggestedQty,status:"Sent",date:new Date().toISOString().slice(0,10),urgency:item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal"},...r]);
-    addLog("Reordered",item.name,suggestedQty,"Staff",`PO sent to ${item.supplier}`);
+    const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
+    const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
+    setPOCounter(c => c + 1);
+    const newPO = {
+      id: Date.now(), poNumber, status: "Draft",
+      sku: item.sku, itemName: item.name,
+      description: `Reorder for ${item.name} — SKU ${item.sku}`,
+      supplier: item.supplier, qty: suggestedQty,
+      unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
+      deliveryDate: "", notes: "", createdFrom: "Reorder Center"
+    };
+    setPOs(p => [newPO, ...p]);
+    setReorders(r => [{ id: Date.now(), sku: item.sku, name: item.name, supplier: item.supplier, qty: suggestedQty, status: "Sent", date: new Date().toISOString().slice(0,10), urgency: item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal" }, ...r]);
+    addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
   }
 
   function handleCSVUpload(e) {
@@ -445,9 +474,9 @@ export default function App() {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <div style={{fontSize:13,fontWeight:500,color:C.muted}}>All inventory</div>
             <div style={{display:"flex",gap:6}}>
-              <button onClick={()=>exportCSV("inventory",inventory,audit)} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
-              <button onClick={()=>exportCSV("sales",inventory,audit)}     style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
-              <button onClick={()=>exportCSV("audit",inventory,audit)}     style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
+              <button onClick={()=>exportCSV("inventory")} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
+              <button onClick={()=>exportCSV("sales")}     style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
+              <button onClick={()=>exportCSV("audit")}     style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
             </div>
           </div>
           <input placeholder="Search by name, SKU, or category" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,marginBottom:10}} />
@@ -614,7 +643,119 @@ export default function App() {
         </div>
       )}
 
-      {/* ── REORDER CENTER ── */}
+      {/* ── PURCHASE ORDERS ── */}
+      {tab==="Purchase Orders"&&(
+        <div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+            <div>
+              <div style={{fontWeight:600,fontSize:15}}>Purchase Orders</div>
+              <div style={{fontSize:12,color:C.muted,marginTop:2}}>Create, edit and track orders sent to suppliers</div>
+            </div>
+            <button onClick={()=>{
+              const poNumber=`PO-${String(poCounter).padStart(4,"0")}`;
+              setPOCounter(c=>c+1);
+              const newPO={id:Date.now(),poNumber,status:"Draft",sku:"",itemName:"",description:"",supplier:"",qty:1,unitCost:0,date:new Date().toISOString().slice(0,10),deliveryDate:"",notes:"",createdFrom:"Manual"};
+              setPOs(p=>[newPO,...p]);
+              setEditPOId(newPO.id);
+              setEditPOForm({...newPO});
+            }} style={btn("#185FA5")}>+ New Purchase Order</button>
+          </div>
+
+          {pos.length===0&&(
+            <div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}>
+              <div style={{fontSize:28,marginBottom:8}}>📋</div>
+              <div style={{fontWeight:600,marginBottom:4,color:C.text}}>No purchase orders yet</div>
+              <div>Click "Send Reorder" in the Reorder Center or create a new PO manually.</div>
+            </div>
+          )}
+
+          {pos.map(po=>{
+            const isEditing=editPOId===po.id;
+            const total=(po.qty*(po.unitCost||0)).toFixed(2);
+            const statusColor={Draft:"#854F0B",Sent:"#185FA5",Received:"#3B6D11"}[po.status]||"#888";
+            const statusBg={Draft:"#FAEEDA",Sent:"#E6F1FB",Received:"#EAF3DE"}[po.status]||"#eee";
+
+            if (isEditing) return (
+              <div key={po.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+                  <div style={{fontWeight:700,fontSize:14,color:"#185FA5"}}>{editPOForm.poNumber} — Editing</div>
+                  <div style={{display:"flex",gap:6}}>
+                    <button onClick={()=>{setPOs(p=>p.map(x=>x.id===po.id?{...editPOForm}:x));setEditPOId(null);setEditPOForm({});}} style={{...btn("#3B6D11"),padding:"5px 14px"}}>Save PO</button>
+                    <button onClick={()=>{setEditPOId(null);setEditPOForm({});}} style={{...btn("#888"),padding:"5px 14px"}}>Cancel</button>
+                  </div>
+                </div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                  {[["itemName","Item name *"],["description","Description"],["supplier","Supplier"],["deliveryDate","Expected delivery","date"]].map(([f,l,t])=>(
+                    <div key={f}>
+                      <label style={{fontSize:12,color:C.muted}}>{l}</label>
+                      <input type={t||"text"} value={editPOForm[f]||""} onChange={e=>setEditPOForm(x=>({...x,[f]:e.target.value}))} style={inp} />
+                    </div>
+                  ))}
+                  <div>
+                    <label style={{fontSize:12,color:C.muted}}>Order quantity *</label>
+                    <input type="number" value={editPOForm.qty||""} onChange={e=>setEditPOForm(x=>({...x,qty:parseInt(e.target.value)||0}))} style={inp} />
+                  </div>
+                  <div>
+                    <label style={{fontSize:12,color:C.muted}}>Unit cost ($)</label>
+                    <input type="number" value={editPOForm.unitCost||""} onChange={e=>setEditPOForm(x=>({...x,unitCost:parseFloat(e.target.value)||0}))} style={inp} />
+                  </div>
+                  <div>
+                    <label style={{fontSize:12,color:C.muted}}>Status</label>
+                    <select value={editPOForm.status} onChange={e=>setEditPOForm(x=>({...x,status:e.target.value}))} style={inp}>
+                      <option>Draft</option><option>Sent</option><option>Received</option>
+                    </select>
+                  </div>
+                  <div style={{gridColumn:"1/-1"}}>
+                    <label style={{fontSize:12,color:C.muted}}>Notes</label>
+                    <textarea value={editPOForm.notes||""} onChange={e=>setEditPOForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} />
+                  </div>
+                </div>
+                <div style={{marginTop:10,padding:"8px 12px",background:"#E6F1FB",borderRadius:8,fontSize:13,color:"#185FA5",fontWeight:600}}>
+                  Total order value: ${((editPOForm.qty||0)*(editPOForm.unitCost||0)).toFixed(2)}
+                </div>
+              </div>
+            );
+
+            return (
+              <div key={po.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}>
+                      <span style={{fontWeight:700,fontSize:14}}>{po.poNumber}</span>
+                      <span style={{background:statusBg,color:statusColor,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{po.status}</span>
+                    </div>
+                    <div style={{fontWeight:500,fontSize:13}}>{po.itemName||"—"}</div>
+                    <div style={{fontSize:12,color:C.muted,marginTop:2}}>{po.description}</div>
+                    <div style={{display:"flex",gap:16,marginTop:8,fontSize:12,flexWrap:"wrap"}}>
+                      <span>Supplier: <strong>{po.supplier||"—"}</strong></span>
+                      <span>Qty: <strong>{po.qty}</strong></span>
+                      <span>Unit cost: <strong>${(po.unitCost||0).toFixed(2)}</strong></span>
+                      <span style={{color:"#3B6D11",fontWeight:600}}>Total: <strong>${total}</strong></span>
+                      {po.deliveryDate&&<span>Expected: <strong>{po.deliveryDate}</strong></span>}
+                    </div>
+                    {po.notes&&<div style={{fontSize:12,color:C.muted,marginTop:6,fontStyle:"italic"}}>Note: {po.notes}</div>}
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
+                    <div style={{fontSize:11,color:C.muted}}>{po.date}</div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={()=>{setEditPOId(po.id);setEditPOForm({...po});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button>
+                      <button onClick={()=>{
+                        const content=`PURCHASE ORDER\n${po.poNumber}\nDate: ${po.date}\n\nSupplier: ${po.supplier}\n\nItem: ${po.itemName}\nDescription: ${po.description}\nQty: ${po.qty}\nUnit Cost: ${(po.unitCost||0).toFixed(2)}\nTotal: ${total}\n\nDelivery by: ${po.deliveryDate||"TBD"}\nNotes: ${po.notes||"None"}`;
+                        const blob=new Blob([content],{type:"text/plain"});
+                        const url=URL.createObjectURL(blob);
+                        const a=document.createElement("a");a.href=url;a.download=`${po.poNumber}.txt`;a.click();URL.revokeObjectURL(url);
+                      }} style={{...btn("#534AB7"),padding:"4px 12px",fontSize:11}}>⬇ Download</button>
+                      <button onClick={()=>setPOs(p=>p.filter(x=>x.id!==po.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+
       {tab==="Reorder Center"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
