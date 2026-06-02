@@ -119,7 +119,8 @@ function nowStr() {
 }
 
 export default function App() {
-  const [tab,       setTab]       = useState("Dashboard");
+  const [tab, setTab] = useState("Dashboard");
+  const [activeTab, setActiveTab] = useState("Dashboard");
   const [inventory, setInventory] = useState(INIT_INVENTORY);
   const [audit,     setAudit]     = useState(() => buildInitAudit(INIT_INVENTORY));
   const [reorders,  setReorders]  = useState([]);
