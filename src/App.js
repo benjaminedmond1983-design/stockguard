@@ -445,9 +445,9 @@ export default function App() {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
             <div style={{fontSize:13,fontWeight:500,color:C.muted}}>All inventory</div>
             <div style={{display:"flex",gap:6}}>
-              <button onClick={()=>exportCSV("inventory")} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
-              <button onClick={()=>exportCSV("sales")}     style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
-              <button onClick={()=>exportCSV("audit")}     style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
+              <button onClick={()=>exportCSV("inventory",inventory,audit)} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
+              <button onClick={()=>exportCSV("sales",inventory,audit)}     style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
+              <button onClick={()=>exportCSV("audit",inventory,audit)}     style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
             </div>
           </div>
           <input placeholder="Search by name, SKU, or category" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,marginBottom:10}} />
