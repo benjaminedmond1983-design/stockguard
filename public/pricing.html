@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StockGuard Pricing — Inventory Management for Small Business</title>
+  <meta name="description" content="Simple, transparent pricing for StockGuard. Start free, upgrade when ready. AI-powered inventory tracking from $0 to $49/month." />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, -apple-system, sans-serif; color: #111; background: #fff; }
+    a { text-decoration: none; }
+
+    /* HEADER */
+    .header { text-align: center; padding: 3rem 1rem 2rem; max-width: 700px; margin: 0 auto; }
+    .logo { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; }
+    .logo-icon { width: 40px; height: 40px; border-radius: 10px; background: #185FA5; display: flex; align-items: center; justify-content: center; }
+    .logo-name { font-size: 24px; font-weight: 700; }
+    .header h1 { font-size: 36px; font-weight: 800; margin-bottom: 10px; }
+    .header p { font-size: 16px; color: #666; margin-bottom: 24px; }
+
+    /* TOGGLE */
+    .toggle-wrap { display: inline-flex; align-items: center; gap: 12px; background: #f0f0f0; border-radius: 30px; padding: 8px 20px; }
+    .toggle-label { font-size: 14px; font-weight: 500; cursor: pointer; }
+    .toggle-switch { width: 46px; height: 26px; border-radius: 13px; background: #ccc; cursor: pointer; position: relative; transition: background 0.3s; border: none; outline: none; }
+    .toggle-switch.on { background: #3B6D11; }
+    .toggle-knob { width: 20px; height: 20px; border-radius: 50%; background: #fff; position: absolute; top: 3px; left: 3px; transition: left 0.3s; }
+    .toggle-switch.on .toggle-knob { left: 23px; }
+    .save-badge { font-size: 11px; background: #EAF3DE; color: #3B6D11; padding: 3px 10px; border-radius: 10px; font-weight: 700; display: none; }
+    .save-badge.visible { display: inline-block; }
+
+    /* PLANS */
+    .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; max-width: 1000px; margin: 2.5rem auto; padding: 0 1rem; }
+    .plan { border-radius: 16px; overflow: hidden; border: 2px solid #e0e0e0; background: #fff; }
+    .plan.popular { border-color: #6BAD2E; background: #EAF3DE; transform: scale(1.03); box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
+    .plan.pro { border-color: #8B7FD4; }
+    .plan-badge { padding: 7px; text-align: center; font-size: 12px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+    .plan-badge.popular-badge { background: #3B6D11; }
+    .plan-badge.pro-badge { background: #534AB7; }
+    .plan-body { padding: 24px; }
+    .plan-name { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+    .plan-name.starter { color: #185FA5; }
+    .plan-name.growth { color: #3B6D11; }
+    .plan-name.pro-name { color: #534AB7; }
+    .plan-desc { font-size: 13px; color: #666; margin-bottom: 16px; line-height: 1.5; }
+    .plan-price { display: flex; align-items: flex-end; gap: 4px; margin-bottom: 6px; }
+    .plan-amount { font-size: 44px; font-weight: 800; line-height: 1; }
+    .plan-period { font-size: 14px; color: #888; margin-bottom: 6px; }
+    .plan-savings { font-size: 12px; background: #EAF3DE; color: #3B6D11; padding: 4px 10px; border-radius: 8px; margin-bottom: 16px; display: inline-block; font-weight: 600; display: none; }
+    .plan-savings.visible { display: inline-block; }
+    .plan-cta { display: block; text-align: center; padding: 13px; border-radius: 8px; font-weight: 700; font-size: 14px; color: #fff; margin-bottom: 20px; }
+    .plan-cta.starter-cta { background: #185FA5; }
+    .plan-cta.growth-cta { background: #3B6D11; }
+    .plan-cta.pro-cta { background: #534AB7; }
+    .plan-divider { border: none; border-top: 1px solid #e0e0e033; margin-bottom: 16px; }
+    .feature { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 13px; }
+    .feature.off { color: #bbb; }
+    .feature-icon { font-size: 14px; flex-shrink: 0; font-weight: 700; }
+    .feature-icon.on-starter { color: #185FA5; }
+    .feature-icon.on-growth { color: #3B6D11; }
+    .feature-icon.on-pro { color: #534AB7; }
+    .feature-icon.off-icon { color: #ddd; }
+
+    /* COMPARISON TABLE */
+    .compare-section { max-width: 1000px; margin: 0 auto 3rem; padding: 0 1rem; }
+    .compare-section h2 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    thead tr { border-bottom: 2px solid #e0e0e0; }
+    th { padding: 10px 12px; font-weight: 500; color: #666; text-align: center; }
+    th:first-child { text-align: left; }
+    th.starter-h { color: #185FA5; font-weight: 700; }
+    th.growth-h { color: #3B6D11; font-weight: 700; }
+    th.pro-h { color: #534AB7; font-weight: 700; }
+    td { padding: 10px 12px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+    td:first-child { text-align: left; font-weight: 500; }
+    tr:nth-child(even) { background: #fafafa; }
+    .check-starter { color: #185FA5; font-weight: 700; }
+    .check-growth { color: #3B6D11; font-weight: 700; }
+    .check-pro { color: #534AB7; font-weight: 700; }
+    .cross { color: #ddd; font-weight: 700; }
+
+    /* ROI */
+    .roi { max-width: 1000px; margin: 0 auto 3rem; padding: 0 1rem; }
+    .roi-box { background: #E6F1FB; border: 1px solid #4A90D9; border-radius: 16px; padding: 28px; text-align: center; }
+    .roi-box h3 { font-size: 20px; font-weight: 700; color: #185FA5; margin-bottom: 8px; }
+    .roi-box p { font-size: 14px; color: #185FA5; margin-bottom: 20px; }
+    .roi-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; }
+    .roi-card { background: #fff; border-radius: 10px; padding: 16px; border: 1px solid #4A90D955; }
+    .roi-card-label { font-size: 11px; color: #666; margin-bottom: 4px; }
+    .roi-card-value { font-size: 24px; font-weight: 800; color: #185FA5; }
+    .roi-card-sub { font-size: 11px; color: #888; }
+
+    /* FAQ */
+    .faq { max-width: 700px; margin: 0 auto 3rem; padding: 0 1rem; }
+    .faq h2 { font-size: 22px; font-weight: 700; text-align: center; margin-bottom: 20px; }
+    .faq-item { border: 1px solid #e0e0e0; border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+    .faq-q { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; background: #fff; border: none; width: 100%; text-align: left; font-size: 14px; font-weight: 500; }
+    .faq-q:hover { background: #f5f5f5; }
+    .faq-icon { font-size: 18px; color: #666; font-weight: 300; }
+    .faq-a { padding: 0 16px 14px; font-size: 13px; color: #555; line-height: 1.6; border-top: 1px solid #e0e0e0; display: none; }
+    .faq-a.open { display: block; }
+
+    /* BOTTOM CTA */
+    .bottom-cta { max-width: 1000px; margin: 0 auto 3rem; padding: 0 1rem; }
+    .bottom-cta-box { background: #111; border-radius: 16px; padding: 40px 24px; text-align: center; color: #fff; }
+    .bottom-cta-box h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .bottom-cta-box p { font-size: 14px; color: #aaa; margin-bottom: 24px; }
+    .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .cta-primary { background: #185FA5; color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 700; font-size: 15px; }
+    .cta-secondary { background: transparent; color: #fff; padding: 14px 32px; border-radius: 8px; font-weight: 600; font-size: 15px; border: 1px solid #444; }
+
+    /* NAV */
+    nav { display: flex; align-items: center; justify-content: space-between; padding: 16px 2rem; border-bottom: 1px solid #f0f0f0; }
+    .nav-logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+    .nav-logo-icon { width: 32px; height: 32px; border-radius: 8px; background: #185FA5; display: flex; align-items: center; justify-content: center; }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a { font-size: 14px; color: #555; font-weight: 500; }
+    .nav-links a:hover { color: #111; }
+    .nav-cta { background: #185FA5; color: #fff; padding: 8px 18px; border-radius: 8px; font-size: 14px; font-weight: 600; }
+
+    @media (max-width: 600px) {
+      .header h1 { font-size: 26px; }
+      .plans { grid-template-columns: 1fr; }
+      .plan.popular { transform: none; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">
+      <div class="nav-logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      StockGuard
+    </div>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/pricing.html" style="color:#185FA5">Pricing</a>
+      <a href="https://getstockguard.com">App</a>
+    </div>
+    <a href="https://getstockguard.com" class="nav-cta">Get started free</a>
+  </nav>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
+      <span class="logo-name">StockGuard</span>
+    </div>
+    <h1>Simple, transparent pricing</h1>
+    <p>Start free. Upgrade when you're ready. No hidden fees ever.</p>
+    <div class="toggle-wrap">
+      <span class="toggle-label" id="monthly-label" style="font-weight:600">Monthly</span>
+      <button class="toggle-switch" id="toggle" onclick="toggleBilling()">
+        <div class="toggle-knob" id="knob"></div>
+      </button>
+      <span class="toggle-label" id="annual-label" style="color:#888">Annual</span>
+      <span class="save-badge" id="save-badge">Save 20%</span>
+    </div>
+  </div>
+
+  <!-- PLANS -->
+  <div class="plans">
+
+    <!-- STARTER -->
+    <div class="plan">
+      <div class="plan-body">
+        <div class="plan-name starter">Starter</div>
+        <div class="plan-desc">Perfect for small stores just getting started with inventory tracking.</div>
+        <div class="plan-price">
+          <span class="plan-amount">$0</span>
+          <span class="plan-period">forever</span>
+        </div>
+        <a href="https://getstockguard.com" class="plan-cta starter-cta">Start Free</a>
+        <hr class="plan-divider">
+        <div class="feature"><span class="feature-icon on-starter">✓</span> Up to 50 SKUs</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> 1 user account</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> Receiving &amp; sales log</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> Movement tracking</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> Low stock alerts</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> Audit trail (30 days)</div>
+        <div class="feature"><span class="feature-icon on-starter">✓</span> CSV import</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> AI reorder analysis</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> SWOT &amp; Porter's Five Forces</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> Money strategies</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> Shopify integration</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> Priority support</div>
+      </div>
+    </div>
+
+    <!-- GROWTH -->
+    <div class="plan popular">
+      <div class="plan-badge popular-badge">⭐ Most Popular</div>
+      <div class="plan-body">
+        <div class="plan-name growth">Growth</div>
+        <div class="plan-desc">For growing retailers who need AI-powered insights and reordering.</div>
+        <div class="plan-price">
+          <span class="plan-amount" id="growth-price">$19</span>
+          <span class="plan-period" id="growth-period">/month</span>
+        </div>
+        <div class="plan-savings" id="growth-savings">You save $48/year</div>
+        <a href="https://getstockguard.com" class="plan-cta growth-cta">Start 14-Day Free Trial</a>
+        <hr class="plan-divider">
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Up to 500 SKUs</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> 3 user accounts</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Receiving &amp; sales log</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Movement tracking</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Low stock alerts</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Audit trail (1 year)</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> CSV import</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> AI reorder analysis</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> SWOT &amp; Porter's Five Forces</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Money strategies</div>
+        <div class="feature"><span class="feature-icon on-growth">✓</span> Shopify integration</div>
+        <div class="feature off"><span class="feature-icon off-icon">✕</span> Priority support</div>
+      </div>
+    </div>
+
+    <!-- PRO -->
+    <div class="plan pro">
+      <div class="plan-badge pro-badge">💎 Best Value</div>
+      <div class="plan-body">
+        <div class="plan-name pro-name">Pro</div>
+        <div class="plan-desc">For multi-location retailers and businesses with larger teams.</div>
+        <div class="plan-price">
+          <span class="plan-amount" id="pro-price">$49</span>
+          <span class="plan-period" id="pro-period">/month</span>
+        </div>
+        <div class="plan-savings" id="pro-savings">You save $120/year</div>
+        <a href="https://getstockguard.com" class="plan-cta pro-cta">Start 14-Day Free Trial</a>
+        <hr class="plan-divider">
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Unlimited SKUs</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> 10 user accounts</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Receiving &amp; sales log</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Movement tracking</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Low stock alerts</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Unlimited audit trail</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> CSV import</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> AI reorder analysis</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> SWOT &amp; Porter's Five Forces</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Money strategies</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Shopify integration</div>
+        <div class="feature"><span class="feature-icon on-pro">✓</span> Priority support + custom branding</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- COMPARISON TABLE -->
+  <div class="compare-section">
+    <h2>Full plan comparison</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th class="starter-h">Starter</th>
+          <th class="growth-h">Growth</th>
+          <th class="pro-h">Pro</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Price/month</td><td>Free</td><td id="t-growth">$19</td><td id="t-pro">$49</td></tr>
+        <tr><td>SKUs</td><td>50</td><td>500</td><td>Unlimited</td></tr>
+        <tr><td>Users</td><td>1</td><td>3</td><td>10</td></tr>
+        <tr><td>Audit trail</td><td>30 days</td><td>1 year</td><td>Unlimited</td></tr>
+        <tr><td>Low stock alerts</td><td class="check-starter">✓</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>AI reorder analysis</td><td class="cross">✕</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>SWOT Analysis</td><td class="cross">✕</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>Porter's Five Forces</td><td class="cross">✕</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>Money Strategies</td><td class="cross">✕</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>Shopify integration</td><td class="cross">✕</td><td class="check-growth">✓</td><td class="check-pro">✓</td></tr>
+        <tr><td>Custom branding</td><td class="cross">✕</td><td class="cross">✕</td><td class="check-pro">✓</td></tr>
+        <tr><td>Priority support</td><td class="cross">✕</td><td class="cross">✕</td><td class="check-pro">✓</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ROI CALCULATOR -->
+  <div class="roi">
+    <div class="roi-box">
+      <h3>💰 What does lost inventory cost you?</h3>
+      <p>The average small retailer loses $8,000–$15,000/year to inventory shrinkage and stockouts.</p>
+      <div class="roi-cards">
+        <div class="roi-card">
+          <div class="roi-card-label">StockGuard Growth plan</div>
+          <div class="roi-card-value">$228/yr</div>
+          <div class="roi-card-sub">($19 × 12 months)</div>
+        </div>
+        <div class="roi-card">
+          <div class="roi-card-label">Average inventory losses</div>
+          <div class="roi-card-value">$8,000/yr</div>
+          <div class="roi-card-sub">(industry average)</div>
+        </div>
+        <div class="roi-card">
+          <div class="roi-card-label">Your potential savings</div>
+          <div class="roi-card-value">$7,772/yr</div>
+          <div class="roi-card-sub">34× return on investment</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq">
+    <h2>Frequently asked questions</h2>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(0)"><span>Can I cancel anytime?</span><span class="faq-icon" id="faq-icon-0">+</span></button>
+      <div class="faq-a" id="faq-0">Yes — cancel anytime with no fees or penalties. Your data is always exportable.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(1)"><span>Is there a free trial?</span><span class="faq-icon" id="faq-icon-1">+</span></button>
+      <div class="faq-a" id="faq-1">Growth and Pro plans include a 14-day free trial. No credit card required to start.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(2)"><span>What happens when I hit my SKU limit?</span><span class="faq-icon" id="faq-icon-2">+</span></button>
+      <div class="faq-a" id="faq-2">You'll be prompted to upgrade. We never delete your data — everything stays safe.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(3)"><span>Do you offer refunds?</span><span class="faq-icon" id="faq-icon-3">+</span></button>
+      <div class="faq-a" id="faq-3">Yes — 30-day money-back guarantee on all paid plans, no questions asked.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(4)"><span>Can I switch plans later?</span><span class="faq-icon" id="faq-icon-4">+</span></button>
+      <div class="faq-a" id="faq-4">Absolutely. Upgrade or downgrade anytime — changes take effect on your next billing cycle.</div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q" onclick="toggleFaq(5)"><span>Is my inventory data secure?</span><span class="faq-icon" id="faq-icon-5">+</span></button>
+      <div class="faq-a" id="faq-5">Yes. All data is encrypted in transit and at rest. We never share or sell your data.</div>
+    </div>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <div class="bottom-cta">
+    <div class="bottom-cta-box">
+      <h2>Ready to eliminate lost inventory?</h2>
+      <p>Join retailers already using StockGuard to protect their stock and grow their business.</p>
+      <div class="cta-buttons">
+        <a href="https://getstockguard.com" class="cta-primary">Start Free Today</a>
+        <a href="https://getstockguard.com" class="cta-secondary">View Live Demo</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let isAnnual = false;
+
+    function toggleBilling() {
+      isAnnual = !isAnnual;
+      const toggle = document.getElementById('toggle');
+      const saveBadge = document.getElementById('save-badge');
+      const monthlyLabel = document.getElementById('monthly-label');
+      const annualLabel = document.getElementById('annual-label');
+
+      toggle.classList.toggle('on', isAnnual);
+      saveBadge.classList.toggle('visible', isAnnual);
+      monthlyLabel.style.fontWeight = isAnnual ? '400' : '600';
+      monthlyLabel.style.color = isAnnual ? '#888' : '#111';
+      annualLabel.style.fontWeight = isAnnual ? '600' : '400';
+      annualLabel.style.color = isAnnual ? '#111' : '#888';
+
+      // Update Growth price
+      document.getElementById('growth-price').textContent = isAnnual ? '$15' : '$19';
+      document.getElementById('growth-period').textContent = isAnnual ? '/mo, billed annually' : '/month';
+      document.getElementById('growth-savings').classList.toggle('visible', isAnnual);
+      document.getElementById('t-growth').textContent = isAnnual ? '$15' : '$19';
+
+      // Update Pro price
+      document.getElementById('pro-price').textContent = isAnnual ? '$39' : '$49';
+      document.getElementById('pro-period').textContent = isAnnual ? '/mo, billed annually' : '/month';
+      document.getElementById('pro-savings').classList.toggle('visible', isAnnual);
+      document.getElementById('t-pro').textContent = isAnnual ? '$39' : '$49';
+    }
+
+    function toggleFaq(i) {
+      const answer = document.getElementById('faq-' + i);
+      const icon = document.getElementById('faq-icon-' + i);
+      const isOpen = answer.classList.contains('open');
+      // Close all
+      document.querySelectorAll('.faq-a').forEach(a => a.classList.remove('open'));
+      document.querySelectorAll('.faq-icon').forEach(ic => ic.textContent = '+');
+      // Open clicked
+      if (!isOpen) {
+        answer.classList.add('open');
+        icon.textContent = '−';
+      }
+    }
+  </script>
+
+</body>
+</html>
