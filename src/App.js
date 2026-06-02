@@ -685,6 +685,16 @@ export default function App() {
                   </div>
                 </div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                  <div style={{gridColumn:"1/-1"}}>
+                    <label style={{fontSize:12,color:C.muted}}>Select product (auto-fills fields)</label>
+                    <select onChange={e=>{
+                      const item=inventory.find(i=>i.sku===e.target.value);
+                      if(item) setEditPOForm(x=>({...x,sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,unitCost:item.unitCost,qty:Math.max(item.minQty*2-item.qty,10)}));
+                    }} style={inp}>
+                      <option value="">— Pick a product to auto-fill —</option>
+                      {inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty}, min: {i.minQty})</option>)}
+                    </select>
+                  </div>
                   {[["itemName","Item name *"],["description","Description"],["supplier","Supplier"],["deliveryDate","Expected delivery","date"]].map(([f,l,t])=>(
                     <div key={f}>
                       <label style={{fontSize:12,color:C.muted}}>{l}</label>
