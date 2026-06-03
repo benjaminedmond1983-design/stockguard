@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════════╗
 // ║  StockGuard — Supply Chain Inventory Tracker                     ║
-// ║  Full deployable React component v5 + Daily Sales Summary       ║
+// ║  v6 + Stockout Countdown + Health Score                         ║
 // ╚══════════════════════════════════════════════════════════════════╝
 
 import { useState } from "react";
@@ -21,6 +21,12 @@ const INIT_INVENTORY = [
   { id: 8, sku: "SKU-008", name: "Baseball Cap",       category: "Accessories", qty: 2,  minQty: 12, supplier: "CapMakers",    unitCost: 8.0,   sellingPrice: 24.99, location: "Aisle D2" },
 ];
 
+const SIDEBAR = "#1B2B4B";
+
+const C = {
+  bg:"#ffffff", bg2:"#f5f5f5", text:"#111111", muted:"#666666", border:"#e0e0e0"
+};
+
 function todayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
@@ -38,26 +44,24 @@ function shortDate(dateString) {
   return d.toLocaleDateString("en-US", { weekday:"short" }) + " " + parseInt(day);
 }
 
-// Seed some historical sales in the audit log for demo purposes
-function buildInitAudit(inventory) {
-  const entries = [
-    { id: 1, time: `${dateStr(6)} 09:12`, action: "Received", item: "Blue Denim Jeans",  qty: 20, user: "Maria L.", note: "PO-2201", sku: "SKU-001", revenue: 0,     profit: 0 },
-    { id: 2, time: `${dateStr(6)} 10:45`, action: "Sold",     item: "Wireless Earbuds",  qty: 3,  user: "James K.", note: "INV-5541", sku: "SKU-003", revenue: 299.97, profit: 134.97 },
-    { id: 3, time: `${dateStr(5)} 11:20`, action: "Sold",     item: "White Sneakers",    qty: 2,  user: "Staff",    note: "INV-5542", sku: "SKU-002", revenue: 179.98, profit: 103.98 },
-    { id: 4, time: `${dateStr(5)} 14:30`, action: "Sold",     item: "Cotton T-Shirt",    qty: 4,  user: "Staff",    note: "INV-5543", sku: "SKU-004", revenue: 99.96,  profit: 63.96 },
-    { id: 5, time: `${dateStr(4)} 09:00`, action: "Sold",     item: "Leather Wallet",    qty: 3,  user: "Maria L.", note: "INV-5544", sku: "SKU-005", revenue: 134.97, profit: 82.47 },
-    { id: 6, time: `${dateStr(4)} 15:10`, action: "Sold",     item: "USB-C Cable",       qty: 6,  user: "Staff",    note: "INV-5545", sku: "SKU-007", revenue: 89.94,  profit: 56.94 },
-    { id: 7, time: `${dateStr(3)} 10:00`, action: "Sold",     item: "Blue Denim Jeans",  qty: 2,  user: "James K.", note: "INV-5546", sku: "SKU-001", revenue: 119.98, profit: 70.98 },
-    { id: 8, time: `${dateStr(3)} 13:45`, action: "Sold",     item: "Baseball Cap",      qty: 5,  user: "Staff",    note: "INV-5547", sku: "SKU-008", revenue: 124.95, profit: 84.95 },
-    { id: 9, time: `${dateStr(2)} 09:30`, action: "Sold",     item: "Running Shorts",    qty: 3,  user: "Maria L.", note: "INV-5548", sku: "SKU-006", revenue: 104.97, profit: 68.97 },
-    { id:10, time: `${dateStr(2)} 14:00`, action: "Sold",     item: "White Sneakers",    qty: 1,  user: "Staff",    note: "INV-5549", sku: "SKU-002", revenue: 89.99,  profit: 51.99 },
-    { id:11, time: `${dateStr(1)} 10:15`, action: "Sold",     item: "Wireless Earbuds",  qty: 2,  user: "James K.", note: "INV-5550", sku: "SKU-003", revenue: 199.98, profit: 89.98 },
-    { id:12, time: `${dateStr(1)} 16:00`, action: "Sold",     item: "USB-C Cable",       qty: 8,  user: "Staff",    note: "INV-5551", sku: "SKU-007", revenue: 119.92, profit: 75.92 },
-    { id:13, time: `${dateStr(0)} 09:00`, action: "Sold",     item: "Blue Denim Jeans",  qty: 1,  user: "Maria L.", note: "INV-5552", sku: "SKU-001", revenue: 59.99,  profit: 35.49 },
-    { id:14, time: `${dateStr(0)} 11:30`, action: "Sold",     item: "Leather Wallet",    qty: 2,  user: "Staff",    note: "INV-5553", sku: "SKU-005", revenue: 89.98,  profit: 54.98 },
-    { id:15, time: `${dateStr(0)} 14:20`, action: "Reordered",item: "Baseball Cap",      qty: 50, user: "Maria L.", note: "PO-2205 sent", sku: "", revenue: 0, profit: 0 },
+function buildInitAudit() {
+  return [
+    { id: 1,  time: `${dateStr(6)} 09:12`, action: "Received", item: "Blue Denim Jeans",  qty: 20, user: "Maria L.", note: "PO-2201",    sku: "SKU-001", revenue: 0,      profit: 0 },
+    { id: 2,  time: `${dateStr(6)} 10:45`, action: "Sold",     item: "Wireless Earbuds",  qty: 3,  user: "James K.", note: "INV-5541",  sku: "SKU-003", revenue: 299.97, profit: 134.97 },
+    { id: 3,  time: `${dateStr(5)} 11:20`, action: "Sold",     item: "White Sneakers",    qty: 2,  user: "Staff",    note: "INV-5542",  sku: "SKU-002", revenue: 179.98, profit: 103.98 },
+    { id: 4,  time: `${dateStr(5)} 14:30`, action: "Sold",     item: "Cotton T-Shirt",    qty: 4,  user: "Staff",    note: "INV-5543",  sku: "SKU-004", revenue: 99.96,  profit: 63.96 },
+    { id: 5,  time: `${dateStr(4)} 09:00`, action: "Sold",     item: "Leather Wallet",    qty: 3,  user: "Maria L.", note: "INV-5544",  sku: "SKU-005", revenue: 134.97, profit: 82.47 },
+    { id: 6,  time: `${dateStr(4)} 15:10`, action: "Sold",     item: "USB-C Cable",       qty: 6,  user: "Staff",    note: "INV-5545",  sku: "SKU-007", revenue: 89.94,  profit: 56.94 },
+    { id: 7,  time: `${dateStr(3)} 10:00`, action: "Sold",     item: "Blue Denim Jeans",  qty: 2,  user: "James K.", note: "INV-5546",  sku: "SKU-001", revenue: 119.98, profit: 70.98 },
+    { id: 8,  time: `${dateStr(3)} 13:45`, action: "Sold",     item: "Baseball Cap",      qty: 5,  user: "Staff",    note: "INV-5547",  sku: "SKU-008", revenue: 124.95, profit: 84.95 },
+    { id: 9,  time: `${dateStr(2)} 09:30`, action: "Sold",     item: "Running Shorts",    qty: 3,  user: "Maria L.", note: "INV-5548",  sku: "SKU-006", revenue: 104.97, profit: 68.97 },
+    { id: 10, time: `${dateStr(2)} 14:00`, action: "Sold",     item: "White Sneakers",    qty: 1,  user: "Staff",    note: "INV-5549",  sku: "SKU-002", revenue: 89.99,  profit: 51.99 },
+    { id: 11, time: `${dateStr(1)} 10:15`, action: "Sold",     item: "Wireless Earbuds",  qty: 2,  user: "James K.", note: "INV-5550",  sku: "SKU-003", revenue: 199.98, profit: 89.98 },
+    { id: 12, time: `${dateStr(1)} 16:00`, action: "Sold",     item: "USB-C Cable",       qty: 8,  user: "Staff",    note: "INV-5551",  sku: "SKU-007", revenue: 119.92, profit: 75.92 },
+    { id: 13, time: `${dateStr(0)} 09:00`, action: "Sold",     item: "Blue Denim Jeans",  qty: 1,  user: "Maria L.", note: "INV-5552",  sku: "SKU-001", revenue: 59.99,  profit: 35.49 },
+    { id: 14, time: `${dateStr(0)} 11:30`, action: "Sold",     item: "Leather Wallet",    qty: 2,  user: "Staff",    note: "INV-5553",  sku: "SKU-005", revenue: 89.98,  profit: 54.98 },
+    { id: 15, time: `${dateStr(0)} 14:20`, action: "Reordered",item: "Baseball Cap",      qty: 50, user: "Maria L.", note: "PO-2205 sent", sku: "", revenue: 0, profit: 0 },
   ];
-  return entries;
 }
 
 const CSV_TEMPLATE = `SKU,Name,Category,Qty,MinQty,Supplier,UnitCost,SellingPrice,Location\nSKU-101,Sample Product,Apparel,50,10,My Supplier,19.99,49.99,Aisle A1`;
@@ -83,10 +87,10 @@ const PLANS = [
 ];
 
 function statusBadge(qty,min) {
-  if (qty===0)        return {label:"Out of stock",bg:"#FCEBEB",color:"#A32D2D"};
-  if (qty<min*0.3)    return {label:"Critical",    bg:"#FCEBEB",color:"#A32D2D"};
-  if (qty<min)        return {label:"Low",         bg:"#FAEEDA",color:"#854F0B"};
-  return                     {label:"OK",          bg:"#EAF3DE",color:"#3B6D11"};
+  if (qty===0)     return {label:"Out of stock", bg:"#FCEBEB", color:"#A32D2D"};
+  if (qty<min*0.3) return {label:"Critical",     bg:"#FCEBEB", color:"#A32D2D"};
+  if (qty<min)     return {label:"Low",          bg:"#FAEEDA", color:"#854F0B"};
+  return                  {label:"OK",           bg:"#EAF3DE", color:"#3B6D11"};
 }
 
 function marginBadge(cost,sell) {
@@ -118,11 +122,40 @@ function nowStr() {
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
 
+const TAB_ICONS = {
+  "Dashboard":        "ti-layout-dashboard",
+  "Receiving":        "ti-package",
+  "Movements":        "ti-arrows-transfer-up",
+  "Sales":            "ti-receipt",
+  "Reorder Center":   "ti-bell",
+  "Purchase Orders":  "ti-file-invoice",
+  "Suppliers":        "ti-building-factory",
+  "Audit Trail":      "ti-clipboard-list",
+  "Business Insights":"ti-chart-bar",
+  "Import Products":  "ti-file-upload",
+  "Pricing":          "ti-credit-card",
+};
+
+const TAB_COLORS = {
+  "Dashboard":        "#185FA5",
+  "Receiving":        "#0F6E56",
+  "Movements":        "#534AB7",
+  "Sales":            "#A32D2D",
+  "Reorder Center":   "#854F0B",
+  "Purchase Orders":  "#185FA5",
+  "Suppliers":        "#0F6E56",
+  "Audit Trail":      "#444441",
+  "Business Insights":"#534AB7",
+  "Import Products":  "#185FA5",
+  "Pricing":          "#3B6D11",
+};
+
+const SIDEBAR_W = 200;
+
 export default function App() {
-  const [tab, setTab] = useState("Dashboard");
-  const [activeTab, setActiveTab] = useState("Dashboard");
+  const [tab,       setTab]       = useState("Dashboard");
   const [inventory, setInventory] = useState(INIT_INVENTORY);
-  const [audit,     setAudit]     = useState(() => buildInitAudit(INIT_INVENTORY));
+  const [audit,     setAudit]     = useState(() => buildInitAudit());
   const [reorders,  setReorders]  = useState([]);
   const [search,    setSearch]    = useState("");
   const [annual,    setAnnual]    = useState(false);
@@ -138,26 +171,28 @@ export default function App() {
   const [saleForm, setSaleForm] = useState(emptySale);
   const [moveForm, setMoveForm] = useState(emptyMove);
 
-  const [pos, setPOs] = useState([]);
-  const [editPOId, setEditPOId] = useState(null);
-  const [editPOForm, setEditPOForm] = useState({});
-  const [poCounter, setPOCounter] = useState(1);
+  const [pos,        setPOs]       = useState([]);
+  const [editPOId,   setEditPOId]  = useState(null);
+  const [editPOForm, setEditPOForm]= useState({});
+  const [poCounter,  setPOCounter] = useState(1);
 
-const [aiLoading, setAiLoading] = useState(false);
-const [suppliers, setSuppliers] = useState([
-  {id:1, name:"DenimCo",     contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-  {id:2, name:"SoleSupply",  contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-  {id:3, name:"TechGear Inc",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-  {id:4, name:"FabricWorld", contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-  {id:5, name:"LeatherCraft",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-  {id:6, name:"CapMakers",   contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
-]);
-const [editSupId,   setEditSupId]   = useState(null);
-const [editSupForm, setEditSupForm] = useState({});
-const [showAddSup,  setShowAddSup]  = useState(false);
-const emptySup = {name:"",contact:"",phone:"",email:"",website:"",leadTime:"",minOrder:"",paymentTerms:"Net 30",notes:""};
-const [newSupForm,  setNewSupForm]  = useState(emptySup);
-  const [aiAnalysis,     setAiAnalysis]     = useState("");
+  const [aiLoading,  setAiLoading] = useState(false);
+  const [aiAnalysis, setAiAnalysis]= useState("");
+
+  const [suppliers,    setSuppliers]   = useState([
+    {id:1, name:"DenimCo",     contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+    {id:2, name:"SoleSupply",  contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+    {id:3, name:"TechGear Inc",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+    {id:4, name:"FabricWorld", contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+    {id:5, name:"LeatherCraft",contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+    {id:6, name:"CapMakers",   contact:"", phone:"", email:"", website:"", leadTime:"", minOrder:"", paymentTerms:"Net 30", notes:""},
+  ]);
+  const [editSupId,   setEditSupId]   = useState(null);
+  const [editSupForm, setEditSupForm] = useState({});
+  const [showAddSup,  setShowAddSup]  = useState(false);
+  const emptySup = {name:"",contact:"",phone:"",email:"",website:"",leadTime:"",minOrder:"",paymentTerms:"Net 30",notes:""};
+  const [newSupForm,  setNewSupForm]  = useState(emptySup);
+
   const [insightLoading, setInsightLoading] = useState(false);
   const [swotData,       setSwotData]       = useState(null);
   const [porterData,     setPorterData]     = useState(null);
@@ -174,21 +209,18 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const [mergeStats,    setMergeStats]    = useState(null);
 
   // ── Sales analytics ──
-  const today = todayStr();
+  const today     = todayStr();
   const yesterday = dateStr(1);
 
   const salesByDay = {};
-  for (let i=6; i>=0; i--) {
-    const d = dateStr(i);
-    salesByDay[d] = {revenue:0, profit:0, units:0, transactions:0};
-  }
+  for (let i=6; i>=0; i--) { const d=dateStr(i); salesByDay[d]={revenue:0,profit:0,units:0,transactions:0}; }
 
-  audit.filter(a=>a.action==="Sold").forEach(a => {
-    const day = a.time.slice(0,10);
+  audit.filter(a=>a.action==="Sold").forEach(a=>{
+    const day=a.time.slice(0,10);
     if (salesByDay[day]) {
-      salesByDay[day].revenue     += a.revenue||0;
-      salesByDay[day].profit      += a.profit||0;
-      salesByDay[day].units       += a.qty||0;
+      salesByDay[day].revenue      += a.revenue||0;
+      salesByDay[day].profit       += a.profit||0;
+      salesByDay[day].units        += a.qty||0;
       salesByDay[day].transactions++;
     }
   });
@@ -197,14 +229,12 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   const yesterdaySales = salesByDay[yesterday] || {revenue:0,profit:0,units:0,transactions:0};
   const revenueUp      = todaySales.revenue >= yesterdaySales.revenue;
 
-  // Top selling item today
   const todayItemQty = {};
   audit.filter(a=>a.action==="Sold"&&a.time.startsWith(today)).forEach(a=>{
-    todayItemQty[a.item] = (todayItemQty[a.item]||0)+a.qty;
+    todayItemQty[a.item]=(todayItemQty[a.item]||0)+a.qty;
   });
   const topItem = Object.entries(todayItemQty).sort((a,b)=>b[1]-a[1])[0];
-
-  const maxRevenue = Math.max(...Object.values(salesByDay).map(d=>d.revenue), 1);
+  const maxRevenue = Math.max(...Object.values(salesByDay).map(d=>d.revenue),1);
 
   const lowItems    = inventory.filter(i=>i.qty<i.minQty);
   const outItems    = inventory.filter(i=>i.qty===0);
@@ -218,6 +248,30 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
     i.sku.toLowerCase().includes(search.toLowerCase())||
     i.category.toLowerCase().includes(search.toLowerCase())
   );
+
+  // ── Stockout countdown: units sold per day per SKU over last 7 days ──
+  function daysUntilStockout(item) {
+    const soldEntries = audit.filter(a=>a.action==="Sold"&&a.sku===item.sku);
+    if (!soldEntries.length) return null;
+    const totalUnits = soldEntries.reduce((s,a)=>s+a.qty,0);
+    const dailyRate  = totalUnits / 7;
+    if (dailyRate<=0) return null;
+    return Math.floor(item.qty / dailyRate);
+  }
+
+  // ── Inventory health score (0-100) ──
+  function calcHealthScore() {
+    if (!inventory.length) return 100;
+    const outPenalty  = outItems.length * 15;
+    const lowPenalty  = lowItems.filter(i=>i.qty>0).length * 8;
+    const marginScore = avgMargin >= 40 ? 0 : avgMargin >= 20 ? 5 : 10;
+    const score = Math.max(0, 100 - outPenalty - lowPenalty - marginScore);
+    return Math.min(100, score);
+  }
+  const healthScore = calcHealthScore();
+  const healthColor = healthScore >= 75 ? "#3B6D11" : healthScore >= 50 ? "#854F0B" : "#A32D2D";
+  const healthBg    = healthScore >= 75 ? "#EAF3DE"  : healthScore >= 50 ? "#FAEEDA"  : "#FCEBEB";
+  const healthLabel = healthScore >= 75 ? "Healthy"  : healthScore >= 50 ? "Needs attention" : "At risk";
 
   const addLog = (action,item,qty,user,note,extra={}) =>
     setAudit(a=>[{id:Date.now(),time:nowStr(),action,item,qty,user:user||"Staff",note,...extra},...a]);
@@ -262,20 +316,13 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
   }
 
   function handleReorder(item) {
-    const suggestedQty = Math.max(item.minQty * 2 - item.qty, 10);
-    const poNumber = `PO-${String(poCounter).padStart(4,"0")}`;
-    setPOCounter(c => c + 1);
-    const newPO = {
-      id: Date.now(), poNumber, status: "Draft",
-      sku: item.sku, itemName: item.name,
-      description: `Reorder for ${item.name} — SKU ${item.sku}`,
-      supplier: item.supplier, qty: suggestedQty,
-      unitCost: item.unitCost, date: new Date().toISOString().slice(0,10),
-      deliveryDate: "", notes: "", createdFrom: "Reorder Center"
-    };
-    setPOs(p => [newPO, ...p]);
-    setReorders(r => [{ id: Date.now(), sku: item.sku, name: item.name, supplier: item.supplier, qty: suggestedQty, status: "Sent", date: new Date().toISOString().slice(0,10), urgency: item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal" }, ...r]);
-    addLog("Reordered", item.name, suggestedQty, "Staff", `${poNumber} sent to ${item.supplier}`);
+    const suggestedQty=Math.max(item.minQty*2-item.qty,10);
+    const poNumber=`PO-${String(poCounter).padStart(4,"0")}`;
+    setPOCounter(c=>c+1);
+    const newPO={id:Date.now(),poNumber,status:"Draft",sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,qty:suggestedQty,unitCost:item.unitCost,date:new Date().toISOString().slice(0,10),deliveryDate:"",notes:"",createdFrom:"Reorder Center"};
+    setPOs(p=>[newPO,...p]);
+    setReorders(r=>[{id:Date.now(),sku:item.sku,name:item.name,supplier:item.supplier,qty:suggestedQty,status:"Sent",date:new Date().toISOString().slice(0,10),urgency:item.qty===0?"Critical":item.qty<item.minQty*0.3?"High":"Normal"},...r]);
+    addLog("Reordered",item.name,suggestedQty,"Staff",`${poNumber} sent to ${item.supplier}`);
   }
 
   function handleCSVUpload(e) {
@@ -337,6 +384,24 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
     const a=document.createElement("a");a.href=url;a.download="stockguard_import_template.csv";a.click();URL.revokeObjectURL(url);
   }
 
+  function exportCSV(type) {
+    let headers,rows;
+    if (type==="inventory") {
+      headers=["SKU","Name","Category","Qty","MinQty","Supplier","UnitCost","SellingPrice","Location"];
+      rows=inventory.map(i=>[i.sku,i.name,i.category,i.qty,i.minQty,i.supplier,i.unitCost,i.sellingPrice||"",i.location]);
+    } else if (type==="sales") {
+      headers=["Time","Item","SKU","Qty","Revenue","Profit","Invoice"];
+      rows=audit.filter(a=>a.action==="Sold").map(a=>[a.time,a.item,a.sku||"",a.qty,a.revenue||0,a.profit||0,a.note]);
+    } else {
+      headers=["Time","Action","Item","Qty","Revenue","Profit","User","Note"];
+      rows=audit.map(a=>[a.time,a.action,a.item,a.qty,a.revenue||0,a.profit||0,a.user,a.note]);
+    }
+    const csv=[headers,...rows].map(r=>r.map(v=>`"${v}"`).join(",")).join("\n");
+    const blob=new Blob([csv],{type:"text/csv"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=`stockguard_${type}.csv`;a.click();URL.revokeObjectURL(url);
+  }
+
   async function runAiAnalysis() {
     setAiLoading(true);setAiAnalysis("");
     const lowData=lowItems.map(i=>`${i.name} (SKU: ${i.sku}): qty ${i.qty}, min ${i.minQty}, supplier: ${i.supplier}`).join("\n");
@@ -366,82 +431,139 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
     setInsightLoading(false);
   }
 
-  const C   = {bg:"#ffffff",bg2:"#f5f5f5",text:"#111111",muted:"#666666",border:"#e0e0e0"};
   const inp = {padding:"7px 10px",borderRadius:6,border:`1px solid ${C.border}`,background:C.bg,color:C.text,fontSize:13,width:"100%",boxSizing:"border-box"};
   const btn = (bg)=>({padding:"7px 14px",borderRadius:6,border:"none",background:bg,color:"#fff",fontSize:13,cursor:"pointer",fontWeight:500});
 
   return (
-    
-  <div style={{display:"flex", minHeight:"100vh"}}>
-    {/* Sidebar */}
-    <div style={{width:220, minWidth:220, background:"#1B2B4B", display:"flex", flexDirection:"column", padding:"24px 0"}}>
-      {/* Logo */}
-      <div style={{padding:"0 24px 32px"}}>
-        <div style={{fontSize:22, fontWeight:700, color:"#fff", letterSpacing:1}}>
-          Stock<span style={{color:"#4A90D9"}}>G</span>uard
+    <div style={{display:"flex", minHeight:"100vh", fontFamily:"system-ui,-apple-system,sans-serif", color:C.text, background:"#EEF2F7"}}>
+
+      {/* ── SIDEBAR ── */}
+      <div style={{width:SIDEBAR_W, minWidth:SIDEBAR_W, background:SIDEBAR, display:"flex", flexDirection:"column", position:"fixed", top:0, left:0, height:"100vh", zIndex:100, overflowY:"auto"}}>
+        <div style={{padding:"24px 16px 20px", borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
+          <div style={{display:"flex", alignItems:"center", gap:10}}>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/>
+              <text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text>
+              <text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text>
+              <rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/>
+              <rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/>
+            </svg>
+            <div>
+              <div style={{color:"#ffffff", fontWeight:700, fontSize:16, lineHeight:1}}>StockGuard</div>
+              <div style={{color:"rgba(255,255,255,0.5)", fontSize:10, marginTop:3}}>Supply Chain Tracker</div>
+            </div>
+          </div>
         </div>
-        <div style={{fontSize:11, color:"#8899BB", marginTop:2}}>Inventory Management</div>
+
+        <nav style={{flex:1, padding:"12px 8px"}}>
+          {TABS.map(t => {
+            const active = tab === t;
+            return (
+              <button key={t} onClick={()=>setTab(t)} style={{
+                display:"flex", alignItems:"center", gap:10, width:"100%",
+                padding:"10px 12px", borderRadius:8, border:"none", cursor:"pointer",
+                background: active ? "rgba(255,255,255,0.15)" : "transparent",
+                color: active ? "#ffffff" : "rgba(255,255,255,0.6)",
+                fontSize:13, fontWeight: active ? 600 : 400,
+                marginBottom:2, transition:"all 0.15s", textAlign:"left",
+              }}
+              onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}}
+              onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}
+              >
+                <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:18, minWidth:18}} aria-hidden="true"/>
+                <span>{t}</span>
+                {t==="Reorder Center" && lowItems.length>0 && (
+                  <span style={{marginLeft:"auto", background:"#E24B4A", color:"#fff", fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:10}}>{lowItems.length}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div style={{padding:"16px", borderTop:"1px solid rgba(255,255,255,0.08)"}}>
+          <div style={{color:"rgba(255,255,255,0.35)", fontSize:10, textAlign:"center", lineHeight:1.5, fontStyle:"italic"}}>
+            "Commit to the Lord whatever you do"<br/>Proverbs 16:3
+          </div>
+        </div>
       </div>
 
-      {/* Nav Items */}
-      {["Dashboard","Receiving","Movements","Sales","Reorder Center","Purchase Orders","Suppliers","Audit Trail","Business Insights","Import Products","Pricing"].map(tab => (
-        <div key={tab} onClick={() => setActiveTab(tab)}
-          style={{padding:"10px 24px", cursor:"pointer", fontSize:13,
-            color: activeTab===tab ? "#fff" : "#8899BB",
-            background: activeTab===tab ? "rgba(255,255,255,0.1)" : "transparent",
-            borderLeft: activeTab===tab ? "3px solid #4A90D9" : "3px solid transparent",
-            fontWeight: activeTab===tab ? 600 : 400}}>
-          {tab}
+      {/* ── MAIN CONTENT ── */}
+      <div style={{marginLeft:SIDEBAR_W, flex:1, display:"flex", flexDirection:"column", minHeight:"100vh"}}>
+
+        {/* Tab header banner */}
+        <div style={{background: TAB_COLORS[tab]||"#185FA5", padding:"20px 28px 16px", color:"#fff"}}>
+          <div style={{display:"flex", alignItems:"center", gap:12}}>
+            <i className={`ti ${TAB_ICONS[tab]}`} style={{fontSize:28, opacity:0.9}} aria-hidden="true"/>
+            <div>
+              <h1 style={{fontSize:22, fontWeight:600, margin:0, color:"#fff"}}>{tab}</h1>
+              <p style={{fontSize:12, margin:0, opacity:0.75}}>
+                {tab==="Dashboard" && "Your inventory at a glance"}
+                {tab==="Receiving" && "Log incoming shipments"}
+                {tab==="Movements" && "Track stock movements"}
+                {tab==="Sales" && "Record sales and dispatches"}
+                {tab==="Reorder Center" && `${lowItems.length} item${lowItems.length!==1?"s":""} need attention`}
+                {tab==="Purchase Orders" && `${pos.length} purchase order${pos.length!==1?"s":""}`}
+                {tab==="Suppliers" && `${suppliers.length} supplier${suppliers.length!==1?"s":""} on file`}
+                {tab==="Audit Trail" && "Full activity history"}
+                {tab==="Business Insights" && "AI-powered business analysis"}
+                {tab==="Import Products" && "Bulk import your inventory"}
+                {tab==="Pricing" && "Choose the right plan"}
+              </p>
+            </div>
+          </div>
         </div>
-      ))}
 
-      {/* Scripture Footer */}
-      <div style={{marginTop:"auto", padding:"24px", fontSize:11, color:"#556688", lineHeight:1.5}}>
-        "Commit to the Lord whatever you do, and he will establish your plans."
-        <div style={{marginTop:4, color:"#4A90D9"}}>Proverbs 16:3</div>
-      </div>
-    </div>
-
-    {/* Main Content */}
-    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto"}}>
-
+        {/* Page content */}
+        <div style={{flex:1, padding:"24px 28px", maxWidth:960}}>
 
       {/* ── DASHBOARD ── */}
-      {activeTab==="Dashboard" && (
+      {tab==="Dashboard" && (
         <div>
-          {/* Daily Sales Summary */}
-          <div style={{background:"linear-gradient(135deg,#185FA5 0%,#0d3d6b 100%)",borderRadius:12,padding:"18px 20px",marginBottom:20,color:"#fff"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
-              <div>
-                <div style={{fontSize:12,opacity:0.8,marginBottom:2}}>Today's Sales Summary</div>
-                <div style={{fontSize:28,fontWeight:700,lineHeight:1}}>${todaySales.revenue.toFixed(2)}</div>
-                <div style={{fontSize:12,opacity:0.8,marginTop:2}}>
-                  {revenueUp?"▲":"▼"} vs yesterday ${yesterdaySales.revenue.toFixed(2)}
+
+          {/* Health Score + Sales Summary row */}
+          <div style={{display:"grid", gridTemplateColumns:"180px 1fr", gap:16, marginBottom:20}}>
+
+            {/* Health Score card */}
+            <div style={{background:healthBg, border:`1px solid ${healthColor}33`, borderRadius:12, padding:"16px 14px", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", textAlign:"center"}}>
+              <div style={{fontSize:11, color:healthColor, fontWeight:600, marginBottom:6, opacity:0.8}}>Inventory Health</div>
+              <div style={{fontSize:44, fontWeight:700, color:healthColor, lineHeight:1}}>{healthScore}</div>
+              <div style={{fontSize:10, color:healthColor, marginTop:4, opacity:0.8}}>/100</div>
+              <div style={{marginTop:8, background:healthColor, color:"#fff", fontSize:11, fontWeight:600, padding:"3px 10px", borderRadius:10}}>{healthLabel}</div>
+              {outItems.length>0 && <div style={{fontSize:10, color:healthColor, marginTop:6, opacity:0.75}}>{outItems.length} out of stock</div>}
+            </div>
+
+            {/* Daily Sales Summary */}
+            <div style={{background:"linear-gradient(135deg,#185FA5 0%,#0d3d6b 100%)",borderRadius:12,padding:"16px 20px",color:"#fff"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
+                <div>
+                  <div style={{fontSize:12,opacity:0.8,marginBottom:2}}>Today's Sales Summary</div>
+                  <div style={{fontSize:28,fontWeight:700,lineHeight:1}}>${todaySales.revenue.toFixed(2)}</div>
+                  <div style={{fontSize:12,opacity:0.8,marginTop:2}}>{revenueUp?"▲":"▼"} vs yesterday ${yesterdaySales.revenue.toFixed(2)}</div>
+                </div>
+                <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                  {[
+                    {label:"Profit today", val:`$${todaySales.profit.toFixed(2)}`,  color:"#A8D57B"},
+                    {label:"Units sold",   val:todaySales.units,                     color:"#7EC8E3"},
+                    {label:"Transactions", val:todaySales.transactions,              color:"#F9C74F"},
+                  ].map(s=>(
+                    <div key={s.label} style={{textAlign:"center"}}>
+                      <div style={{fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div>
+                      <div style={{fontSize:11,opacity:0.8}}>{s.label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                {[
-                  {label:"Profit today",   val:`$${todaySales.profit.toFixed(2)}`,     color:"#A8D57B"},
-                  {label:"Units sold",     val:todaySales.units,                        color:"#7EC8E3"},
-                  {label:"Transactions",  val:todaySales.transactions,                  color:"#F9C74F"},
-                ].map(s=>(
-                  <div key={s.label} style={{textAlign:"center"}}>
-                    <div style={{fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div>
-                    <div style={{fontSize:11,opacity:0.8}}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
+              {topItem && (
+                <div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12}}>
+                  🏆 Top seller today: <strong>{topItem[0]}</strong> — {topItem[1]} units
+                </div>
+              )}
+              {!topItem && (
+                <div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12,opacity:0.8}}>
+                  No sales recorded yet today. Go make some sales! 💪
+                </div>
+              )}
             </div>
-            {topItem && (
-              <div style={{marginTop:12,padding:"8px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12}}>
-                🏆 Top seller today: <strong>{topItem[0]}</strong> — {topItem[1]} units
-              </div>
-            )}
-            {!topItem && (
-              <div style={{marginTop:12,padding:"8px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12,opacity:0.8}}>
-                No sales recorded yet today. Go make some sales! 💪
-              </div>
-            )}
           </div>
 
           {/* 7-day bar chart */}
@@ -453,7 +575,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                 const barH=maxRevenue>0?Math.max((data.revenue/maxRevenue)*72,data.revenue>0?6:2):2;
                 return (
                   <div key={day} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                 <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400,marginBottom:4}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>   
+                    <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400,marginBottom:4}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>
                     <div style={{width:"100%",height:barH,background:isToday?"#185FA5":"#B8D4F0",borderRadius:"3px 3px 0 0",transition:"height .3s"}} />
                     <div style={{fontSize:10,color:isToday?C.text:C.muted,fontWeight:isToday?700:400,whiteSpace:"nowrap"}}>{shortDate(day)}</div>
                   </div>
@@ -465,11 +587,11 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
           {/* Stat cards */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12,marginBottom:20}}>
             {[
-              {label:"Total SKUs",      val:inventory.length,                                                                  color:"#185FA5"},
-              {label:"Low stock",       val:lowItems.length,                                                                   color:"#BA7517"},
-              {label:"Cost value",      val:`$${totalValue.toLocaleString("en-US",{maximumFractionDigits:0})}`,                color:"#3B6D11"},
-              {label:"Retail value",    val:`$${totalRetail.toLocaleString("en-US",{maximumFractionDigits:0})}`,               color:"#534AB7"},
-              {label:"Avg margin",      val:avgMargin>0?`${avgMargin.toFixed(1)}%`:"—",                                        color:avgMargin>=40?"#3B6D11":avgMargin>=20?"#854F0B":"#A32D2D"},
+              {label:"Total SKUs",   val:inventory.length,                                                            color:"#185FA5"},
+              {label:"Low stock",    val:lowItems.length,                                                             color:"#BA7517"},
+              {label:"Cost value",   val:`$${totalValue.toLocaleString("en-US",{maximumFractionDigits:0})}`,          color:"#3B6D11"},
+              {label:"Retail value", val:`$${totalRetail.toLocaleString("en-US",{maximumFractionDigits:0})}`,         color:"#534AB7"},
+              {label:"Avg margin",   val:avgMargin>0?`${avgMargin.toFixed(1)}%`:"—",                                  color:avgMargin>=40?"#3B6D11":avgMargin>=20?"#854F0B":"#A32D2D"},
             ].map(c=>(
               <div key={c.label} style={{background:C.bg2,borderRadius:8,padding:"14px 16px"}}>
                 <div style={{fontSize:12,color:C.muted,marginBottom:4}}>{c.label}</div>
@@ -478,15 +600,28 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
             ))}
           </div>
 
-          {/* Low stock alerts */}
+          {/* Low stock alerts with stockout countdown */}
           {lowItems.length>0&&(
             <div style={{background:"#FAEEDA",border:"1px solid #EF9F27",borderRadius:8,padding:"12px 16px",marginBottom:16}}>
               <div style={{fontWeight:600,color:"#854F0B",fontSize:13,marginBottom:8}}>Low stock alerts ({lowItems.length})</div>
               {lowItems.map(i=>{
                 const s=statusBadge(i.qty,i.minQty);
+                const days=daysUntilStockout(i);
                 return (
-                  <div key={i.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"5px 0",borderBottom:"1px solid #EF9F2733",fontSize:13}}>
-                    <span style={{color:"#633806"}}>{i.name} <span style={{color:"#BA7517"}}>({i.sku})</span></span>
+                  <div key={i.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid #EF9F2733",fontSize:13}}>
+                    <span style={{color:"#633806"}}>
+                      {i.name} <span style={{color:"#BA7517"}}>({i.sku})</span>
+                      {days!==null && (
+                        <span style={{
+                          marginLeft:8, fontSize:11, fontWeight:600,
+                          background: days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",
+                          color:      days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",
+                          padding:"2px 7px", borderRadius:8
+                        }}>
+                          {days<=0?"Stockout imminent":`~${days}d until stockout`}
+                        </span>
+                      )}
+                    </span>
                     <span style={{display:"flex",alignItems:"center",gap:8}}>
                       <span style={{color:"#854F0B"}}>{i.qty} / {i.minQty}</span>
                       <span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>
@@ -513,7 +648,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
               <thead>
                 <tr style={{borderBottom:`1px solid ${C.border}`}}>
                   {["SKU","Item","Cat","Qty","Min","Cost","Sell","Margin","Location","Status","Actions"].map(h=>(
-                    <th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>
+                    <th key={h} style={{textAlign:h==="Actions"?"right":"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -531,8 +666,8 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                         </td>
                       ))}
                       <td style={{padding:"5px 6px"}}><input value={editForm.location||""} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:80}} /></td>
-                      <td/><td style={{padding:"5px 6px"}}>
-                        <div style={{display:"flex",gap:4}}>
+                      <td/><td style={{padding:"5px 6px",textAlign:"right"}}>
+                        <div style={{display:"flex",gap:4,justifyContent:"flex-end"}}>
                           <button onClick={saveEdit}   style={{...btn("#3B6D11"),padding:"4px 10px",fontSize:11}}>Save</button>
                           <button onClick={cancelEdit} style={{...btn("#888"),   padding:"4px 10px",fontSize:11}}>Cancel</button>
                         </div>
@@ -551,16 +686,16 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                       <td style={{padding:"7px 8px"}}>{i.sellingPrice?<span style={{background:m.bg,color:m.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{m.label} <span style={{opacity:0.75}}>(+${m.profit.toFixed(2)})</span></span>:<span style={{color:C.muted,fontSize:11}}>Not set</span>}</td>
                       <td style={{padding:"7px 8px",color:C.muted}}>{i.location}</td>
                       <td style={{padding:"7px 8px"}}><span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span></td>
-                      <td style={{padding:"7px 8px"}}>
+                      <td style={{padding:"7px 8px",textAlign:"right"}}>
                         {isConfirmingDelete?(
-                          <div style={{display:"flex",gap:4,alignItems:"center"}}>
+                          <div style={{display:"flex",gap:4,alignItems:"center",justifyContent:"flex-end"}}>
                             <span style={{fontSize:11,color:"#A32D2D",fontWeight:500}}>Delete?</span>
                             <button onClick={()=>doDelete(i)}              style={{...btn("#A32D2D"),padding:"3px 8px",fontSize:11}}>Yes</button>
                             <button onClick={()=>setDeleteConfirmId(null)} style={{...btn("#888"),   padding:"3px 8px",fontSize:11}}>No</button>
                           </div>
                         ):(
-                          <div style={{display:"flex",gap:4}}>
-                            <button onClick={()=>startEdit(i)}       style={{...btn("#185FA5"),padding:"3px 10px",fontSize:11}}>Edit</button>
+                          <div style={{display:"flex",gap:4,justifyContent:"flex-end"}}>
+                            <button onClick={()=>startEdit(i)}        style={{...btn("#185FA5"),padding:"3px 10px",fontSize:11}}>Edit</button>
                             <button onClick={()=>confirmDelete(i.id)} style={{...btn("#A32D2D"),padding:"3px 10px",fontSize:11}}>Delete</button>
                           </div>
                         )}
@@ -575,7 +710,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── RECEIVING ── */}
-      {activeTab==="Receiving"&&(
+      {tab==="Receiving"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
@@ -594,7 +729,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── MOVEMENTS ── */}
-      {activeTab==="Movements"&&(
+      {tab==="Movements"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
@@ -619,16 +754,14 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── SALES ── */}
-      {activeTab==="Sales"&&(
+      {tab==="Sales"&&(
         <div>
-          {/* Today's sales banner */}
           <div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",gap:20,flexWrap:"wrap"}}>
             <div><div style={{fontSize:11,color:C.muted}}>Today's revenue</div><div style={{fontSize:18,fontWeight:700,color:"#185FA5"}}>${todaySales.revenue.toFixed(2)}</div></div>
             <div><div style={{fontSize:11,color:C.muted}}>Today's profit</div><div style={{fontSize:18,fontWeight:700,color:"#3B6D11"}}>${todaySales.profit.toFixed(2)}</div></div>
             <div><div style={{fontSize:11,color:C.muted}}>Units sold</div><div style={{fontSize:18,fontWeight:700,color:"#534AB7"}}>{todaySales.units}</div></div>
             <div><div style={{fontSize:11,color:C.muted}}>Transactions</div><div style={{fontSize:18,fontWeight:700,color:"#854F0B"}}>{todaySales.transactions}</div></div>
           </div>
-
           <div style={{fontWeight:500,marginBottom:12}}>Record sale / dispatch</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
             <div><label style={{fontSize:12,color:C.muted}}>Item sold</label>
@@ -672,7 +805,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── PURCHASE ORDERS ── */}
-      {activeTab==="Purchase Orders"&&(
+      {tab==="Purchase Orders"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <div>
@@ -683,26 +816,15 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
               const poNumber=`PO-${String(poCounter).padStart(4,"0")}`;
               setPOCounter(c=>c+1);
               const newPO={id:Date.now(),poNumber,status:"Draft",sku:"",itemName:"",description:"",supplier:"",qty:1,unitCost:0,date:new Date().toISOString().slice(0,10),deliveryDate:"",notes:"",createdFrom:"Manual"};
-              setPOs(p=>[newPO,...p]);
-              setEditPOId(newPO.id);
-              setEditPOForm({...newPO});
+              setPOs(p=>[newPO,...p]);setEditPOId(newPO.id);setEditPOForm({...newPO});
             }} style={btn("#185FA5")}>+ New Purchase Order</button>
           </div>
-
-          {pos.length===0&&(
-            <div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}>
-              <div style={{fontSize:28,marginBottom:8}}>📋</div>
-              <div style={{fontWeight:600,marginBottom:4,color:C.text}}>No purchase orders yet</div>
-              <div>Click "Send Reorder" in the Reorder Center or create a new PO manually.</div>
-            </div>
-          )}
-
+          {pos.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>📋</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No purchase orders yet</div><div>Click "Send Reorder" in the Reorder Center or create a new PO manually.</div></div>)}
           {pos.map(po=>{
             const isEditing=editPOId===po.id;
             const total=(po.qty*(po.unitCost||0)).toFixed(2);
             const statusColor={Draft:"#854F0B",Sent:"#185FA5",Received:"#3B6D11"}[po.status]||"#888";
             const statusBg={Draft:"#FAEEDA",Sent:"#E6F1FB",Received:"#EAF3DE"}[po.status]||"#eee";
-
             if (isEditing) return (
               <div key={po.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
@@ -715,45 +837,22 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
                   <div style={{gridColumn:"1/-1"}}>
                     <label style={{fontSize:12,color:C.muted}}>Select product (auto-fills fields)</label>
-                    <select onChange={e=>{
-                      const item=inventory.find(i=>i.sku===e.target.value);
-                      if(item) setEditPOForm(x=>({...x,sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,unitCost:item.unitCost,qty:Math.max(item.minQty*2-item.qty,10)}));
-                    }} style={inp}>
+                    <select onChange={e=>{const item=inventory.find(i=>i.sku===e.target.value);if(item)setEditPOForm(x=>({...x,sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,unitCost:item.unitCost,qty:Math.max(item.minQty*2-item.qty,10)}));}} style={inp}>
                       <option value="">— Pick a product to auto-fill —</option>
                       {inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty}, min: {i.minQty})</option>)}
                     </select>
                   </div>
                   {[["itemName","Item name *"],["description","Description"],["supplier","Supplier"],["deliveryDate","Expected delivery","date"]].map(([f,l,t])=>(
-                    <div key={f}>
-                      <label style={{fontSize:12,color:C.muted}}>{l}</label>
-                      <input type={t||"text"} value={editPOForm[f]||""} onChange={e=>setEditPOForm(x=>({...x,[f]:e.target.value}))} style={inp} />
-                    </div>
+                    <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={t||"text"} value={editPOForm[f]||""} onChange={e=>setEditPOForm(x=>({...x,[f]:e.target.value}))} style={inp} /></div>
                   ))}
-                  <div>
-                    <label style={{fontSize:12,color:C.muted}}>Order quantity *</label>
-                    <input type="number" value={editPOForm.qty||""} onChange={e=>setEditPOForm(x=>({...x,qty:parseInt(e.target.value)||0}))} style={inp} />
-                  </div>
-                  <div>
-                    <label style={{fontSize:12,color:C.muted}}>Unit cost ($)</label>
-                    <input type="number" value={editPOForm.unitCost||""} onChange={e=>setEditPOForm(x=>({...x,unitCost:parseFloat(e.target.value)||0}))} style={inp} />
-                  </div>
-                  <div>
-                    <label style={{fontSize:12,color:C.muted}}>Status</label>
-                    <select value={editPOForm.status} onChange={e=>setEditPOForm(x=>({...x,status:e.target.value}))} style={inp}>
-                      <option>Draft</option><option>Sent</option><option>Received</option>
-                    </select>
-                  </div>
-                  <div style={{gridColumn:"1/-1"}}>
-                    <label style={{fontSize:12,color:C.muted}}>Notes</label>
-                    <textarea value={editPOForm.notes||""} onChange={e=>setEditPOForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} />
-                  </div>
+                  <div><label style={{fontSize:12,color:C.muted}}>Order quantity *</label><input type="number" value={editPOForm.qty||""} onChange={e=>setEditPOForm(x=>({...x,qty:parseInt(e.target.value)||0}))} style={inp} /></div>
+                  <div><label style={{fontSize:12,color:C.muted}}>Unit cost ($)</label><input type="number" value={editPOForm.unitCost||""} onChange={e=>setEditPOForm(x=>({...x,unitCost:parseFloat(e.target.value)||0}))} style={inp} /></div>
+                  <div><label style={{fontSize:12,color:C.muted}}>Status</label><select value={editPOForm.status} onChange={e=>setEditPOForm(x=>({...x,status:e.target.value}))} style={inp}><option>Draft</option><option>Sent</option><option>Received</option></select></div>
+                  <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editPOForm.notes||""} onChange={e=>setEditPOForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} /></div>
                 </div>
-                <div style={{marginTop:10,padding:"8px 12px",background:"#E6F1FB",borderRadius:8,fontSize:13,color:"#185FA5",fontWeight:600}}>
-                  Total order value: ${((editPOForm.qty||0)*(editPOForm.unitCost||0)).toFixed(2)}
-                </div>
+                <div style={{marginTop:10,padding:"8px 12px",background:"#E6F1FB",borderRadius:8,fontSize:13,color:"#185FA5",fontWeight:600}}>Total order value: ${((editPOForm.qty||0)*(editPOForm.unitCost||0)).toFixed(2)}</div>
               </div>
             );
-
             return (
               <div key={po.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
@@ -777,12 +876,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                     <div style={{fontSize:11,color:C.muted}}>{po.date}</div>
                     <div style={{display:"flex",gap:6}}>
                       <button onClick={()=>{setEditPOId(po.id);setEditPOForm({...po});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button>
-                      <button onClick={()=>{
-                        const content=`PURCHASE ORDER\n${po.poNumber}\nDate: ${po.date}\n\nSupplier: ${po.supplier}\n\nItem: ${po.itemName}\nDescription: ${po.description}\nQty: ${po.qty}\nUnit Cost: ${(po.unitCost||0).toFixed(2)}\nTotal: ${total}\n\nDelivery by: ${po.deliveryDate||"TBD"}\nNotes: ${po.notes||"None"}`;
-                        const blob=new Blob([content],{type:"text/plain"});
-                        const url=URL.createObjectURL(blob);
-                        const a=document.createElement("a");a.href=url;a.download=`${po.poNumber}.txt`;a.click();URL.revokeObjectURL(url);
-                      }} style={{...btn("#534AB7"),padding:"4px 12px",fontSize:11}}>⬇ Download</button>
+                      <button onClick={()=>{const content=`PURCHASE ORDER\n${po.poNumber}\nDate: ${po.date}\n\nSupplier: ${po.supplier}\n\nItem: ${po.itemName}\nQty: ${po.qty}\nUnit Cost: ${(po.unitCost||0).toFixed(2)}\nTotal: ${total}\n\nDelivery by: ${po.deliveryDate||"TBD"}\nNotes: ${po.notes||"None"}`;const blob=new Blob([content],{type:"text/plain"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`${po.poNumber}.txt`;a.click();URL.revokeObjectURL(url);}} style={{...btn("#534AB7"),padding:"4px 12px",fontSize:11}}>⬇ Download</button>
                       <button onClick={()=>setPOs(p=>p.filter(x=>x.id!==po.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button>
                     </div>
                   </div>
@@ -793,18 +887,14 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
         </div>
       )}
 
-
-      {activeTab==="Reorder Center"&&(
+      {/* ── REORDER CENTER ── */}
+      {tab==="Reorder Center"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <div style={{fontWeight:500}}>Low inventory analyzer</div>
             <button onClick={runAiAnalysis} disabled={aiLoading} style={{...btn("#534AB7"),opacity:aiLoading?0.7:1}}>{aiLoading?"Analyzing...":"AI analyze and recommend"}</button>
           </div>
-          {aiAnalysis&&(
-            <div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:8,padding:"14px 16px",marginBottom:20,fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}>
-              <div style={{fontWeight:600,color:"#534AB7",marginBottom:8,fontSize:12}}>AI reorder analysis</div>{aiAnalysis}
-            </div>
-          )}
+          {aiAnalysis&&(<div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:8,padding:"14px 16px",marginBottom:20,fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}><div style={{fontWeight:600,color:"#534AB7",marginBottom:8,fontSize:12}}>AI reorder analysis</div>{aiAnalysis}</div>)}
           <div style={{fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Items needing reorder ({lowItems.length})</div>
           {lowItems.length===0&&<div style={{color:C.muted,fontSize:13}}>All items are sufficiently stocked.</div>}
           {lowItems.map(i=>{
@@ -812,11 +902,14 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
             const m=marginBadge(i.unitCost,i.sellingPrice);
             const sugQty=Math.max(i.minQty*2-i.qty,10);
             const ordered=reorders.find(r=>r.sku===i.sku);
+            const days=daysUntilStockout(i);
             return (
               <div key={i.id} style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 14px",marginBottom:10}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                   <div>
-                    <div style={{fontWeight:500}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span></div>
+                    <div style={{fontWeight:500}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span>
+                      {days!==null&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d left`}</span>}
+                    </div>
                     <div style={{fontSize:12,color:C.muted,marginTop:2}}>Supplier: {i.supplier} · Location: {i.location}</div>
                     <div style={{display:"flex",gap:12,marginTop:6,fontSize:12}}>
                       <span>In stock: <strong>{i.qty}</strong></span>
@@ -839,15 +932,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
               {reorders.map(r=>{
                 const urg={Critical:"#A32D2D",High:"#854F0B",Normal:"#3B6D11"};
                 const urgBg={Critical:"#FCEBEB",High:"#FAEEDA",Normal:"#EAF3DE"};
-                return (
-                  <div key={r.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}>
-                    <span><strong>{r.name}</strong> — {r.qty} units from {r.supplier}</span>
-                    <span style={{display:"flex",gap:8,alignItems:"center",color:C.muted}}>
-                      <span>{r.date}</span>
-                      <span style={{background:urgBg[r.urgency],color:urg[r.urgency],padding:"1px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{r.urgency}</span>
-                    </span>
-                  </div>
-                );
+                return (<div key={r.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span><strong>{r.name}</strong> — {r.qty} units from {r.supplier}</span><span style={{display:"flex",gap:8,alignItems:"center",color:C.muted}}><span>{r.date}</span><span style={{background:urgBg[r.urgency],color:urg[r.urgency],padding:"1px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{r.urgency}</span></span></div>);
               })}
             </>
           )}
@@ -855,79 +940,43 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── SUPPLIERS ── */}
-      {activeTab==="Suppliers"&&(
+      {tab==="Suppliers"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <div>
-              <div style={{fontWeight:600,fontSize:15}}>Supplier Management</div>
-              <div style={{fontSize:12,color:C.muted,marginTop:2}}>All your supplier contacts, terms and linked products in one place</div>
-            </div>
+            <div><div style={{fontWeight:600,fontSize:15}}>Supplier Management</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>All your supplier contacts, terms and linked products in one place</div></div>
             <button onClick={()=>setShowAddSup(s=>!s)} style={btn("#185FA5")}>+ Add Supplier</button>
           </div>
-
-          {/* Add supplier form */}
           {showAddSup&&(
             <div style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:16,background:"#F0F4FF"}}>
               <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>New Supplier</div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
                 {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
                   f==="paymentTerms"
-                    ? <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
-                        <select value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>
-                          {["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}
-                        </select>
-                      </div>
-                    : <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
-                        <input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp} />
-                      </div>
+                    ?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>
+                    :<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp} /></div>
                 ))}
-                <div style={{gridColumn:"1/-1"}}>
-                  <label style={{fontSize:12,color:C.muted}}>Notes</label>
-                  <textarea value={newSupForm.notes} onChange={e=>setNewSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} placeholder="e.g. Call before ordering, ships Mondays only..." />
-                </div>
+                <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={newSupForm.notes} onChange={e=>setNewSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} placeholder="e.g. Call before ordering, ships Mondays only..." /></div>
               </div>
               <div style={{display:"flex",gap:8}}>
-                <button onClick={()=>{
-                  if (!newSupForm.name.trim()) return;
-                  setSuppliers(s=>[...s,{...newSupForm,id:Date.now()}]);
-                  setNewSupForm(emptySup); setShowAddSup(false);
-                }} style={btn("#3B6D11")}>Save supplier</button>
+                <button onClick={()=>{if(!newSupForm.name.trim())return;setSuppliers(s=>[...s,{...newSupForm,id:Date.now()}]);setNewSupForm(emptySup);setShowAddSup(false);}} style={btn("#3B6D11")}>Save supplier</button>
                 <button onClick={()=>{setShowAddSup(false);setNewSupForm(emptySup);}} style={btn("#888")}>Cancel</button>
               </div>
             </div>
           )}
-
-          {suppliers.length===0&&(
-            <div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}>
-              <div style={{fontSize:28,marginBottom:8}}>🏭</div>
-              <div style={{fontWeight:600,marginBottom:4,color:C.text}}>No suppliers yet</div>
-              <div>Click "+ Add Supplier" to add your first supplier.</div>
-            </div>
-          )}
-
+          {suppliers.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>🏭</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No suppliers yet</div></div>)}
           {suppliers.map(sup=>{
-            const linkedProducts = inventory.filter(i=>i.supplier===sup.name);
-            const isEditing = editSupId===sup.id;
-
+            const linkedProducts=inventory.filter(i=>i.supplier===sup.name);
+            const isEditing=editSupId===sup.id;
             if (isEditing) return (
               <div key={sup.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}>
                 <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>Editing: {sup.name}</div>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
                   {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
                     f==="paymentTerms"
-                      ? <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
-                          <select value={editSupForm[f]} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>
-                            {["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}
-                          </select>
-                        </div>
-                      : <div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label>
-                          <input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={editSupForm[f]||""} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp} />
-                        </div>
+                      ?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={editSupForm[f]} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>
+                      :<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={editSupForm[f]||""} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp} /></div>
                   ))}
-                  <div style={{gridColumn:"1/-1"}}>
-                    <label style={{fontSize:12,color:C.muted}}>Notes</label>
-                    <textarea value={editSupForm.notes||""} onChange={e=>setEditSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} />
-                  </div>
+                  <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editSupForm.notes||""} onChange={e=>setEditSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} /></div>
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <button onClick={()=>{setSuppliers(s=>s.map(x=>x.id===sup.id?{...editSupForm,id:sup.id}:x));setEditSupId(null);setEditSupForm({});}} style={btn("#3B6D11")}>Save</button>
@@ -935,7 +984,6 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                 </div>
               </div>
             );
-
             return (
               <div key={sup.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
@@ -953,17 +1001,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
                       {sup.paymentTerms&&<span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 8px",borderRadius:8}}>💳 {sup.paymentTerms}</span>}
                     </div>
                     {sup.notes&&<div style={{fontSize:12,color:C.muted,fontStyle:"italic",marginBottom:8}}>📝 {sup.notes}</div>}
-                    {linkedProducts.length>0&&(
-                      <div style={{marginTop:8}}>
-                        <div style={{fontSize:11,color:C.muted,marginBottom:4,fontWeight:600}}>LINKED PRODUCTS ({linkedProducts.length})</div>
-                        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                          {linkedProducts.map(p=>{
-                            const s=statusBadge(p.qty,p.minQty);
-                            return <span key={p.sku} style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{p.name} ({p.qty} in stock)</span>;
-                          })}
-                        </div>
-                      </div>
-                    )}
+                    {linkedProducts.length>0&&(<div style={{marginTop:8}}><div style={{fontSize:11,color:C.muted,marginBottom:4,fontWeight:600}}>LINKED PRODUCTS ({linkedProducts.length})</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{linkedProducts.map(p=>{const s=statusBadge(p.qty,p.minQty);return <span key={p.sku} style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{p.name} ({p.qty} in stock)</span>;})}</div></div>)}
                   </div>
                   <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
                     <button onClick={()=>{setEditSupId(sup.id);setEditSupForm({...sup});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button>
@@ -977,35 +1015,18 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
         </div>
       )}
 
-
-      {activeTab==="Audit Trail"&&(
+      {/* ── AUDIT TRAIL ── */}
+      {tab==="Audit Trail"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Full inventory activity log</div>
           <div style={{overflowX:"auto"}}>
             <table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}>
-              <thead>
-                <tr style={{borderBottom:`1px solid ${C.border}`}}>
-                  {["Time","Action","Item","Qty","Revenue","Profit","User","Reference"].map(h=>(
-                    <th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
+              <thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["Time","Action","Item","Qty","Revenue","Profit","User","Reference"].map(h=>(<th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead>
               <tbody>
                 {audit.map(a=>{
                   const aColor={Received:"#185FA5",Sold:"#A32D2D",Moved:"#0F6E56",Reordered:"#854F0B",Import:"#534AB7",Edited:"#185FA5",Deleted:"#A32D2D"}[a.action]||"#888";
                   const aBg={Received:"#E6F1FB",Sold:"#FCEBEB",Moved:"#E1F5EE",Reordered:"#FAEEDA",Import:"#EDE9FB",Edited:"#E6F1FB",Deleted:"#FCEBEB"}[a.action]||"#eee";
-                  return (
-                    <tr key={a.id} style={{borderBottom:`1px solid ${C.border}`}}>
-                      <td style={{padding:"7px 8px",color:C.muted,whiteSpace:"nowrap"}}>{a.time}</td>
-                      <td style={{padding:"7px 8px"}}><span style={{background:aBg,color:aColor,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{a.action}</span></td>
-                      <td style={{padding:"7px 8px",fontWeight:500}}>{a.item}</td>
-                      <td style={{padding:"7px 8px"}}>{a.qty}</td>
-                      <td style={{padding:"7px 8px",color:"#185FA5",fontWeight:600}}>{a.revenue>0?`$${a.revenue.toFixed(2)}`:"—"}</td>
-                      <td style={{padding:"7px 8px",color:"#3B6D11",fontWeight:600}}>{a.profit>0?`$${a.profit.toFixed(2)}`:"—"}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{a.user}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{a.note}</td>
-                    </tr>
-                  );
+                  return (<tr key={a.id} style={{borderBottom:`1px solid ${C.border}`}}><td style={{padding:"7px 8px",color:C.muted,whiteSpace:"nowrap"}}>{a.time}</td><td style={{padding:"7px 8px"}}><span style={{background:aBg,color:aColor,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{a.action}</span></td><td style={{padding:"7px 8px",fontWeight:500}}>{a.item}</td><td style={{padding:"7px 8px"}}>{a.qty}</td><td style={{padding:"7px 8px",color:"#185FA5",fontWeight:600}}>{a.revenue>0?`$${a.revenue.toFixed(2)}`:"—"}</td><td style={{padding:"7px 8px",color:"#3B6D11",fontWeight:600}}>{a.profit>0?`$${a.profit.toFixed(2)}`:"—"}</td><td style={{padding:"7px 8px",color:C.muted}}>{a.user}</td><td style={{padding:"7px 8px",color:C.muted}}>{a.note}</td></tr>);
                 })}
               </tbody>
             </table>
@@ -1014,13 +1035,10 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── BUSINESS INSIGHTS ── */}
-      {activeTab==="Business Insights"&&(
+      {tab==="Business Insights"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14,flexWrap:"wrap",gap:10}}>
-            <div>
-              <div style={{fontWeight:600,fontSize:15}}>Business Insights</div>
-              <div style={{fontSize:12,color:C.muted,marginTop:2}}>AI-powered SWOT, Porter's Five Forces and money strategies based on your live inventory data</div>
-            </div>
+            <div><div style={{fontWeight:600,fontSize:15}}>Business Insights</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>AI-powered SWOT, Porter's Five Forces and money strategies based on your live inventory data</div></div>
             <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
               <input value={industry} onChange={e=>setIndustry(e.target.value)} placeholder="Your industry" style={{...inp,width:200}} />
               <button onClick={runBusinessInsights} disabled={insightLoading} style={{...btn("#534AB7"),opacity:insightLoading?0.7:1}}>{insightLoading?"Analyzing...":"Run AI Analysis"}</button>
@@ -1030,11 +1048,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
           {insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:24,marginBottom:8}}>⏳</div><div>Analyzing your inventory and generating business insights...</div></div>)}
           {swotData&&!swotData.error&&(
             <>
-              <div style={{display:"flex",gap:4,marginBottom:18}}>
-                {["SWOT","Porter's Five Forces","Money Strategies"].map(t=>(
-                  <button key={t} onClick={()=>setInsightTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:insightTab===t?"#534AB7":"transparent",color:insightTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:insightTab===t?600:400}}>{t}</button>
-                ))}
-              </div>
+              <div style={{display:"flex",gap:4,marginBottom:18}}>{["SWOT","Porter's Five Forces","Money Strategies"].map(t=>(<button key={t} onClick={()=>setInsightTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:insightTab===t?"#534AB7":"transparent",color:insightTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:insightTab===t?600:400}}>{t}</button>))}</div>
               {insightTab==="SWOT"&&(<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{[{key:"strengths",label:"Strengths",icon:"💪",bg:"#EAF3DE",border:"#6BAD2E",head:"#3B6D11"},{key:"weaknesses",label:"Weaknesses",icon:"⚠",bg:"#FCEBEB",border:"#E05A5A",head:"#A32D2D"},{key:"opportunities",label:"Opportunities",icon:"🚀",bg:"#E6F1FB",border:"#4A90D9",head:"#185FA5"},{key:"threats",label:"Threats",icon:"🛡",bg:"#FAEEDA",border:"#EF9F27",head:"#854F0B"}].map(q=>(<div key={q.key} style={{background:q.bg,border:`1px solid ${q.border}`,borderRadius:10,padding:14}}><div style={{fontWeight:700,color:q.head,fontSize:13,marginBottom:10}}>{q.icon} {q.label}</div>{(swotData[q.key]||[]).map((item,i)=>(<div key={i} style={{marginBottom:10,paddingBottom:10,borderBottom:i<swotData[q.key].length-1?`1px solid ${q.border}55`:"none"}}><div style={{fontWeight:600,fontSize:12,color:q.head}}>{item.point}</div><div style={{fontSize:11,color:q.head,opacity:0.8,marginTop:3}}>→ {item.action}</div></div>))}</div>))}</div>)}
               {insightTab==="Porter's Five Forces"&&porterData&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>{[{key:"supplier_power",label:"Supplier Power",icon:"🏭"},{key:"buyer_power",label:"Buyer Power",icon:"🛒"},{key:"competitive_rivalry",label:"Competitive Rivalry",icon:"⚔"},{key:"new_entrants",label:"Threat of New Entrants",icon:"🚪"},{key:"substitutes",label:"Threat of Substitutes",icon:"🔄"}].map(f=>{const d=porterData[f.key];const rC=d.rating==="High"?"#A32D2D":d.rating==="Medium"?"#854F0B":"#3B6D11";const rB=d.rating==="High"?"#FCEBEB":d.rating==="Medium"?"#FAEEDA":"#EAF3DE";const bW=d.rating==="High"?"85%":d.rating==="Medium"?"50%":"25%";return(<div key={f.key} style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{fontWeight:600,fontSize:13}}>{f.icon} {f.label}</div><span style={{background:rB,color:rC,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{d.rating} Risk</span></div><div style={{background:C.border,borderRadius:4,height:6,marginBottom:8}}><div style={{width:bW,background:rC,height:6,borderRadius:4}}/></div><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{d.insight}</div><div style={{fontSize:12,color:"#534AB7",fontWeight:600}}>→ {d.action}</div></div>);})}</div>)}
               {insightTab==="Money Strategies"&&moneyData&&(<div style={{display:"flex",flexDirection:"column",gap:20}}><div><div style={{fontWeight:700,fontSize:13,color:"#3B6D11",marginBottom:10}}>💰 Revenue Growth Opportunities</div>{(moneyData.revenue_growth||[]).map((item,i)=>(<div key={i} style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#3B6D11"}}>{item.title}</div><span style={{background:item.impact==="High"?"#3B6D11":item.impact==="Medium"?"#6BAD2E":"#A8D57B",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{item.impact} Impact</span></div><div style={{fontSize:12,color:"#3B6D11",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#185FA5",marginBottom:10}}>✂️ Cost Reduction Strategies</div>{(moneyData.cost_reduction||[]).map((item,i)=>(<div key={i} style={{background:"#E6F1FB",border:"1px solid #4A90D9",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5"}}>{item.title}</div><span style={{background:"#185FA5",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>Save {item.saving}</span></div><div style={{fontSize:12,color:"#185FA5",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#7B3FA0",marginBottom:10}}>🆕 New Product / Service Ideas</div>{(moneyData.new_products||[]).map((item,i)=>(<div key={i} style={{background:"#F4EBF9",border:"1px solid #B57FD4",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{fontWeight:600,fontSize:13,color:"#7B3FA0",marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:"#7B3FA0",opacity:0.85,marginBottom:4}}>{item.description}</div><div style={{fontSize:11,color:"#7B3FA0",fontWeight:600}}>Why now → {item.rationale}</div></div>))}</div></div>)}
@@ -1045,7 +1059,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── IMPORT PRODUCTS ── */}
-      {activeTab==="Import Products"&&(
+      {tab==="Import Products"&&(
         <div>
           <div style={{marginBottom:16}}><div style={{fontWeight:600,fontSize:15}}>Import Products into StockGuard</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Transfer your existing product list all at once. Imported items merge with your current inventory.</div></div>
           {importStatus==="done"&&mergeStats&&(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:700,fontSize:15,color:"#3B6D11",marginBottom:4}}>Import Successful!</div><div style={{fontSize:13,color:"#3B6D11",marginBottom:12}}><strong>{mergeStats.total}</strong> products imported — <strong>{mergeStats.added}</strong> new, <strong>{mergeStats.updated}</strong> updated.</div><div style={{display:"flex",gap:8,justifyContent:"center"}}><button onClick={()=>setTab("Dashboard")} style={btn("#3B6D11")}>View inventory</button><button onClick={resetImport} style={btn("#185FA5")}>Import more</button></div></div>)}
@@ -1063,7 +1077,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── PRICING ── */}
-      {activeTab==="Pricing"&&(
+      {tab==="Pricing"&&(
         <div>
           <div style={{textAlign:"center",marginBottom:6}}><p style={{fontSize:12,color:C.muted,marginBottom:16}}>Choose the plan that fits your store</p></div>
           <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"center",marginBottom:28}}>
@@ -1091,8 +1105,9 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
           </div>
         </div>
       )}
+
+        </div>
       </div>
-   </div>
-  
- );
+    </div>
+  );
 }
