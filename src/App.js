@@ -403,7 +403,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
     </div>
 
     {/* Main Content */}
-    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto", marginLeft:220}}>
+    <div style={{flex:1, background:"#EEF2F7", overflowY:"auto"}}>
 
 
       {/* ── DASHBOARD ── */}
@@ -447,13 +447,13 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
           {/* 7-day bar chart */}
           <div style={{background:C.bg2,borderRadius:10,padding:"14px 16px",marginBottom:20}}>
             <div style={{fontSize:12,fontWeight:600,color:C.muted,marginBottom:12}}>Revenue — last 7 days</div>
-            <div style={{display:"flex",alignItems:"flex-end",gap:6,height:80}}>
+            <div style={{display:"flex",alignItems:"flex-end",gap:6,height:110}}>
               {Object.entries(salesByDay).map(([day,data])=>{
                 const isToday=day===today;
                 const barH=maxRevenue>0?Math.max((data.revenue/maxRevenue)*72,data.revenue>0?6:2):2;
                 return (
                   <div key={day} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                    <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>
+                 <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400,marginBottom:4}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>   
                     <div style={{width:"100%",height:barH,background:isToday?"#185FA5":"#B8D4F0",borderRadius:"3px 3px 0 0",transition:"height .3s"}} />
                     <div style={{fontSize:10,color:isToday?C.text:C.muted,fontWeight:isToday?700:400,whiteSpace:"nowrap"}}>{shortDate(day)}</div>
                   </div>
