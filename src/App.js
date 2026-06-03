@@ -407,7 +407,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
 
 
       {/* ── DASHBOARD ── */}
-      {tab==="Dashboard" && (
+      {activeTab==="Dashboard" && (
         <div>
           {/* Daily Sales Summary */}
           <div style={{background:"linear-gradient(135deg,#185FA5 0%,#0d3d6b 100%)",borderRadius:12,padding:"18px 20px",marginBottom:20,color:"#fff"}}>
@@ -575,7 +575,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── RECEIVING ── */}
-      {tab==="Receiving"&&(
+      {activeTab==="Receiving"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
@@ -594,7 +594,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── MOVEMENTS ── */}
-      {tab==="Movements"&&(
+      {activeTab==="Movements"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
@@ -619,7 +619,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── SALES ── */}
-      {tab==="Sales"&&(
+      {activeTab==="Sales"&&(
         <div>
           {/* Today's sales banner */}
           <div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",gap:20,flexWrap:"wrap"}}>
@@ -672,7 +672,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── PURCHASE ORDERS ── */}
-      {tab==="Purchase Orders"&&(
+      {activeTab==="Purchase Orders"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <div>
@@ -794,7 +794,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
 
-      {tab==="Reorder Center"&&(
+      {activeTab==="Reorder Center"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <div style={{fontWeight:500}}>Low inventory analyzer</div>
@@ -855,7 +855,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── SUPPLIERS ── */}
-      {tab==="Suppliers"&&(
+      {activeTab==="Suppliers"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
             <div>
@@ -978,7 +978,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
 
-      {tab==="Audit Trail"&&(
+      {activeTab==="Audit Trail"&&(
         <div>
           <div style={{fontWeight:500,marginBottom:12}}>Full inventory activity log</div>
           <div style={{overflowX:"auto"}}>
@@ -1014,7 +1014,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── BUSINESS INSIGHTS ── */}
-      {tab==="Business Insights"&&(
+      {activeTab==="Business Insights"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14,flexWrap:"wrap",gap:10}}>
             <div>
@@ -1045,7 +1045,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── IMPORT PRODUCTS ── */}
-      {tab==="Import Products"&&(
+      {activeTab==="Import Products"&&(
         <div>
           <div style={{marginBottom:16}}><div style={{fontWeight:600,fontSize:15}}>Import Products into StockGuard</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Transfer your existing product list all at once. Imported items merge with your current inventory.</div></div>
           {importStatus==="done"&&mergeStats&&(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:700,fontSize:15,color:"#3B6D11",marginBottom:4}}>Import Successful!</div><div style={{fontSize:13,color:"#3B6D11",marginBottom:12}}><strong>{mergeStats.total}</strong> products imported — <strong>{mergeStats.added}</strong> new, <strong>{mergeStats.updated}</strong> updated.</div><div style={{display:"flex",gap:8,justifyContent:"center"}}><button onClick={()=>setTab("Dashboard")} style={btn("#3B6D11")}>View inventory</button><button onClick={resetImport} style={btn("#185FA5")}>Import more</button></div></div>)}
@@ -1063,7 +1063,7 @@ const [newSupForm,  setNewSupForm]  = useState(emptySup);
       )}
 
       {/* ── PRICING ── */}
-      {tab==="Pricing"&&(
+      {activeTab==="Pricing"&&(
         <div>
           <div style={{textAlign:"center",marginBottom:6}}><p style={{fontSize:12,color:C.muted,marginBottom:16}}>Choose the plan that fits your store</p></div>
           <div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"center",marginBottom:28}}>
