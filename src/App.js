@@ -23,6 +23,7 @@ const INIT_INVENTORY = [
 
 const SIDEBAR = "#1B2B4B";
 const C = { bg:"#ffffff", bg2:"#f5f5f5", text:"#111111", muted:"#666666", border:"#e0e0e0" };
+const ADD_CATEGORY_VALUE = "__add_category__";
 
 function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
 function dateStr(daysAgo){const d=new Date();d.setDate(d.getDate()-daysAgo);return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
@@ -119,6 +120,7 @@ function AppInner({role,onLogout,TABS}){
   const emptySale={sku:"",qty:"",invoice:""};
   const emptyMove={sku:"",qty:"",from:"",to:""};
   const [recForm,setRecForm]=useState(emptyRec);
+  const [categories,setCategories]=useState(["Apparel","Electronics"]);
   const [saleForm,setSaleForm]=useState(emptySale);
   const [moveForm,setMoveForm]=useState(emptyMove);
   const [pos,setPOs]=useState([]);
@@ -213,6 +215,15 @@ function AppInner({role,onLogout,TABS}){
   function saveEdit(){const updated={...editForm,qty:parseInt(editForm.qty)||0,minQty:parseInt(editForm.minQty)||0,unitCost:parseFloat(editForm.unitCost)||0,sellingPrice:parseFloat(editForm.sellingPrice)||0};setInventory(inv=>inv.map(i=>i.id===editId?updated:i));addLog("Edited",updated.name,updated.qty,"Staff","Item details updated");cancelEdit();}
   function confirmDelete(id){setDeleteConfirmId(id);setEditId(null);}
   function doDelete(item){setInventory(inv=>inv.filter(i=>i.id!==item.id));addLog("Deleted",item.name,item.qty,"Staff",`SKU ${item.sku} removed`);setDeleteConfirmId(null);}
+  function handleCategorySelect(value){
+    if(value!==ADD_CATEGORY_VALUE){setRecForm(r=>({...r,category:value}));return;}
+    const next=window.prompt("Enter new category name:");
+    if(!next)return;
+    const category=next.trim();
+    if(!category)return;
+    setCategories(prev=>prev.some(c=>c.toLowerCase()===category.toLowerCase())?prev:[...prev,category]);
+    setRecForm(r=>({...r,category}));
+  }
   function handleReceive(){const qty=parseInt(recForm.qty);if(!recForm.sku||!recForm.name||!qty)return;setInventory(inv=>inv.find(i=>i.sku===recForm.sku)?inv.map(i=>i.sku===recForm.sku?{...i,qty:i.qty+qty}:i):[...inv,{id:Date.now(),sku:recForm.sku,name:recForm.name,category:recForm.category||"General",qty,minQty:10,supplier:recForm.supplier,unitCost:parseFloat(recForm.unitCost)||0,sellingPrice:parseFloat(recForm.sellingPrice)||0,location:recForm.location}]);addLog("Received",recForm.name,qty,"Staff",recForm.po||"—");setRecForm(emptyRec);}
   function handleSale(){const qty=parseInt(saleForm.qty);const item=inventory.find(i=>i.sku===saleForm.sku);if(!item||!qty||qty>item.qty)return;const revenue=(item.sellingPrice||0)*qty,profit=((item.sellingPrice||0)-item.unitCost)*qty;setInventory(inv=>inv.map(i=>i.sku===saleForm.sku?{...i,qty:i.qty-qty}:i));addLog("Sold",item.name,qty,"Staff",saleForm.invoice||"—",{sku:item.sku,revenue,profit});setSaleForm(emptySale);}
   function handleMove(){const qty=parseInt(moveForm.qty);const item=inventory.find(i=>i.sku===moveForm.sku);if(!item||!qty)return;setInventory(inv=>inv.map(i=>i.sku===moveForm.sku?{...i,location:moveForm.to||i.location}:i));addLog("Moved",item.name,qty,"Staff",`${moveForm.from||"—"} to ${moveForm.to||"—"}`);setMoveForm(emptyMove);}
@@ -343,7 +354,7 @@ function AppInner({role,onLogout,TABS}){
         </table></div>
       </div>)}
 
-      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"],["category","Category","Apparel / Electronics"],["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
+      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type="text" placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}<div><label style={{fontSize:12,color:C.muted}}>Category</label><select value={recForm.category} onChange={e=>handleCategorySelect(e.target.value)} style={inp}><option value="">Select category</option>{categories.map(cat=><option key={cat} value={cat}>{cat}</option>)}<option value={ADD_CATEGORY_VALUE}>+ Add Category...</option></select></div>{[["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
 
       {tab==="Movements"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Select item</label><select value={moveForm.sku} onChange={e=>setMoveForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} - {i.name}</option>)}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty moved</label><input type="number" placeholder="0" value={moveForm.qty} onChange={e=>setMoveForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>From</label><input placeholder="Stockroom" value={moveForm.from} onChange={e=>setMoveForm(f=>({...f,from:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>To</label><input placeholder="Sales Floor" value={moveForm.to} onChange={e=>setMoveForm(f=>({...f,to:e.target.value}))} style={inp}/></div></div><button onClick={handleMove} style={btn("#0F6E56")}>Log movement</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Movement log</div>{audit.filter(a=>a.action==="Moved").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>{a.qty} units · {a.note} · {a.time}</span></div>))}</div>)}
 
