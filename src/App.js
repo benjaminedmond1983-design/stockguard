@@ -1,13 +1,9 @@
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  StockGuard — Supply Chain Inventory Tracker                     ║
-// ║  v7 + Supplier Scorecards + SPOF Detection                      ║
-// ╚══════════════════════════════════════════════════════════════════╝
-
 import { useState } from "react";
 
 const TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
-  "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail", "Business Insights", "Import Products", "Pricing"
+  "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
+  "Intelligence", "Business Insights", "Import Products", "Pricing"
 ];
 
 const INIT_INVENTORY = [
@@ -38,44 +34,44 @@ function shortDate(ds) {
 }
 function buildInitAudit() {
   return [
-    {id:1, time:`${dateStr(6)} 09:12`,action:"Received",item:"Blue Denim Jeans", qty:20,user:"Maria L.",note:"PO-2201",   sku:"SKU-001",revenue:0,     profit:0},
-    {id:2, time:`${dateStr(6)} 10:45`,action:"Sold",    item:"Wireless Earbuds", qty:3, user:"James K.",note:"INV-5541", sku:"SKU-003",revenue:299.97,profit:134.97},
-    {id:3, time:`${dateStr(5)} 11:20`,action:"Sold",    item:"White Sneakers",   qty:2, user:"Staff",   note:"INV-5542", sku:"SKU-002",revenue:179.98,profit:103.98},
-    {id:4, time:`${dateStr(5)} 14:30`,action:"Sold",    item:"Cotton T-Shirt",   qty:4, user:"Staff",   note:"INV-5543", sku:"SKU-004",revenue:99.96, profit:63.96},
-    {id:5, time:`${dateStr(4)} 09:00`,action:"Sold",    item:"Leather Wallet",   qty:3, user:"Maria L.",note:"INV-5544", sku:"SKU-005",revenue:134.97,profit:82.47},
-    {id:6, time:`${dateStr(4)} 15:10`,action:"Sold",    item:"USB-C Cable",      qty:6, user:"Staff",   note:"INV-5545", sku:"SKU-007",revenue:89.94, profit:56.94},
-    {id:7, time:`${dateStr(3)} 10:00`,action:"Sold",    item:"Blue Denim Jeans", qty:2, user:"James K.",note:"INV-5546", sku:"SKU-001",revenue:119.98,profit:70.98},
-    {id:8, time:`${dateStr(3)} 13:45`,action:"Sold",    item:"Baseball Cap",     qty:5, user:"Staff",   note:"INV-5547", sku:"SKU-008",revenue:124.95,profit:84.95},
-    {id:9, time:`${dateStr(2)} 09:30`,action:"Sold",    item:"Running Shorts",   qty:3, user:"Maria L.",note:"INV-5548", sku:"SKU-006",revenue:104.97,profit:68.97},
-    {id:10,time:`${dateStr(2)} 14:00`,action:"Sold",    item:"White Sneakers",   qty:1, user:"Staff",   note:"INV-5549", sku:"SKU-002",revenue:89.99, profit:51.99},
-    {id:11,time:`${dateStr(1)} 10:15`,action:"Sold",    item:"Wireless Earbuds", qty:2, user:"James K.",note:"INV-5550", sku:"SKU-003",revenue:199.98,profit:89.98},
-    {id:12,time:`${dateStr(1)} 16:00`,action:"Sold",    item:"USB-C Cable",      qty:8, user:"Staff",   note:"INV-5551", sku:"SKU-007",revenue:119.92,profit:75.92},
-    {id:13,time:`${dateStr(0)} 09:00`,action:"Sold",    item:"Blue Denim Jeans", qty:1, user:"Maria L.",note:"INV-5552", sku:"SKU-001",revenue:59.99, profit:35.49},
-    {id:14,time:`${dateStr(0)} 11:30`,action:"Sold",    item:"Leather Wallet",   qty:2, user:"Staff",   note:"INV-5553", sku:"SKU-005",revenue:89.98, profit:54.98},
-    {id:15,time:`${dateStr(0)} 14:20`,action:"Reordered",item:"Baseball Cap",   qty:50,user:"Maria L.",note:"PO-2205 sent",sku:"",revenue:0,profit:0},
+    {id:1,time:`${dateStr(6)} 09:12`,action:"Received",item:"Blue Denim Jeans",qty:20,user:"Maria L.",note:"PO-2201",sku:"SKU-001",revenue:0,profit:0},
+    {id:2,time:`${dateStr(6)} 10:45`,action:"Sold",item:"Wireless Earbuds",qty:3,user:"James K.",note:"INV-5541",sku:"SKU-003",revenue:299.97,profit:134.97},
+    {id:3,time:`${dateStr(5)} 11:20`,action:"Sold",item:"White Sneakers",qty:2,user:"Staff",note:"INV-5542",sku:"SKU-002",revenue:179.98,profit:103.98},
+    {id:4,time:`${dateStr(5)} 14:30`,action:"Sold",item:"Cotton T-Shirt",qty:4,user:"Staff",note:"INV-5543",sku:"SKU-004",revenue:99.96,profit:63.96},
+    {id:5,time:`${dateStr(4)} 09:00`,action:"Sold",item:"Leather Wallet",qty:3,user:"Maria L.",note:"INV-5544",sku:"SKU-005",revenue:134.97,profit:82.47},
+    {id:6,time:`${dateStr(4)} 15:10`,action:"Sold",item:"USB-C Cable",qty:6,user:"Staff",note:"INV-5545",sku:"SKU-007",revenue:89.94,profit:56.94},
+    {id:7,time:`${dateStr(3)} 10:00`,action:"Sold",item:"Blue Denim Jeans",qty:2,user:"James K.",note:"INV-5546",sku:"SKU-001",revenue:119.98,profit:70.98},
+    {id:8,time:`${dateStr(3)} 13:45`,action:"Sold",item:"Baseball Cap",qty:5,user:"Staff",note:"INV-5547",sku:"SKU-008",revenue:124.95,profit:84.95},
+    {id:9,time:`${dateStr(2)} 09:30`,action:"Sold",item:"Running Shorts",qty:3,user:"Maria L.",note:"INV-5548",sku:"SKU-006",revenue:104.97,profit:68.97},
+    {id:10,time:`${dateStr(2)} 14:00`,action:"Sold",item:"White Sneakers",qty:1,user:"Staff",note:"INV-5549",sku:"SKU-002",revenue:89.99,profit:51.99},
+    {id:11,time:`${dateStr(1)} 10:15`,action:"Sold",item:"Wireless Earbuds",qty:2,user:"James K.",note:"INV-5550",sku:"SKU-003",revenue:199.98,profit:89.98},
+    {id:12,time:`${dateStr(1)} 16:00`,action:"Sold",item:"USB-C Cable",qty:8,user:"Staff",note:"INV-5551",sku:"SKU-007",revenue:119.92,profit:75.92},
+    {id:13,time:`${dateStr(0)} 09:00`,action:"Sold",item:"Blue Denim Jeans",qty:1,user:"Maria L.",note:"INV-5552",sku:"SKU-001",revenue:59.99,profit:35.49},
+    {id:14,time:`${dateStr(0)} 11:30`,action:"Sold",item:"Leather Wallet",qty:2,user:"Staff",note:"INV-5553",sku:"SKU-005",revenue:89.98,profit:54.98},
+    {id:15,time:`${dateStr(0)} 14:20`,action:"Reordered",item:"Baseball Cap",qty:50,user:"Maria L.",note:"PO-2205 sent",sku:"",revenue:0,profit:0},
   ];
 }
 
 const CSV_TEMPLATE=`SKU,Name,Category,Qty,MinQty,Supplier,UnitCost,SellingPrice,Location\nSKU-101,Sample Product,Apparel,50,10,My Supplier,19.99,49.99,Aisle A1`;
 
 const PLANS=[
-  {name:"Starter",color:"#185FA5",price:0,ap:0,cta:"Start for free",badge:null,inc:["Up to 25 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],exc:["Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary","Business Insights (SWOT, Porter's, Money Strategies)","Shopify integration"]},
-  {name:"Growth",color:"#3B6D11",price:29,ap:23,cta:"Start 14-Day Free Trial",badge:"Most popular",badgeBg:"#EAF3DE",badgeColor:"#3B6D11",featured:true,inc:["Up to 500 SKUs","3 users","Everything in Starter","Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary + 7-day chart"],exc:["Business Insights (SWOT, Porter's, Money Strategies)","Priority support","Custom branding","Shopify integration"]},
-  {name:"Pro",color:"#534AB7",price:79,ap:63,cta:"Start 14-Day Free Trial",badge:"Best value",badgeBg:"#EEEDFE",badgeColor:"#534AB7",inc:["Unlimited SKUs","10 users","Everything in Growth","Business Insights (SWOT, Porter's, Money Strategies)","Shopify integration","Priority support","Custom branding"],exc:[]},
+  {name:"Starter",color:"#185FA5",price:0,ap:0,cta:"Start for free",badge:null,inc:["Up to 25 SKUs","1 user account","Receiving and sales log","Low stock alerts","CSV import"],exc:["Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary","Business Insights","Shopify integration"]},
+  {name:"Growth",color:"#3B6D11",price:29,ap:23,cta:"Start 14-Day Free Trial",badge:"Most popular",badgeBg:"#EAF3DE",badgeColor:"#3B6D11",featured:true,inc:["Up to 500 SKUs","3 users","Everything in Starter","Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary + 7-day chart"],exc:["Business Insights","Intelligence module","Priority support","Custom branding","Shopify integration"]},
+  {name:"Pro",color:"#534AB7",price:79,ap:63,cta:"Start 14-Day Free Trial",badge:"Best value",badgeBg:"#EEEDFE",badgeColor:"#534AB7",inc:["Unlimited SKUs","10 users","Everything in Growth","Business Insights","Intelligence module","Shopify integration","Priority support","Custom branding"],exc:[]},
 ];
 
 function statusBadge(qty,min){
-  if(qty===0)     return{label:"Out of stock",bg:"#FCEBEB",color:"#A32D2D"};
-  if(qty<min*0.3) return{label:"Critical",    bg:"#FCEBEB",color:"#A32D2D"};
-  if(qty<min)     return{label:"Low",         bg:"#FAEEDA",color:"#854F0B"};
-  return                {label:"OK",          bg:"#EAF3DE",color:"#3B6D11"};
+  if(qty===0) return{label:"Out of stock",bg:"#FCEBEB",color:"#A32D2D"};
+  if(qty<min*0.3) return{label:"Critical",bg:"#FCEBEB",color:"#A32D2D"};
+  if(qty<min) return{label:"Low",bg:"#FAEEDA",color:"#854F0B"};
+  return{label:"OK",bg:"#EAF3DE",color:"#3B6D11"};
 }
 function marginBadge(cost,sell){
   if(!sell||sell<=cost) return{label:"No margin",pct:0,profit:0,bg:"#F5F5F5",color:"#888"};
   const profit=sell-cost,pct=(profit/sell)*100;
   if(pct>=40) return{label:`${pct.toFixed(0)}%`,pct,profit,bg:"#EAF3DE",color:"#3B6D11"};
   if(pct>=20) return{label:`${pct.toFixed(0)}%`,pct,profit,bg:"#FAEEDA",color:"#854F0B"};
-  return             {label:`${pct.toFixed(0)}%`,pct,profit,bg:"#FCEBEB",color:"#A32D2D"};
+  return{label:`${pct.toFixed(0)}%`,pct,profit,bg:"#FCEBEB",color:"#A32D2D"};
 }
 function parseRows(rows){
   const errors=[];
@@ -97,8 +93,8 @@ function nowStr(){
   return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
 }
 
-const TAB_ICONS={"Dashboard":"ti-layout-dashboard","Receiving":"ti-package","Movements":"ti-arrows-transfer-up","Sales":"ti-receipt","Reorder Center":"ti-bell","Purchase Orders":"ti-file-invoice","Suppliers":"ti-building-factory","Audit Trail":"ti-clipboard-list","Business Insights":"ti-chart-bar","Import Products":"ti-file-upload","Pricing":"ti-credit-card"};
-const TAB_COLORS={"Dashboard":"#185FA5","Receiving":"#0F6E56","Movements":"#534AB7","Sales":"#A32D2D","Reorder Center":"#854F0B","Purchase Orders":"#185FA5","Suppliers":"#0F6E56","Audit Trail":"#444441","Business Insights":"#534AB7","Import Products":"#185FA5","Pricing":"#3B6D11"};
+const TAB_ICONS={"Dashboard":"ti-layout-dashboard","Receiving":"ti-package","Movements":"ti-arrows-transfer-up","Sales":"ti-receipt","Reorder Center":"ti-bell","Purchase Orders":"ti-file-invoice","Suppliers":"ti-building-factory","Audit Trail":"ti-clipboard-list","Intelligence":"ti-brain","Business Insights":"ti-chart-bar","Import Products":"ti-file-upload","Pricing":"ti-credit-card"};
+const TAB_COLORS={"Dashboard":"#185FA5","Receiving":"#0F6E56","Movements":"#534AB7","Sales":"#A32D2D","Reorder Center":"#854F0B","Purchase Orders":"#185FA5","Suppliers":"#0F6E56","Audit Trail":"#444441","Intelligence":"#0D7E6E","Business Insights":"#534AB7","Import Products":"#185FA5","Pricing":"#3B6D11"};
 const SIDEBAR_W=200;
 
 export default function App(){
@@ -124,12 +120,12 @@ export default function App(){
   const [aiLoading,setAiLoading]=useState(false);
   const [aiAnalysis,setAiAnalysis]=useState("");
   const [suppliers,setSuppliers]=useState([
-    {id:1,name:"DenimCo",    contact:"",phone:"",email:"",website:"",leadTime:"14",minOrder:"",paymentTerms:"Net 30",notes:""},
-    {id:2,name:"SoleSupply", contact:"",phone:"",email:"",website:"",leadTime:"21",minOrder:"",paymentTerms:"Net 30",notes:""},
-    {id:3,name:"TechGear Inc",contact:"",phone:"",email:"",website:"",leadTime:"7", minOrder:"",paymentTerms:"Net 30",notes:""},
+    {id:1,name:"DenimCo",contact:"",phone:"",email:"",website:"",leadTime:"14",minOrder:"",paymentTerms:"Net 30",notes:""},
+    {id:2,name:"SoleSupply",contact:"",phone:"",email:"",website:"",leadTime:"21",minOrder:"",paymentTerms:"Net 30",notes:""},
+    {id:3,name:"TechGear Inc",contact:"",phone:"",email:"",website:"",leadTime:"7",minOrder:"",paymentTerms:"Net 30",notes:""},
     {id:4,name:"FabricWorld",contact:"",phone:"",email:"",website:"",leadTime:"10",minOrder:"",paymentTerms:"Net 30",notes:""},
     {id:5,name:"LeatherCraft",contact:"",phone:"",email:"",website:"",leadTime:"18",minOrder:"",paymentTerms:"Net 30",notes:""},
-    {id:6,name:"CapMakers",  contact:"",phone:"",email:"",website:"",leadTime:"25",minOrder:"",paymentTerms:"Net 30",notes:""},
+    {id:6,name:"CapMakers",contact:"",phone:"",email:"",website:"",leadTime:"25",minOrder:"",paymentTerms:"Net 30",notes:""},
   ]);
   const [editSupId,setEditSupId]=useState(null);
   const [editSupForm,setEditSupForm]=useState({});
@@ -149,6 +145,10 @@ export default function App(){
   const [pasteText,setPasteText]=useState("");
   const [manualRows,setManualRows]=useState([emptyRec]);
   const [mergeStats,setMergeStats]=useState(null);
+  const [intelTab,setIntelTab]=useState("Forecast");
+  const [simSku,setSimSku]=useState("");
+  const [simQty,setSimQty]=useState(100);
+  const [simResult,setSimResult]=useState(null);
 
   const today=todayStr(),yesterday=dateStr(1);
   const salesByDay={};
@@ -178,6 +178,43 @@ export default function App(){
     const rate=sold.reduce((s,a)=>s+a.qty,0)/7;
     if(rate<=0) return null;
     return Math.floor(item.qty/rate);
+  }
+  function getForecast(item){
+    const sold=audit.filter(a=>a.action==="Sold"&&a.sku===item.sku);
+    const totalSold=sold.reduce((s,a)=>s+a.qty,0);
+    const dailyRate=totalSold/7;
+    const days14=Math.round(dailyRate*14);
+    const days30=Math.round(dailyRate*30);
+    const stockoutDay=dailyRate>0?Math.floor(item.qty/dailyRate):null;
+    const reorderPoint=Math.ceil(dailyRate*14);
+    return{dailyRate,days14,days30,stockoutDay,reorderPoint,totalSold};
+  }
+  function getOverstockItems(){
+    return inventory.filter(i=>{
+      const sold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).reduce((s,a)=>s+a.qty,0);
+      return i.qty>i.minQty*2.5&&sold>0&&i.sellingPrice>0;
+    }).map(i=>{
+      const sold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).reduce((s,a)=>s+a.qty,0);
+      const dailyRate=sold/7;
+      const daysStock=dailyRate>0?Math.floor(i.qty/dailyRate):999;
+      const excessUnits=Math.max(0,i.qty-i.minQty*2);
+      const excessValue=(excessUnits*i.unitCost).toFixed(2);
+      const discountPrice=(i.sellingPrice*0.85).toFixed(2);
+      return{...i,dailyRate,daysStock,excessUnits,excessValue,discountPrice};
+    }).sort((a,b)=>b.daysStock-a.daysStock);
+  }
+  function runSimulator(){
+    const item=inventory.find(i=>i.sku===simSku);
+    if(!item||!simQty) return;
+    const fc=getForecast(item);
+    const qty=parseInt(simQty)||0;
+    const totalQtyAfter=item.qty+qty;
+    const stockoutAfter=fc.dailyRate>0?Math.floor(totalQtyAfter/fc.dailyRate):null;
+    const orderCost=(qty*item.unitCost).toFixed(2);
+    const projRevenue=(qty*item.sellingPrice).toFixed(2);
+    const projProfit=(qty*(item.sellingPrice-item.unitCost)).toFixed(2);
+    const coversDays=fc.dailyRate>0?Math.floor(qty/fc.dailyRate):null;
+    setSimResult({item,qty,orderCost,projRevenue,projProfit,stockoutAfter,coversDays,totalQtyAfter,dailyRate:fc.dailyRate});
   }
   function calcHealthScore(){
     if(!inventory.length) return 100;
@@ -286,7 +323,7 @@ export default function App(){
     setAiLoading(true);setAiAnalysis("");
     const lowData=lowItems.map(i=>`${i.name} (SKU: ${i.sku}): qty ${i.qty}, min ${i.minQty}, supplier: ${i.supplier}`).join("\n");
     try{
-      const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1000,messages:[{role:"user",content:`You are a supply chain analyst for a small retail store. Analyze these low-inventory items and provide reorder recommendations:\n\n${lowData}\n\nFor each item give:\n1. Urgency level (Critical/High/Normal)\n2. Recommended reorder quantity\n3. Brief reason\n4. Risk if not reordered\n\nBe concise. Format as a short bullet list per item.`}]})});
+      const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:1000,messages:[{role:"user",content:`You are a supply chain analyst. Analyze these low-inventory items:\n\n${lowData}\n\nFor each item give:\n1. Urgency level (Critical/High/Normal)\n2. Recommended reorder quantity\n3. Brief reason\n4. Risk if not reordered\n\nBe concise. Format as a short bullet list per item.`}]})});
       const data=await res.json();setAiAnalysis(data.content?.find(b=>b.type==="text")?.text||"No analysis returned.");
     }catch(e){setAiAnalysis("Unable to connect to AI analysis. Please try again.");}
     setAiLoading(false);
@@ -294,7 +331,7 @@ export default function App(){
   async function runBusinessInsights(){
     setInsightLoading(true);setSwotData(null);setPorterData(null);setMoneyData(null);
     const invSummary=inventory.map(i=>`${i.name}: qty=${i.qty}, min=${i.minQty}, supplier=${i.supplier}, cost=$${i.unitCost}, sell=$${i.sellingPrice||0}`).join("\n");
-    const prompt=`You are a business strategist analyzing a small retail store using StockGuard inventory software. Inventory data:\n\n${invSummary}\n\nIndustry: ${industry}\nLow stock: ${lowItems.length}, Out of stock: ${outItems.length}, Total cost value: $${totalValue.toFixed(0)}, Total retail value: $${totalRetail.toFixed(0)}, Avg margin: ${avgMargin.toFixed(1)}%\n\nRespond ONLY with a valid JSON object (no markdown, no backticks):\n{\n  "swot":{"strengths":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"weaknesses":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"opportunities":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"threats":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}]},\n  "porter":{"supplier_power":{"rating":"Low|Medium|High","insight":"...","action":"..."},"buyer_power":{"rating":"Low|Medium|High","insight":"...","action":"..."},"competitive_rivalry":{"rating":"Low|Medium|High","insight":"...","action":"..."},"new_entrants":{"rating":"Low|Medium|High","insight":"...","action":"..."},"substitutes":{"rating":"Low|Medium|High","insight":"...","action":"..."}},\n  "money":{"revenue_growth":[{"title":"...","description":"...","impact":"High|Medium|Low"},{"title":"...","description":"...","impact":"High|Medium|Low"},{"title":"...","description":"...","impact":"High|Medium|Low"}],"cost_reduction":[{"title":"...","description":"...","saving":"..."},{"title":"...","description":"...","saving":"..."},{"title":"...","description":"...","saving":"..."}],"new_products":[{"title":"...","description":"...","rationale":"..."},{"title":"...","description":"...","rationale":"..."},{"title":"...","description":"...","rationale":"..."}]}\n}`;
+    const prompt=`You are a business strategist analyzing a small retail store. Inventory:\n\n${invSummary}\n\nIndustry: ${industry}\nLow stock: ${lowItems.length}, Out of stock: ${outItems.length}, Cost value: $${totalValue.toFixed(0)}, Retail value: $${totalRetail.toFixed(0)}, Avg margin: ${avgMargin.toFixed(1)}%\n\nRespond ONLY with valid JSON (no markdown):\n{"swot":{"strengths":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"weaknesses":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"opportunities":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}],"threats":[{"point":"...","action":"..."},{"point":"...","action":"..."},{"point":"...","action":"..."}]},"porter":{"supplier_power":{"rating":"Low|Medium|High","insight":"...","action":"..."},"buyer_power":{"rating":"Low|Medium|High","insight":"...","action":"..."},"competitive_rivalry":{"rating":"Low|Medium|High","insight":"...","action":"..."},"new_entrants":{"rating":"Low|Medium|High","insight":"...","action":"..."},"substitutes":{"rating":"Low|Medium|High","insight":"...","action":"..."}},"money":{"revenue_growth":[{"title":"...","description":"...","impact":"High|Medium|Low"},{"title":"...","description":"...","impact":"High|Medium|Low"},{"title":"...","description":"...","impact":"High|Medium|Low"}],"cost_reduction":[{"title":"...","description":"...","saving":"..."},{"title":"...","description":"...","saving":"..."},{"title":"...","description":"...","saving":"..."}],"new_products":[{"title":"...","description":"...","rationale":"..."},{"title":"...","description":"...","rationale":"..."},{"title":"...","description":"...","rationale":"..."}]}}`;
     try{
       const res=await fetch("/api/analyze",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-5",max_tokens:4000,messages:[{role:"user",content:prompt}]})});
       const data=await res.json();if(data.error) throw new Error(data.error.message);
@@ -311,47 +348,30 @@ export default function App(){
 
   return (
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,background:"#EEF2F7"}}>
-
-      {/* SIDEBAR */}
       <div style={{width:SIDEBAR_W,minWidth:SIDEBAR_W,background:SIDEBAR,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
         <div style={{padding:"24px 16px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/>
-              <text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text>
-              <text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text>
-              <rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/>
-              <rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/>
-            </svg>
-            <div>
-              <div style={{color:"#ffffff",fontWeight:700,fontSize:16,lineHeight:1}}>StockGuard</div>
-              <div style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginTop:3}}>Supply Chain Tracker</div>
-            </div>
+            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/><rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/></svg>
+            <div><div style={{color:"#fff",fontWeight:700,fontSize:16,lineHeight:1}}>StockGuard</div><div style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginTop:3}}>Supply Chain Tracker</div></div>
           </div>
         </div>
         <nav style={{flex:1,padding:"12px 8px"}}>
-          {TABS.map(t=>{
-            const active=tab===t;
-            return(
-              <button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#ffffff":"rgba(255,255,255,0.6)",fontSize:13,fontWeight:active?600:400,marginBottom:2,transition:"all 0.15s",textAlign:"left"}}
-              onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}}
-              onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}
-              >
-                <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:18,minWidth:18}} aria-hidden="true"/>
-                <span>{t}</span>
-                {t==="Reorder Center"&&lowItems.length>0&&(<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>)}
-              </button>
-            );
-          })}
+          {TABS.map(t=>{const active=tab===t;return(
+            <button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#fff":"rgba(255,255,255,0.6)",fontSize:13,fontWeight:active?600:400,marginBottom:2,textAlign:"left"}}
+            onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}}
+            onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}
+            >
+              <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:18,minWidth:18}} aria-hidden="true"/>
+              <span>{t}</span>
+              {t==="Reorder Center"&&lowItems.length>0&&(<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>)}
+            </button>
+          );})}
         </nav>
         <div style={{padding:"16px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
-          <div style={{color:"rgba(255,255,255,0.35)",fontSize:10,textAlign:"center",lineHeight:1.5,fontStyle:"italic"}}>
-            "Commit to the Lord whatever you do"<br/>Proverbs 16:3
-          </div>
+          <div style={{color:"rgba(255,255,255,0.35)",fontSize:10,textAlign:"center",lineHeight:1.5,fontStyle:"italic"}}>"Commit to the Lord whatever you do"<br/>Proverbs 16:3</div>
         </div>
       </div>
 
-      {/* MAIN */}
       <div style={{marginLeft:SIDEBAR_W,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
         <div style={{background:TAB_COLORS[tab]||"#185FA5",padding:"20px 28px 16px",color:"#fff"}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -367,6 +387,7 @@ export default function App(){
                 {tab==="Purchase Orders"&&`${pos.length} purchase order${pos.length!==1?"s":""}`}
                 {tab==="Suppliers"&&`${suppliers.length} supplier${suppliers.length!==1?"s":""} on file`}
                 {tab==="Audit Trail"&&"Full activity history"}
+                {tab==="Intelligence"&&"Demand forecasting, what-if simulation, and overstock analysis"}
                 {tab==="Business Insights"&&"AI-powered business analysis"}
                 {tab==="Import Products"&&"Bulk import your inventory"}
                 {tab==="Pricing"&&"Choose the right plan"}
@@ -377,286 +398,258 @@ export default function App(){
 
         <div style={{flex:1,padding:"24px 28px",maxWidth:960}}>
 
-      {/* DASHBOARD */}
-      {tab==="Dashboard"&&(
-        <div>
-          <div style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:16,marginBottom:20}}>
-            <div style={{background:healthBg,border:`1px solid ${healthColor}33`,borderRadius:12,padding:"16px 14px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
-              <div style={{fontSize:11,color:healthColor,fontWeight:600,marginBottom:6,opacity:0.8}}>Inventory Health</div>
-              <div style={{fontSize:44,fontWeight:700,color:healthColor,lineHeight:1}}>{healthScore}</div>
-              <div style={{fontSize:10,color:healthColor,marginTop:4,opacity:0.8}}>/100</div>
-              <div style={{marginTop:8,background:healthColor,color:"#fff",fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:10}}>{healthLabel}</div>
-              {outItems.length>0&&<div style={{fontSize:10,color:healthColor,marginTop:6,opacity:0.75}}>{outItems.length} out of stock</div>}
-            </div>
-            <div style={{background:"linear-gradient(135deg,#185FA5 0%,#0d3d6b 100%)",borderRadius:12,padding:"16px 20px",color:"#fff"}}>
-              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
-                <div>
-                  <div style={{fontSize:12,opacity:0.8,marginBottom:2}}>Today's Sales Summary</div>
-                  <div style={{fontSize:28,fontWeight:700,lineHeight:1}}>${todaySales.revenue.toFixed(2)}</div>
-                  <div style={{fontSize:12,opacity:0.8,marginTop:2}}>{revenueUp?"▲":"▼"} vs yesterday ${yesterdaySales.revenue.toFixed(2)}</div>
-                </div>
-                <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
-                  {[{label:"Profit today",val:`$${todaySales.profit.toFixed(2)}`,color:"#A8D57B"},{label:"Units sold",val:todaySales.units,color:"#7EC8E3"},{label:"Transactions",val:todaySales.transactions,color:"#F9C74F"}].map(s=>(<div key={s.label} style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div><div style={{fontSize:11,opacity:0.8}}>{s.label}</div></div>))}
-                </div>
+      {tab==="Dashboard"&&(<div>
+        <div style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:16,marginBottom:20}}>
+          <div style={{background:healthBg,border:`1px solid ${healthColor}33`,borderRadius:12,padding:"16px 14px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",textAlign:"center"}}>
+            <div style={{fontSize:11,color:healthColor,fontWeight:600,marginBottom:6,opacity:0.8}}>Inventory Health</div>
+            <div style={{fontSize:44,fontWeight:700,color:healthColor,lineHeight:1}}>{healthScore}</div>
+            <div style={{fontSize:10,color:healthColor,marginTop:4,opacity:0.8}}>/100</div>
+            <div style={{marginTop:8,background:healthColor,color:"#fff",fontSize:11,fontWeight:600,padding:"3px 10px",borderRadius:10}}>{healthLabel}</div>
+            {outItems.length>0&&<div style={{fontSize:10,color:healthColor,marginTop:6,opacity:0.75}}>{outItems.length} out of stock</div>}
+          </div>
+          <div style={{background:"linear-gradient(135deg,#185FA5 0%,#0d3d6b 100%)",borderRadius:12,padding:"16px 20px",color:"#fff"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:12}}>
+              <div>
+                <div style={{fontSize:12,opacity:0.8,marginBottom:2}}>Today's Sales Summary</div>
+                <div style={{fontSize:28,fontWeight:700,lineHeight:1}}>${todaySales.revenue.toFixed(2)}</div>
+                <div style={{fontSize:12,opacity:0.8,marginTop:2}}>{revenueUp?"▲":"▼"} vs yesterday ${yesterdaySales.revenue.toFixed(2)}</div>
               </div>
-              {topItem&&(<div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12}}>🏆 Top seller today: <strong>{topItem[0]}</strong> — {topItem[1]} units</div>)}
-              {!topItem&&(<div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12,opacity:0.8}}>No sales recorded yet today. Go make some sales! 💪</div>)}
+              <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
+                {[{label:"Profit today",val:`$${todaySales.profit.toFixed(2)}`,color:"#A8D57B"},{label:"Units sold",val:todaySales.units,color:"#7EC8E3"},{label:"Transactions",val:todaySales.transactions,color:"#F9C74F"}].map(s=>(<div key={s.label} style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:700,color:s.color}}>{s.val}</div><div style={{fontSize:11,opacity:0.8}}>{s.label}</div></div>))}
+              </div>
             </div>
-          </div>
-
-          <div style={{background:C.bg2,borderRadius:10,padding:"14px 16px",marginBottom:20}}>
-            <div style={{fontSize:12,fontWeight:600,color:C.muted,marginBottom:12}}>Revenue — last 7 days</div>
-            <div style={{display:"flex",alignItems:"flex-end",gap:6,height:110}}>
-              {Object.entries(salesByDay).map(([day,data])=>{
-                const isToday=day===today;
-                const barH=maxRevenue>0?Math.max((data.revenue/maxRevenue)*72,data.revenue>0?6:2):2;
-                return(<div key={day} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
-                  <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400,marginBottom:4}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>
-                  <div style={{width:"100%",height:barH,background:isToday?"#185FA5":"#B8D4F0",borderRadius:"3px 3px 0 0",transition:"height .3s"}}/>
-                  <div style={{fontSize:10,color:isToday?C.text:C.muted,fontWeight:isToday?700:400,whiteSpace:"nowrap"}}>{shortDate(day)}</div>
-                </div>);
-              })}
-            </div>
-          </div>
-
-          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12,marginBottom:20}}>
-            {[{label:"Total SKUs",val:inventory.length,color:"#185FA5"},{label:"Low stock",val:lowItems.length,color:"#BA7517"},{label:"Cost value",val:`$${totalValue.toLocaleString("en-US",{maximumFractionDigits:0})}`,color:"#3B6D11"},{label:"Retail value",val:`$${totalRetail.toLocaleString("en-US",{maximumFractionDigits:0})}`,color:"#534AB7"},{label:"Avg margin",val:avgMargin>0?`${avgMargin.toFixed(1)}%`:"—",color:avgMargin>=40?"#3B6D11":avgMargin>=20?"#854F0B":"#A32D2D"}].map(c=>(<div key={c.label} style={{background:C.bg2,borderRadius:8,padding:"14px 16px"}}><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{c.label}</div><div style={{fontSize:22,fontWeight:600,color:c.color}}>{c.val}</div></div>))}
-          </div>
-
-          {lowItems.length>0&&(
-            <div style={{background:"#FAEEDA",border:"1px solid #EF9F27",borderRadius:8,padding:"12px 16px",marginBottom:16}}>
-              <div style={{fontWeight:600,color:"#854F0B",fontSize:13,marginBottom:8}}>Low stock alerts ({lowItems.length})</div>
-              {lowItems.map(i=>{
-                const s=statusBadge(i.qty,i.minQty);const days=daysUntilStockout(i);
-                return(<div key={i.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid #EF9F2733",fontSize:13}}>
-                  <span style={{color:"#633806"}}>{i.name} <span style={{color:"#BA7517"}}>({i.sku})</span>
-                    {days!==null&&(<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d until stockout`}</span>)}
-                  </span>
-                  <span style={{display:"flex",alignItems:"center",gap:8}}>
-                    <span style={{color:"#854F0B"}}>{i.qty} / {i.minQty}</span>
-                    <span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>
-                    <button onClick={()=>{handleReorder(i);setTab("Reorder Center");}} style={{...btn("#BA7517"),padding:"3px 10px",fontSize:11}}>Reorder</button>
-                  </span>
-                </div>);
-              })}
-            </div>
-          )}
-
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-            <div style={{fontSize:13,fontWeight:500,color:C.muted}}>All inventory</div>
-            <div style={{display:"flex",gap:6}}>
-              <button onClick={()=>exportCSV("inventory")} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
-              <button onClick={()=>exportCSV("sales")}     style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
-              <button onClick={()=>exportCSV("audit")}     style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
-            </div>
-          </div>
-          <input placeholder="Search by name, SKU, or category" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,marginBottom:10}}/>
-          <div style={{overflowX:"auto"}}>
-            <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
-              <thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Item","Cat","Qty","Min","Cost","Sell","Margin","Location","Status","Actions"].map(h=>(<th key={h} style={{textAlign:h==="Actions"?"right":"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead>
-              <tbody>
-                {filteredInv.map(i=>{
-                  const s=statusBadge(i.qty,i.minQty);const m=marginBadge(i.unitCost,i.sellingPrice);
-                  const isEditing=editId===i.id;const isConfirmingDelete=deleteConfirmId===i.id;
-                  if(isEditing) return(
-                    <tr key={i.id} style={{borderBottom:`1px solid ${C.border}`,background:"#F0F4FF"}}>
-                      {[["sku",70],["name",120],["category",90],["qty",55,"number"],["minQty",55,"number"],["unitCost",70,"number"],["sellingPrice",70,"number"]].map(([f,w,t])=>(<td key={f} style={{padding:"5px 6px"}}><input type={t||"text"} value={editForm[f]||""} onChange={e=>setEditForm(f2=>({...f2,[f]:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:w}}/></td>))}
-                      <td style={{padding:"5px 6px"}}><input value={editForm.location||""} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:80}}/></td>
-                      <td/><td style={{padding:"5px 6px",textAlign:"right"}}><div style={{display:"flex",gap:4,justifyContent:"flex-end"}}><button onClick={saveEdit} style={{...btn("#3B6D11"),padding:"4px 10px",fontSize:11}}>Save</button><button onClick={cancelEdit} style={{...btn("#888"),padding:"4px 10px",fontSize:11}}>Cancel</button></div></td>
-                    </tr>
-                  );
-                  return(
-                    <tr key={i.id} style={{borderBottom:`1px solid ${C.border}`,background:isConfirmingDelete?"#FFF5F5":"transparent"}}>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{i.sku}</td>
-                      <td style={{padding:"7px 8px",fontWeight:500}}>{i.name}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{i.category}</td>
-                      <td style={{padding:"7px 8px",fontWeight:600,color:i.qty<i.minQty?"#A32D2D":C.text}}>{i.qty}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{i.minQty}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>${i.unitCost.toFixed(2)}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{i.sellingPrice?`$${i.sellingPrice.toFixed(2)}`:"—"}</td>
-                      <td style={{padding:"7px 8px"}}>{i.sellingPrice?<span style={{background:m.bg,color:m.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{m.label} <span style={{opacity:0.75}}>(+${m.profit.toFixed(2)})</span></span>:<span style={{color:C.muted,fontSize:11}}>Not set</span>}</td>
-                      <td style={{padding:"7px 8px",color:C.muted}}>{i.location}</td>
-                      <td style={{padding:"7px 8px"}}><span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span></td>
-                      <td style={{padding:"7px 8px",textAlign:"right"}}>
-                        {isConfirmingDelete?(<div style={{display:"flex",gap:4,alignItems:"center",justifyContent:"flex-end"}}><span style={{fontSize:11,color:"#A32D2D",fontWeight:500}}>Delete?</span><button onClick={()=>doDelete(i)} style={{...btn("#A32D2D"),padding:"3px 8px",fontSize:11}}>Yes</button><button onClick={()=>setDeleteConfirmId(null)} style={{...btn("#888"),padding:"3px 8px",fontSize:11}}>No</button></div>)
-                        :(<div style={{display:"flex",gap:4,justifyContent:"flex-end"}}><button onClick={()=>startEdit(i)} style={{...btn("#185FA5"),padding:"3px 10px",fontSize:11}}>Edit</button><button onClick={()=>confirmDelete(i.id)} style={{...btn("#A32D2D"),padding:"3px 10px",fontSize:11}}>Delete</button></div>)}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+            {topItem&&<div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12}}>🏆 Top seller today: <strong>{topItem[0]}</strong> — {topItem[1]} units</div>}
+            {!topItem&&<div style={{marginTop:10,padding:"6px 12px",background:"rgba(255,255,255,0.12)",borderRadius:8,fontSize:12,opacity:0.8}}>No sales recorded yet today. Go make some sales! 💪</div>}
           </div>
         </div>
-      )}
-
-      {/* RECEIVING */}
-      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"],["category","Category","Apparel / Electronics"],["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
-
-      {/* MOVEMENTS */}
-      {tab==="Movements"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Select item</label><select value={moveForm.sku} onChange={e=>setMoveForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} - {i.name}</option>)}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty moved</label><input type="number" placeholder="0" value={moveForm.qty} onChange={e=>setMoveForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>From</label><input placeholder="Stockroom" value={moveForm.from} onChange={e=>setMoveForm(f=>({...f,from:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>To</label><input placeholder="Sales Floor" value={moveForm.to} onChange={e=>setMoveForm(f=>({...f,to:e.target.value}))} style={inp}/></div></div><button onClick={handleMove} style={btn("#0F6E56")}>Log movement</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Movement log</div>{audit.filter(a=>a.action==="Moved").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>{a.qty} units · {a.note} · {a.time}</span></div>))}</div>)}
-
-      {/* SALES */}
-      {tab==="Sales"&&(<div><div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",gap:20,flexWrap:"wrap"}}><div><div style={{fontSize:11,color:C.muted}}>Today's revenue</div><div style={{fontSize:18,fontWeight:700,color:"#185FA5"}}>${todaySales.revenue.toFixed(2)}</div></div><div><div style={{fontSize:11,color:C.muted}}>Today's profit</div><div style={{fontSize:18,fontWeight:700,color:"#3B6D11"}}>${todaySales.profit.toFixed(2)}</div></div><div><div style={{fontSize:11,color:C.muted}}>Units sold</div><div style={{fontSize:18,fontWeight:700,color:"#534AB7"}}>{todaySales.units}</div></div><div><div style={{fontSize:11,color:C.muted}}>Transactions</div><div style={{fontSize:18,fontWeight:700,color:"#854F0B"}}>{todaySales.transactions}</div></div></div><div style={{fontWeight:500,marginBottom:12}}>Record sale / dispatch</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Item sold</label><select value={saleForm.sku} onChange={e=>setSaleForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=>{const m=marginBadge(i.unitCost,i.sellingPrice);return<option key={i.sku} value={i.sku}>{i.sku} - {i.name} ({i.qty} in stock{i.sellingPrice?` · $${i.sellingPrice} · ${m.label} margin`:""})</option>;})}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty sold</label><input type="number" placeholder="0" value={saleForm.qty} onChange={e=>setSaleForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Invoice / ref #</label><input placeholder="INV-0001" value={saleForm.invoice} onChange={e=>setSaleForm(f=>({...f,invoice:e.target.value}))} style={inp}/></div></div>{saleForm.sku&&(()=>{const item=inventory.find(i=>i.sku===saleForm.sku);const m=item?marginBadge(item.unitCost,item.sellingPrice):null;const qty=parseInt(saleForm.qty)||0;if(!item||!m||!item.sellingPrice) return null;return(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"10px 14px",marginBottom:10,fontSize:12}}><strong style={{color:"#3B6D11"}}>Sale summary</strong><div style={{marginTop:4,color:"#3B6D11"}}>Selling at <strong>${item.sellingPrice.toFixed(2)}</strong> · Cost <strong>${item.unitCost.toFixed(2)}</strong> · Profit per unit <strong>${m.profit.toFixed(2)}</strong> ({m.label} margin){qty>0&&<span> · Total profit: <strong>${(m.profit*qty).toFixed(2)}</strong></span>}</div></div>);})()}<button onClick={handleSale} style={btn("#A32D2D")}>Record sale</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Sales log</div>{audit.filter(a=>a.action==="Sold").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted,display:"flex",gap:10,alignItems:"center"}}><span>{a.qty} units</span>{a.revenue>0&&<span style={{color:"#185FA5",fontWeight:600}}>${a.revenue.toFixed(2)}</span>}{a.profit>0&&<span style={{color:"#3B6D11",fontWeight:600}}>+${a.profit.toFixed(2)} profit</span>}<span>{a.note} · {a.time}</span></span></div>))}</div>)}
-
-      {/* PURCHASE ORDERS */}
-      {tab==="Purchase Orders"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}><div><div style={{fontWeight:600,fontSize:15}}>Purchase Orders</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Create, edit and track orders sent to suppliers</div></div><button onClick={()=>{const poNumber=`PO-${String(poCounter).padStart(4,"0")}`;setPOCounter(c=>c+1);const newPO={id:Date.now(),poNumber,status:"Draft",sku:"",itemName:"",description:"",supplier:"",qty:1,unitCost:0,date:new Date().toISOString().slice(0,10),deliveryDate:"",notes:"",createdFrom:"Manual"};setPOs(p=>[newPO,...p]);setEditPOId(newPO.id);setEditPOForm({...newPO});}} style={btn("#185FA5")}>+ New Purchase Order</button></div>{pos.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>📋</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No purchase orders yet</div><div>Click "Send Reorder" in the Reorder Center or create a new PO manually.</div></div>)}{pos.map(po=>{const isEditing=editPOId===po.id;const total=(po.qty*(po.unitCost||0)).toFixed(2);const statusColor={Draft:"#854F0B",Sent:"#185FA5",Received:"#3B6D11"}[po.status]||"#888";const statusBg={Draft:"#FAEEDA",Sent:"#E6F1FB",Received:"#EAF3DE"}[po.status]||"#eee";if(isEditing) return(<div key={po.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><div style={{fontWeight:700,fontSize:14,color:"#185FA5"}}>{editPOForm.poNumber} — Editing</div><div style={{display:"flex",gap:6}}><button onClick={()=>{setPOs(p=>p.map(x=>x.id===po.id?{...editPOForm}:x));setEditPOId(null);setEditPOForm({});}} style={{...btn("#3B6D11"),padding:"5px 14px"}}>Save PO</button><button onClick={()=>{setEditPOId(null);setEditPOForm({});}} style={{...btn("#888"),padding:"5px 14px"}}>Cancel</button></div></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Select product (auto-fills fields)</label><select onChange={e=>{const item=inventory.find(i=>i.sku===e.target.value);if(item)setEditPOForm(x=>({...x,sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,unitCost:item.unitCost,qty:Math.max(item.minQty*2-item.qty,10)}));}} style={inp}><option value="">— Pick a product to auto-fill —</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty}, min: {i.minQty})</option>)}</select></div>{[["itemName","Item name *"],["description","Description"],["supplier","Supplier"],["deliveryDate","Expected delivery","date"]].map(([f,l,t])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={t||"text"} value={editPOForm[f]||""} onChange={e=>setEditPOForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>))}<div><label style={{fontSize:12,color:C.muted}}>Order quantity *</label><input type="number" value={editPOForm.qty||""} onChange={e=>setEditPOForm(x=>({...x,qty:parseInt(e.target.value)||0}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Unit cost ($)</label><input type="number" value={editPOForm.unitCost||""} onChange={e=>setEditPOForm(x=>({...x,unitCost:parseFloat(e.target.value)||0}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Status</label><select value={editPOForm.status} onChange={e=>setEditPOForm(x=>({...x,status:e.target.value}))} style={inp}><option>Draft</option><option>Sent</option><option>Received</option></select></div><div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editPOForm.notes||""} onChange={e=>setEditPOForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}}/></div></div><div style={{marginTop:10,padding:"8px 12px",background:"#E6F1FB",borderRadius:8,fontSize:13,color:"#185FA5",fontWeight:600}}>Total order value: ${((editPOForm.qty||0)*(editPOForm.unitCost||0)).toFixed(2)}</div></div>);return(<div key={po.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}><div><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><span style={{fontWeight:700,fontSize:14}}>{po.poNumber}</span><span style={{background:statusBg,color:statusColor,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{po.status}</span></div><div style={{fontWeight:500,fontSize:13}}>{po.itemName||"—"}</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>{po.description}</div><div style={{display:"flex",gap:16,marginTop:8,fontSize:12,flexWrap:"wrap"}}><span>Supplier: <strong>{po.supplier||"—"}</strong></span><span>Qty: <strong>{po.qty}</strong></span><span>Unit cost: <strong>${(po.unitCost||0).toFixed(2)}</strong></span><span style={{color:"#3B6D11",fontWeight:600}}>Total: <strong>${total}</strong></span>{po.deliveryDate&&<span>Expected: <strong>{po.deliveryDate}</strong></span>}</div>{po.notes&&<div style={{fontSize:12,color:C.muted,marginTop:6,fontStyle:"italic"}}>Note: {po.notes}</div>}</div><div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}><div style={{fontSize:11,color:C.muted}}>{po.date}</div><div style={{display:"flex",gap:6}}><button onClick={()=>{setEditPOId(po.id);setEditPOForm({...po});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button><button onClick={()=>{const content=`PURCHASE ORDER\n${po.poNumber}\nDate: ${po.date}\n\nSupplier: ${po.supplier}\n\nItem: ${po.itemName}\nQty: ${po.qty}\nUnit Cost: ${(po.unitCost||0).toFixed(2)}\nTotal: ${total}\n\nDelivery by: ${po.deliveryDate||"TBD"}\nNotes: ${po.notes||"None"}`;const blob=new Blob([content],{type:"text/plain"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`${po.poNumber}.txt`;a.click();URL.revokeObjectURL(url);}} style={{...btn("#534AB7"),padding:"4px 12px",fontSize:11}}>⬇ Download</button><button onClick={()=>setPOs(p=>p.filter(x=>x.id!==po.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button></div></div></div></div>);})}
+        <div style={{background:C.bg2,borderRadius:10,padding:"14px 16px",marginBottom:20}}>
+          <div style={{fontSize:12,fontWeight:600,color:C.muted,marginBottom:12}}>Revenue — last 7 days</div>
+          <div style={{display:"flex",alignItems:"flex-end",gap:6,height:110}}>
+            {Object.entries(salesByDay).map(([day,data])=>{
+              const isToday=day===today;const barH=maxRevenue>0?Math.max((data.revenue/maxRevenue)*72,data.revenue>0?6:2):2;
+              return(<div key={day} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
+                <div style={{fontSize:10,color:C.muted,fontWeight:isToday?700:400,marginBottom:4}}>${data.revenue>0?data.revenue.toFixed(0):0}</div>
+                <div style={{width:"100%",height:barH,background:isToday?"#185FA5":"#B8D4F0",borderRadius:"3px 3px 0 0"}}/>
+                <div style={{fontSize:10,color:isToday?C.text:C.muted,fontWeight:isToday?700:400,whiteSpace:"nowrap"}}>{shortDate(day)}</div>
+              </div>);
+            })}
+          </div>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(130px,1fr))",gap:12,marginBottom:20}}>
+          {[{label:"Total SKUs",val:inventory.length,color:"#185FA5"},{label:"Low stock",val:lowItems.length,color:"#BA7517"},{label:"Cost value",val:`$${totalValue.toLocaleString("en-US",{maximumFractionDigits:0})}`,color:"#3B6D11"},{label:"Retail value",val:`$${totalRetail.toLocaleString("en-US",{maximumFractionDigits:0})}`,color:"#534AB7"},{label:"Avg margin",val:avgMargin>0?`${avgMargin.toFixed(1)}%`:"—",color:avgMargin>=40?"#3B6D11":avgMargin>=20?"#854F0B":"#A32D2D"}].map(c=>(<div key={c.label} style={{background:C.bg2,borderRadius:8,padding:"14px 16px"}}><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{c.label}</div><div style={{fontSize:22,fontWeight:600,color:c.color}}>{c.val}</div></div>))}
+        </div>
+        {lowItems.length>0&&<div style={{background:"#FAEEDA",border:"1px solid #EF9F27",borderRadius:8,padding:"12px 16px",marginBottom:16}}>
+          <div style={{fontWeight:600,color:"#854F0B",fontSize:13,marginBottom:8}}>Low stock alerts ({lowItems.length})</div>
+          {lowItems.map(i=>{const s=statusBadge(i.qty,i.minQty);const days=daysUntilStockout(i);return(<div key={i.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid #EF9F2733",fontSize:13}}>
+            <span style={{color:"#633806"}}>{i.name} <span style={{color:"#BA7517"}}>({i.sku})</span>{days!==null&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d until stockout`}</span>}</span>
+            <span style={{display:"flex",alignItems:"center",gap:8}}><span style={{color:"#854F0B"}}>{i.qty} / {i.minQty}</span><span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span><button onClick={()=>{handleReorder(i);setTab("Reorder Center");}} style={{...btn("#BA7517"),padding:"3px 10px",fontSize:11}}>Reorder</button></span>
+          </div>);})}
+        </div>}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+          <div style={{fontSize:13,fontWeight:500,color:C.muted}}>All inventory</div>
+          <div style={{display:"flex",gap:6}}>
+            <button onClick={()=>exportCSV("inventory")} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button>
+            <button onClick={()=>exportCSV("sales")} style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button>
+            <button onClick={()=>exportCSV("audit")} style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button>
+          </div>
+        </div>
+        <input placeholder="Search by name, SKU, or category" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,marginBottom:10}}/>
+        <div style={{overflowX:"auto"}}>
+          <table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+            <thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Item","Cat","Qty","Min","Cost","Sell","Margin","Location","Status","Actions"].map(h=>(<th key={h} style={{textAlign:h==="Actions"?"right":"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead>
+            <tbody>{filteredInv.map(i=>{
+              const s=statusBadge(i.qty,i.minQty);const m=marginBadge(i.unitCost,i.sellingPrice);
+              const isEditing=editId===i.id;const isConfirmingDelete=deleteConfirmId===i.id;
+              if(isEditing) return(<tr key={i.id} style={{borderBottom:`1px solid ${C.border}`,background:"#F0F4FF"}}>
+                {[["sku",70],["name",120],["category",90],["qty",55,"number"],["minQty",55,"number"],["unitCost",70,"number"],["sellingPrice",70,"number"]].map(([f,w,t])=>(<td key={f} style={{padding:"5px 6px"}}><input type={t||"text"} value={editForm[f]||""} onChange={e=>setEditForm(f2=>({...f2,[f]:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:w}}/></td>))}
+                <td style={{padding:"5px 6px"}}><input value={editForm.location||""} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:80}}/></td>
+                <td/><td style={{padding:"5px 6px",textAlign:"right"}}><div style={{display:"flex",gap:4,justifyContent:"flex-end"}}><button onClick={saveEdit} style={{...btn("#3B6D11"),padding:"4px 10px",fontSize:11}}>Save</button><button onClick={cancelEdit} style={{...btn("#888"),padding:"4px 10px",fontSize:11}}>Cancel</button></div></td>
+              </tr>);
+              return(<tr key={i.id} style={{borderBottom:`1px solid ${C.border}`,background:isConfirmingDelete?"#FFF5F5":"transparent"}}>
+                <td style={{padding:"7px 8px",color:C.muted}}>{i.sku}</td>
+                <td style={{padding:"7px 8px",fontWeight:500}}>{i.name}</td>
+                <td style={{padding:"7px 8px",color:C.muted}}>{i.category}</td>
+                <td style={{padding:"7px 8px",fontWeight:600,color:i.qty<i.minQty?"#A32D2D":C.text}}>{i.qty}</td>
+                <td style={{padding:"7px 8px",color:C.muted}}>{i.minQty}</td>
+                <td style={{padding:"7px 8px",color:C.muted}}>${i.unitCost.toFixed(2)}</td>
+                <td style={{padding:"7px 8px",color:C.muted}}>{i.sellingPrice?`$${i.sellingPrice.toFixed(2)}`:"—"}</td>
+                <td style={{padding:"7px 8px"}}>{i.sellingPrice?<span style={{background:m.bg,color:m.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{m.label} <span style={{opacity:0.75}}>(+${m.profit.toFixed(2)})</span></span>:<span style={{color:C.muted,fontSize:11}}>Not set</span>}</td>
+                <td style={{padding:"7px 8px",color:C.muted}}>{i.location}</td>
+                <td style={{padding:"7px 8px"}}><span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span></td>
+                <td style={{padding:"7px 8px",textAlign:"right"}}>
+                  {isConfirmingDelete?(<div style={{display:"flex",gap:4,alignItems:"center",justifyContent:"flex-end"}}><span style={{fontSize:11,color:"#A32D2D",fontWeight:500}}>Delete?</span><button onClick={()=>doDelete(i)} style={{...btn("#A32D2D"),padding:"3px 8px",fontSize:11}}>Yes</button><button onClick={()=>setDeleteConfirmId(null)} style={{...btn("#888"),padding:"3px 8px",fontSize:11}}>No</button></div>)
+                  :(<div style={{display:"flex",gap:4,justifyContent:"flex-end"}}><button onClick={()=>startEdit(i)} style={{...btn("#185FA5"),padding:"3px 10px",fontSize:11}}>Edit</button><button onClick={()=>confirmDelete(i.id)} style={{...btn("#A32D2D"),padding:"3px 10px",fontSize:11}}>Delete</button></div>)}
+                </td>
+              </tr>);
+            })}</tbody>
+          </table>
+        </div>
       </div>)}
 
-      {/* REORDER CENTER */}
-      {tab==="Reorder Center"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}><div style={{fontWeight:500}}>Low inventory analyzer</div><button onClick={runAiAnalysis} disabled={aiLoading} style={{...btn("#534AB7"),opacity:aiLoading?0.7:1}}>{aiLoading?"Analyzing...":"AI analyze and recommend"}</button></div>{aiAnalysis&&(<div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:8,padding:"14px 16px",marginBottom:20,fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}><div style={{fontWeight:600,color:"#534AB7",marginBottom:8,fontSize:12}}>AI reorder analysis</div>{aiAnalysis}</div>)}<div style={{fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Items needing reorder ({lowItems.length})</div>{lowItems.length===0&&<div style={{color:C.muted,fontSize:13}}>All items are sufficiently stocked.</div>}{lowItems.map(i=>{const s=statusBadge(i.qty,i.minQty);const m=marginBadge(i.unitCost,i.sellingPrice);const sugQty=Math.max(i.minQty*2-i.qty,10);const ordered=reorders.find(r=>r.sku===i.sku);const days=daysUntilStockout(i);return(<div key={i.id} style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 14px",marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontWeight:500}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span>{days!==null&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d left`}</span>}</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Supplier: {i.supplier} · Location: {i.location}</div><div style={{display:"flex",gap:12,marginTop:6,fontSize:12}}><span>In stock: <strong>{i.qty}</strong></span><span>Min: <strong>{i.minQty}</strong></span><span>Suggest: <strong>{sugQty} units</strong></span>{i.sellingPrice&&<span style={{color:m.color}}>Margin: <strong>{m.label}</strong></span>}</div></div><div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}><span style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>{ordered?<span style={{fontSize:12,color:"#3B6D11",background:"#EAF3DE",padding:"3px 10px",borderRadius:10}}>Order sent</span>:<button onClick={()=>handleReorder(i)} style={btn("#185FA5")}>Send reorder</button>}</div></div></div>);})} {reorders.length>0&&(<><div style={{fontSize:13,fontWeight:500,color:C.muted,marginTop:24,marginBottom:8}}>Reorder history</div>{reorders.map(r=>{const urg={Critical:"#A32D2D",High:"#854F0B",Normal:"#3B6D11"};const urgBg={Critical:"#FCEBEB",High:"#FAEEDA",Normal:"#EAF3DE"};return(<div key={r.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span><strong>{r.name}</strong> — {r.qty} units from {r.supplier}</span><span style={{display:"flex",gap:8,alignItems:"center",color:C.muted}}><span>{r.date}</span><span style={{background:urgBg[r.urgency],color:urg[r.urgency],padding:"1px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{r.urgency}</span></span></div>);})}</>)}</div>)}
+      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"],["category","Category","Apparel / Electronics"],["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
 
-      {/* ── SUPPLIERS with Scorecards ── */}
-      {tab==="Suppliers"&&(
-        <div>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-            <div><div style={{fontWeight:600,fontSize:15}}>Supplier Management</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Contacts, scorecards, and risk analysis for all your suppliers</div></div>
-            <button onClick={()=>setShowAddSup(s=>!s)} style={btn("#185FA5")}>+ Add Supplier</button>
-          </div>
+      {tab==="Movements"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Select item</label><select value={moveForm.sku} onChange={e=>setMoveForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} - {i.name}</option>)}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty moved</label><input type="number" placeholder="0" value={moveForm.qty} onChange={e=>setMoveForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>From</label><input placeholder="Stockroom" value={moveForm.from} onChange={e=>setMoveForm(f=>({...f,from:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>To</label><input placeholder="Sales Floor" value={moveForm.to} onChange={e=>setMoveForm(f=>({...f,to:e.target.value}))} style={inp}/></div></div><button onClick={handleMove} style={btn("#0F6E56")}>Log movement</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Movement log</div>{audit.filter(a=>a.action==="Moved").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>{a.qty} units · {a.note} · {a.time}</span></div>))}</div>)}
 
-          {/* Single Point of Failure Warning */}
-          {(()=>{
-            const catMap={};
-            inventory.forEach(i=>{if(!catMap[i.category])catMap[i.category]={};catMap[i.category][i.supplier]=(catMap[i.category][i.supplier]||0)+1;});
-            const warnings=[];
-            Object.entries(catMap).forEach(([cat,supMap])=>{
-              const total=Object.values(supMap).reduce((a,b)=>a+b,0);
-              Object.entries(supMap).forEach(([sup,count])=>{const pct=Math.round((count/total)*100);if(pct>=60&&total>=2)warnings.push({cat,sup,pct,count,total});});
-            });
-            if(!warnings.length) return null;
-            return(
-              <div style={{background:"#FCEBEB",border:"1px solid #E05A5A",borderRadius:10,padding:"12px 16px",marginBottom:16}}>
-                <div style={{fontWeight:600,color:"#A32D2D",fontSize:13,marginBottom:8}}>⚠ Single Point of Failure Detected</div>
-                {warnings.map((w,i)=>(<div key={i} style={{fontSize:12,color:"#791F1F",marginBottom:3}}><strong>{w.pct}%</strong> of <strong>{w.cat}</strong> products depend on <strong>{w.sup}</strong> ({w.count} of {w.total} SKUs) — consider diversifying.</div>))}
-              </div>
-            );
-          })()}
+      {tab==="Sales"&&(<div><div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 16px",marginBottom:16,display:"flex",gap:20,flexWrap:"wrap"}}><div><div style={{fontSize:11,color:C.muted}}>Today's revenue</div><div style={{fontSize:18,fontWeight:700,color:"#185FA5"}}>${todaySales.revenue.toFixed(2)}</div></div><div><div style={{fontSize:11,color:C.muted}}>Today's profit</div><div style={{fontSize:18,fontWeight:700,color:"#3B6D11"}}>${todaySales.profit.toFixed(2)}</div></div><div><div style={{fontSize:11,color:C.muted}}>Units sold</div><div style={{fontSize:18,fontWeight:700,color:"#534AB7"}}>{todaySales.units}</div></div><div><div style={{fontSize:11,color:C.muted}}>Transactions</div><div style={{fontSize:18,fontWeight:700,color:"#854F0B"}}>{todaySales.transactions}</div></div></div><div style={{fontWeight:500,marginBottom:12}}>Record sale / dispatch</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Item sold</label><select value={saleForm.sku} onChange={e=>setSaleForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=>{const m=marginBadge(i.unitCost,i.sellingPrice);return<option key={i.sku} value={i.sku}>{i.sku} - {i.name} ({i.qty} in stock{i.sellingPrice?` · $${i.sellingPrice} · ${m.label} margin`:""})</option>;})}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty sold</label><input type="number" placeholder="0" value={saleForm.qty} onChange={e=>setSaleForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Invoice / ref #</label><input placeholder="INV-0001" value={saleForm.invoice} onChange={e=>setSaleForm(f=>({...f,invoice:e.target.value}))} style={inp}/></div></div>{saleForm.sku&&(()=>{const item=inventory.find(i=>i.sku===saleForm.sku);const m=item?marginBadge(item.unitCost,item.sellingPrice):null;const qty=parseInt(saleForm.qty)||0;if(!item||!m||!item.sellingPrice) return null;return(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"10px 14px",marginBottom:10,fontSize:12}}><strong style={{color:"#3B6D11"}}>Sale summary</strong><div style={{marginTop:4,color:"#3B6D11"}}>Selling at <strong>${item.sellingPrice.toFixed(2)}</strong> · Cost <strong>${item.unitCost.toFixed(2)}</strong> · Profit per unit <strong>${m.profit.toFixed(2)}</strong> ({m.label} margin){qty>0&&<span> · Total profit: <strong>${(m.profit*qty).toFixed(2)}</strong></span>}</div></div>);})()}<button onClick={handleSale} style={btn("#A32D2D")}>Record sale</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Sales log</div>{audit.filter(a=>a.action==="Sold").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted,display:"flex",gap:10,alignItems:"center"}}><span>{a.qty} units</span>{a.revenue>0&&<span style={{color:"#185FA5",fontWeight:600}}>${a.revenue.toFixed(2)}</span>}{a.profit>0&&<span style={{color:"#3B6D11",fontWeight:600}}>+${a.profit.toFixed(2)} profit</span>}<span>{a.note} · {a.time}</span></span></div>))}</div>)}
 
-          {showAddSup&&(
-            <div style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:16,background:"#F0F4FF"}}>
-              <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>New Supplier</div>
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
-                {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
-                  f==="paymentTerms"
-                    ?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>
-                    :<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>
-                ))}
-                <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={newSupForm.notes} onChange={e=>setNewSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} placeholder="e.g. Call before ordering, ships Mondays only..."/></div>
-              </div>
-              <div style={{display:"flex",gap:8}}>
-                <button onClick={()=>{if(!newSupForm.name.trim())return;setSuppliers(s=>[...s,{...newSupForm,id:Date.now()}]);setNewSupForm(emptySup);setShowAddSup(false);}} style={btn("#3B6D11")}>Save supplier</button>
-                <button onClick={()=>{setShowAddSup(false);setNewSupForm(emptySup);}} style={btn("#888")}>Cancel</button>
-              </div>
-            </div>
-          )}
+      {tab==="Purchase Orders"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}><div><div style={{fontWeight:600,fontSize:15}}>Purchase Orders</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Create, edit and track orders sent to suppliers</div></div><button onClick={()=>{const poNumber=`PO-${String(poCounter).padStart(4,"0")}`;setPOCounter(c=>c+1);const newPO={id:Date.now(),poNumber,status:"Draft",sku:"",itemName:"",description:"",supplier:"",qty:1,unitCost:0,date:new Date().toISOString().slice(0,10),deliveryDate:"",notes:"",createdFrom:"Manual"};setPOs(p=>[newPO,...p]);setEditPOId(newPO.id);setEditPOForm({...newPO});}} style={btn("#185FA5")}>+ New Purchase Order</button></div>{pos.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>📋</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No purchase orders yet</div><div>Click "Send Reorder" in the Reorder Center or create a new PO manually.</div></div>)}{pos.map(po=>{const isEditing=editPOId===po.id;const total=(po.qty*(po.unitCost||0)).toFixed(2);const statusColor={Draft:"#854F0B",Sent:"#185FA5",Received:"#3B6D11"}[po.status]||"#888";const statusBg={Draft:"#FAEEDA",Sent:"#E6F1FB",Received:"#EAF3DE"}[po.status]||"#eee";if(isEditing) return(<div key={po.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}><div style={{fontWeight:700,fontSize:14,color:"#185FA5"}}>{editPOForm.poNumber} — Editing</div><div style={{display:"flex",gap:6}}><button onClick={()=>{setPOs(p=>p.map(x=>x.id===po.id?{...editPOForm}:x));setEditPOId(null);setEditPOForm({});}} style={{...btn("#3B6D11"),padding:"5px 14px"}}>Save PO</button><button onClick={()=>{setEditPOId(null);setEditPOForm({});}} style={{...btn("#888"),padding:"5px 14px"}}>Cancel</button></div></div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}><div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Select product (auto-fills fields)</label><select onChange={e=>{const item=inventory.find(i=>i.sku===e.target.value);if(item)setEditPOForm(x=>({...x,sku:item.sku,itemName:item.name,description:`Reorder for ${item.name} — SKU ${item.sku}`,supplier:item.supplier,unitCost:item.unitCost,qty:Math.max(item.minQty*2-item.qty,10)}));}} style={inp}><option value="">— Pick a product to auto-fill —</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty}, min: {i.minQty})</option>)}</select></div>{[["itemName","Item name *"],["description","Description"],["supplier","Supplier"],["deliveryDate","Expected delivery","date"]].map(([f,l,t])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={t||"text"} value={editPOForm[f]||""} onChange={e=>setEditPOForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>))}<div><label style={{fontSize:12,color:C.muted}}>Order quantity *</label><input type="number" value={editPOForm.qty||""} onChange={e=>setEditPOForm(x=>({...x,qty:parseInt(e.target.value)||0}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Unit cost ($)</label><input type="number" value={editPOForm.unitCost||""} onChange={e=>setEditPOForm(x=>({...x,unitCost:parseFloat(e.target.value)||0}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>Status</label><select value={editPOForm.status} onChange={e=>setEditPOForm(x=>({...x,status:e.target.value}))} style={inp}><option>Draft</option><option>Sent</option><option>Received</option></select></div><div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editPOForm.notes||""} onChange={e=>setEditPOForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}}/></div></div><div style={{marginTop:10,padding:"8px 12px",background:"#E6F1FB",borderRadius:8,fontSize:13,color:"#185FA5",fontWeight:600}}>Total: ${((editPOForm.qty||0)*(editPOForm.unitCost||0)).toFixed(2)}</div></div>);return(<div key={po.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}><div><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:4}}><span style={{fontWeight:700,fontSize:14}}>{po.poNumber}</span><span style={{background:statusBg,color:statusColor,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{po.status}</span></div><div style={{fontWeight:500,fontSize:13}}>{po.itemName||"—"}</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>{po.description}</div><div style={{display:"flex",gap:16,marginTop:8,fontSize:12,flexWrap:"wrap"}}><span>Supplier: <strong>{po.supplier||"—"}</strong></span><span>Qty: <strong>{po.qty}</strong></span><span>Unit cost: <strong>${(po.unitCost||0).toFixed(2)}</strong></span><span style={{color:"#3B6D11",fontWeight:600}}>Total: <strong>${total}</strong></span>{po.deliveryDate&&<span>Expected: <strong>{po.deliveryDate}</strong></span>}</div>{po.notes&&<div style={{fontSize:12,color:C.muted,marginTop:6,fontStyle:"italic"}}>Note: {po.notes}</div>}</div><div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}><div style={{fontSize:11,color:C.muted}}>{po.date}</div><div style={{display:"flex",gap:6}}><button onClick={()=>{setEditPOId(po.id);setEditPOForm({...po});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button><button onClick={()=>{const content=`PURCHASE ORDER\n${po.poNumber}\nDate: ${po.date}\n\nSupplier: ${po.supplier}\nItem: ${po.itemName}\nQty: ${po.qty}\nUnit Cost: ${(po.unitCost||0).toFixed(2)}\nTotal: ${total}\nDelivery: ${po.deliveryDate||"TBD"}\nNotes: ${po.notes||"None"}`;const blob=new Blob([content],{type:"text/plain"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=`${po.poNumber}.txt`;a.click();URL.revokeObjectURL(url);}} style={{...btn("#534AB7"),padding:"4px 12px",fontSize:11}}>⬇ Download</button><button onClick={()=>setPOs(p=>p.filter(x=>x.id!==po.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button></div></div></div></div>);})}
+      </div>)}
 
-          {suppliers.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>🏭</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No suppliers yet</div></div>)}
+      {tab==="Reorder Center"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}><div style={{fontWeight:500}}>Low inventory analyzer</div><button onClick={runAiAnalysis} disabled={aiLoading} style={{...btn("#534AB7"),opacity:aiLoading?0.7:1}}>{aiLoading?"Analyzing...":"AI analyze and recommend"}</button></div>{aiAnalysis&&(<div style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:8,padding:"14px 16px",marginBottom:20,fontSize:13,lineHeight:1.7,whiteSpace:"pre-wrap"}}><div style={{fontWeight:600,color:"#534AB7",marginBottom:8,fontSize:12}}>AI reorder analysis</div>{aiAnalysis}</div>)}<div style={{fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Items needing reorder ({lowItems.length})</div>{lowItems.length===0&&<div style={{color:C.muted,fontSize:13}}>All items are sufficiently stocked.</div>}{lowItems.map(i=>{const s=statusBadge(i.qty,i.minQty);const m=marginBadge(i.unitCost,i.sellingPrice);const sugQty=Math.max(i.minQty*2-i.qty,10);const ordered=reorders.find(r=>r.sku===i.sku);const days=daysUntilStockout(i);return(<div key={i.id} style={{border:`1px solid ${C.border}`,borderRadius:8,padding:"12px 14px",marginBottom:10}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}><div><div style={{fontWeight:500}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span>{days!==null&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d left`}</span>}</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Supplier: {i.supplier} · Location: {i.location}</div><div style={{display:"flex",gap:12,marginTop:6,fontSize:12}}><span>In stock: <strong>{i.qty}</strong></span><span>Min: <strong>{i.minQty}</strong></span><span>Suggest: <strong>{sugQty} units</strong></span>{i.sellingPrice&&<span style={{color:m.color}}>Margin: <strong>{m.label}</strong></span>}</div></div><div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}><span style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>{ordered?<span style={{fontSize:12,color:"#3B6D11",background:"#EAF3DE",padding:"3px 10px",borderRadius:10}}>Order sent</span>:<button onClick={()=>handleReorder(i)} style={btn("#185FA5")}>Send reorder</button>}</div></div></div>);})}{reorders.length>0&&(<><div style={{fontSize:13,fontWeight:500,color:C.muted,marginTop:24,marginBottom:8}}>Reorder history</div>{reorders.map(r=>{const urg={Critical:"#A32D2D",High:"#854F0B",Normal:"#3B6D11"};const urgBg={Critical:"#FCEBEB",High:"#FAEEDA",Normal:"#EAF3DE"};return(<div key={r.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span><strong>{r.name}</strong> — {r.qty} units from {r.supplier}</span><span style={{display:"flex",gap:8,alignItems:"center",color:C.muted}}><span>{r.date}</span><span style={{background:urgBg[r.urgency],color:urg[r.urgency],padding:"1px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{r.urgency}</span></span></div>);})}</>)}</div>)}
 
-          {suppliers.map(sup=>{
-            const linkedProducts=inventory.filter(i=>i.supplier===sup.name);
-            const isEditing=editSupId===sup.id;
-
-            // Scorecard calculations
-            const totalLinked=linkedProducts.length;
-            const lowLinked=linkedProducts.filter(p=>p.qty<p.minQty).length;
-            const outLinked=linkedProducts.filter(p=>p.qty===0).length;
-            const stockHealth=totalLinked===0?100:Math.max(0,Math.round(100-(outLinked*30)-(lowLinked*15)));
-            const stockHealthColor=stockHealth>=75?"#3B6D11":stockHealth>=50?"#854F0B":"#A32D2D";
-            const stockHealthBg=stockHealth>=75?"#EAF3DE":stockHealth>=50?"#FAEEDA":"#FCEBEB";
-            const lt=parseInt(sup.leadTime)||0;
-            const leadScore=sup.leadTime?Math.max(0,100-Math.min(lt,30)*2):null;
-            const leadColor=leadScore===null?"#888":leadScore>=70?"#3B6D11":leadScore>=40?"#854F0B":"#A32D2D";
-            const sameCatTotal=inventory.filter(i=>linkedProducts.some(p=>p.category===i.category)).length;
-            const depPct=sameCatTotal>0?Math.round((totalLinked/sameCatTotal)*100):0;
-            const depColor=depPct>=60?"#A32D2D":depPct>=40?"#854F0B":"#3B6D11";
-
-            if(isEditing) return(
-              <div key={sup.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}>
-                <div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>Editing: {sup.name}</div>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>
-                  {[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(
-                    f==="paymentTerms"
-                      ?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={editSupForm[f]} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>
-                      :<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={editSupForm[f]||""} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>
-                  ))}
-                  <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editSupForm.notes||""} onChange={e=>setEditSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}}/></div>
-                </div>
-                <div style={{display:"flex",gap:8}}>
-                  <button onClick={()=>{setSuppliers(s=>s.map(x=>x.id===sup.id?{...editSupForm,id:sup.id}:x));setEditSupId(null);setEditSupForm({});}} style={btn("#3B6D11")}>Save</button>
-                  <button onClick={()=>{setEditSupId(null);setEditSupForm({});}} style={btn("#888")}>Cancel</button>
-                </div>
-              </div>
-            );
-
-            return(
-              <div key={sup.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{sup.name}</div>
-                    {sup.contact&&<div style={{fontSize:13,color:C.muted,marginBottom:6}}>👤 {sup.contact}</div>}
-                    <div style={{display:"flex",gap:12,flexWrap:"wrap",fontSize:13,marginBottom:8}}>
-                      {sup.phone&&<a href={`tel:${sup.phone}`} style={{color:"#185FA5",textDecoration:"none"}}>📞 {sup.phone}</a>}
-                      {sup.email&&<a href={`mailto:${sup.email}`} style={{color:"#185FA5",textDecoration:"none"}}>✉️ {sup.email}</a>}
-                      {sup.website&&<a href={sup.website.startsWith("http")?sup.website:`https://${sup.website}`} target="_blank" rel="noreferrer" style={{color:"#185FA5",textDecoration:"none"}}>🌐 {sup.website}</a>}
-                    </div>
-                    <div style={{display:"flex",gap:16,flexWrap:"wrap",fontSize:12,marginBottom:10}}>
-                      {sup.leadTime&&<span style={{background:"#E6F1FB",color:"#185FA5",padding:"2px 8px",borderRadius:8}}>⏱ {sup.leadTime} day lead time</span>}
-                      {sup.minOrder&&<span style={{background:"#EAF3DE",color:"#3B6D11",padding:"2px 8px",borderRadius:8}}>📦 Min order: {sup.minOrder} units</span>}
-                      {sup.paymentTerms&&<span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 8px",borderRadius:8}}>💳 {sup.paymentTerms}</span>}
-                    </div>
-
-                    {/* Scorecard */}
-                    {totalLinked>0&&(
-                      <div style={{background:C.bg2,borderRadius:8,padding:"10px 12px",marginBottom:10}}>
-                        <div style={{fontSize:11,fontWeight:600,color:C.muted,marginBottom:8,letterSpacing:"0.5px"}}>SUPPLIER SCORECARD</div>
-                        {[
-                          {label:"Stock health",        value:stockHealth,  color:stockHealthColor},
-                          {label:"Lead time score",     value:leadScore,    color:leadColor},
-                          {label:"Category dependency", value:depPct,       color:depColor},
-                        ].map(bar=>(
-                          <div key={bar.label} style={{marginBottom:8}}>
-                            <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}>
-                              <span style={{color:C.muted}}>{bar.label}</span>
-                              <span style={{fontWeight:600,color:bar.color}}>{bar.value===null?"N/A":`${bar.value}%`}</span>
-                            </div>
-                            <div style={{background:C.border,borderRadius:4,height:5}}>
-                              <div style={{width:`${bar.value===null?0:bar.value}%`,background:bar.color,height:5,borderRadius:4,transition:"width .4s"}}/>
-                            </div>
-                          </div>
-                        ))}
-                        <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
-                          <span style={{background:stockHealthBg,color:stockHealthColor,fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>{outLinked>0?`${outLinked} out of stock`:lowLinked>0?`${lowLinked} low stock`:"All stocked ✓"}</span>
-                          {depPct>=60&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>⚠ High dependency risk</span>}
-                          {leadScore!==null&&leadScore<40&&<span style={{background:"#FAEEDA",color:"#854F0B",fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>⏱ Slow lead time</span>}
-                        </div>
-                      </div>
-                    )}
-
-                    {sup.notes&&<div style={{fontSize:12,color:C.muted,fontStyle:"italic",marginBottom:8}}>📝 {sup.notes}</div>}
-                    {linkedProducts.length>0&&(<div style={{marginTop:8}}><div style={{fontSize:11,color:C.muted,marginBottom:4,fontWeight:600}}>LINKED PRODUCTS ({linkedProducts.length})</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{linkedProducts.map(p=>{const s=statusBadge(p.qty,p.minQty);return<span key={p.sku} style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{p.name} ({p.qty} in stock)</span>;})}</div></div>)}
-                  </div>
-                  <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
-                    <button onClick={()=>{setEditSupId(sup.id);setEditSupForm({...sup});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button>
-                    <button onClick={()=>setSuppliers(s=>s.filter(x=>x.id!==sup.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button>
-                    {sup.email&&<button onClick={()=>window.open(`mailto:${sup.email}?subject=Purchase Order&body=Hi ${sup.contact||sup.name},%0A%0AWe would like to place an order.`)} style={{...btn("#3B6D11"),padding:"4px 12px",fontSize:11}}>✉️ Email</button>}
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+      {tab==="Suppliers"&&(<div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div><div style={{fontWeight:600,fontSize:15}}>Supplier Management</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Contacts, scorecards, and risk analysis for all your suppliers</div></div>
+          <button onClick={()=>setShowAddSup(s=>!s)} style={btn("#185FA5")}>+ Add Supplier</button>
         </div>
-      )}
+        {(()=>{
+          const catMap={};inventory.forEach(i=>{if(!catMap[i.category])catMap[i.category]={};catMap[i.category][i.supplier]=(catMap[i.category][i.supplier]||0)+1;});
+          const warnings=[];Object.entries(catMap).forEach(([cat,supMap])=>{const total=Object.values(supMap).reduce((a,b)=>a+b,0);Object.entries(supMap).forEach(([sup,count])=>{const pct=Math.round((count/total)*100);if(pct>=60&&total>=2)warnings.push({cat,sup,pct,count,total});});});
+          if(!warnings.length) return null;
+          return(<div style={{background:"#FCEBEB",border:"1px solid #E05A5A",borderRadius:10,padding:"12px 16px",marginBottom:16}}><div style={{fontWeight:600,color:"#A32D2D",fontSize:13,marginBottom:8}}>⚠ Single Point of Failure Detected</div>{warnings.map((w,i)=>(<div key={i} style={{fontSize:12,color:"#791F1F",marginBottom:3}}><strong>{w.pct}%</strong> of <strong>{w.cat}</strong> products depend on <strong>{w.sup}</strong> ({w.count} of {w.total} SKUs) — consider diversifying.</div>))}</div>);
+        })()}
+        {showAddSup&&(<div style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:16,background:"#F0F4FF"}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>New Supplier</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(f==="paymentTerms"?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>:<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={newSupForm[f]} onChange={e=>setNewSupForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>))}<div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={newSupForm.notes} onChange={e=>setNewSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}} placeholder="e.g. Call before ordering..."/></div></div><div style={{display:"flex",gap:8}}><button onClick={()=>{if(!newSupForm.name.trim())return;setSuppliers(s=>[...s,{...newSupForm,id:Date.now()}]);setNewSupForm(emptySup);setShowAddSup(false);}} style={btn("#3B6D11")}>Save supplier</button><button onClick={()=>{setShowAddSup(false);setNewSupForm(emptySup);}} style={btn("#888")}>Cancel</button></div></div>)}
+        {suppliers.length===0&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>🏭</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No suppliers yet</div></div>)}
+        {suppliers.map(sup=>{
+          const linkedProducts=inventory.filter(i=>i.supplier===sup.name);const isEditing=editSupId===sup.id;
+          const totalLinked=linkedProducts.length,lowLinked=linkedProducts.filter(p=>p.qty<p.minQty).length,outLinked=linkedProducts.filter(p=>p.qty===0).length;
+          const stockHealth=totalLinked===0?100:Math.max(0,Math.round(100-(outLinked*30)-(lowLinked*15)));
+          const stockHealthColor=stockHealth>=75?"#3B6D11":stockHealth>=50?"#854F0B":"#A32D2D";
+          const stockHealthBg=stockHealth>=75?"#EAF3DE":stockHealth>=50?"#FAEEDA":"#FCEBEB";
+          const lt=parseInt(sup.leadTime)||0;const leadScore=sup.leadTime?Math.max(0,100-Math.min(lt,30)*2):null;
+          const leadColor=leadScore===null?"#888":leadScore>=70?"#3B6D11":leadScore>=40?"#854F0B":"#A32D2D";
+          const sameCatTotal=inventory.filter(i=>linkedProducts.some(p=>p.category===i.category)).length;
+          const depPct=sameCatTotal>0?Math.round((totalLinked/sameCatTotal)*100):0;const depColor=depPct>=60?"#A32D2D":depPct>=40?"#854F0B":"#3B6D11";
+          if(isEditing) return(<div key={sup.id} style={{border:`2px solid #185FA5`,borderRadius:10,padding:16,marginBottom:12,background:"#F0F4FF"}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5",marginBottom:12}}>Editing: {sup.name}</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["name","Supplier name *"],["contact","Contact person"],["phone","Phone"],["email","Email"],["website","Website"],["leadTime","Lead time (days)"],["minOrder","Min order qty"],["paymentTerms","Payment terms"]].map(([f,l])=>(f==="paymentTerms"?<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><select value={editSupForm[f]} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}>{["Net 30","Net 60","Net 90","COD","Prepaid"].map(t=><option key={t}>{t}</option>)}</select></div>:<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["phone"].includes(f)?"tel":["leadTime","minOrder"].includes(f)?"number":"text"} value={editSupForm[f]||""} onChange={e=>setEditSupForm(x=>({...x,[f]:e.target.value}))} style={inp}/></div>))}<div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Notes</label><textarea value={editSupForm.notes||""} onChange={e=>setEditSupForm(x=>({...x,notes:e.target.value}))} style={{...inp,height:60,resize:"vertical"}}/></div></div><div style={{display:"flex",gap:8}}><button onClick={()=>{setSuppliers(s=>s.map(x=>x.id===sup.id?{...editSupForm,id:sup.id}:x));setEditSupId(null);setEditSupForm({});}} style={btn("#3B6D11")}>Save</button><button onClick={()=>{setEditSupId(null);setEditSupForm({});}} style={btn("#888")}>Cancel</button></div></div>);
+          return(<div key={sup.id} style={{border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:12}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}><div style={{flex:1}}><div style={{fontWeight:700,fontSize:15,marginBottom:4}}>{sup.name}</div>{sup.contact&&<div style={{fontSize:13,color:C.muted,marginBottom:6}}>👤 {sup.contact}</div>}<div style={{display:"flex",gap:12,flexWrap:"wrap",fontSize:13,marginBottom:8}}>{sup.phone&&<a href={`tel:${sup.phone}`} style={{color:"#185FA5",textDecoration:"none"}}>📞 {sup.phone}</a>}{sup.email&&<a href={`mailto:${sup.email}`} style={{color:"#185FA5",textDecoration:"none"}}>✉️ {sup.email}</a>}{sup.website&&<a href={sup.website.startsWith("http")?sup.website:`https://${sup.website}`} target="_blank" rel="noreferrer" style={{color:"#185FA5",textDecoration:"none"}}>🌐 {sup.website}</a>}</div><div style={{display:"flex",gap:16,flexWrap:"wrap",fontSize:12,marginBottom:10}}>{sup.leadTime&&<span style={{background:"#E6F1FB",color:"#185FA5",padding:"2px 8px",borderRadius:8}}>⏱ {sup.leadTime} day lead time</span>}{sup.minOrder&&<span style={{background:"#EAF3DE",color:"#3B6D11",padding:"2px 8px",borderRadius:8}}>📦 Min order: {sup.minOrder} units</span>}{sup.paymentTerms&&<span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 8px",borderRadius:8}}>💳 {sup.paymentTerms}</span>}</div>
+          {totalLinked>0&&(<div style={{background:C.bg2,borderRadius:8,padding:"10px 12px",marginBottom:10}}><div style={{fontSize:11,fontWeight:600,color:C.muted,marginBottom:8,letterSpacing:"0.5px"}}>SUPPLIER SCORECARD</div>{[{label:"Stock health",value:stockHealth,color:stockHealthColor},{label:"Lead time score",value:leadScore,color:leadColor},{label:"Category dependency",value:depPct,color:depColor}].map(bar=>(<div key={bar.label} style={{marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:3}}><span style={{color:C.muted}}>{bar.label}</span><span style={{fontWeight:600,color:bar.color}}>{bar.value===null?"N/A":`${bar.value}%`}</span></div><div style={{background:C.border,borderRadius:4,height:5}}><div style={{width:`${bar.value===null?0:bar.value}%`,background:bar.color,height:5,borderRadius:4}}/></div></div>))}<div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}><span style={{background:stockHealthBg,color:stockHealthColor,fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>{outLinked>0?`${outLinked} out of stock`:lowLinked>0?`${lowLinked} low stock`:"All stocked ✓"}</span>{depPct>=60&&<span style={{background:"#FCEBEB",color:"#A32D2D",fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>⚠ High dependency risk</span>}{leadScore!==null&&leadScore<40&&<span style={{background:"#FAEEDA",color:"#854F0B",fontSize:10,fontWeight:600,padding:"2px 8px",borderRadius:8}}>⏱ Slow lead time</span>}</div></div>)}
+          {sup.notes&&<div style={{fontSize:12,color:C.muted,fontStyle:"italic",marginBottom:8}}>📝 {sup.notes}</div>}{linkedProducts.length>0&&(<div style={{marginTop:8}}><div style={{fontSize:11,color:C.muted,marginBottom:4,fontWeight:600}}>LINKED PRODUCTS ({linkedProducts.length})</div><div style={{display:"flex",gap:6,flexWrap:"wrap"}}>{linkedProducts.map(p=>{const s=statusBadge(p.qty,p.minQty);return<span key={p.sku} style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{p.name} ({p.qty} in stock)</span>;})}</div></div>)}</div><div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}><button onClick={()=>{setEditSupId(sup.id);setEditSupForm({...sup});}} style={{...btn("#185FA5"),padding:"4px 12px",fontSize:11}}>Edit</button><button onClick={()=>setSuppliers(s=>s.filter(x=>x.id!==sup.id))} style={{...btn("#A32D2D"),padding:"4px 12px",fontSize:11}}>Delete</button>{sup.email&&<button onClick={()=>window.open(`mailto:${sup.email}?subject=Purchase Order&body=Hi ${sup.contact||sup.name},%0A%0AWe would like to place an order.`)} style={{...btn("#3B6D11"),padding:"4px 12px",fontSize:11}}>✉️ Email</button>}</div></div></div>);
+        })}
+      </div>)}
 
-      {/* AUDIT TRAIL */}
       {tab==="Audit Trail"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Full inventory activity log</div><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["Time","Action","Item","Qty","Revenue","Profit","User","Reference"].map(h=>(<th key={h} style={{textAlign:"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{audit.map(a=>{const aColor={Received:"#185FA5",Sold:"#A32D2D",Moved:"#0F6E56",Reordered:"#854F0B",Import:"#534AB7",Edited:"#185FA5",Deleted:"#A32D2D"}[a.action]||"#888";const aBg={Received:"#E6F1FB",Sold:"#FCEBEB",Moved:"#E1F5EE",Reordered:"#FAEEDA",Import:"#EDE9FB",Edited:"#E6F1FB",Deleted:"#FCEBEB"}[a.action]||"#eee";return(<tr key={a.id} style={{borderBottom:`1px solid ${C.border}`}}><td style={{padding:"7px 8px",color:C.muted,whiteSpace:"nowrap"}}>{a.time}</td><td style={{padding:"7px 8px"}}><span style={{background:aBg,color:aColor,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{a.action}</span></td><td style={{padding:"7px 8px",fontWeight:500}}>{a.item}</td><td style={{padding:"7px 8px"}}>{a.qty}</td><td style={{padding:"7px 8px",color:"#185FA5",fontWeight:600}}>{a.revenue>0?`$${a.revenue.toFixed(2)}`:"—"}</td><td style={{padding:"7px 8px",color:"#3B6D11",fontWeight:600}}>{a.profit>0?`$${a.profit.toFixed(2)}`:"—"}</td><td style={{padding:"7px 8px",color:C.muted}}>{a.user}</td><td style={{padding:"7px 8px",color:C.muted}}>{a.note}</td></tr>);})}</tbody></table></div></div>)}
 
-      {/* BUSINESS INSIGHTS */}
-      {tab==="Business Insights"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14,flexWrap:"wrap",gap:10}}><div><div style={{fontWeight:600,fontSize:15}}>Business Insights</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>AI-powered SWOT, Porter's Five Forces and money strategies based on your live inventory data</div></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><input value={industry} onChange={e=>setIndustry(e.target.value)} placeholder="Your industry" style={{...inp,width:200}}/><button onClick={runBusinessInsights} disabled={insightLoading} style={{...btn("#534AB7"),opacity:insightLoading?0.7:1}}>{insightLoading?"Analyzing...":"Run AI Analysis"}</button></div></div>{!swotData&&!insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>✦</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>Ready to analyze your business</div><div>Click "Run AI Analysis" to generate your SWOT, Porter's Five Forces, and money-making strategies.</div></div>)}{insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:24,marginBottom:8}}>⏳</div><div>Analyzing your inventory and generating business insights...</div></div>)}{swotData&&!swotData.error&&(<><div style={{display:"flex",gap:4,marginBottom:18}}>{["SWOT","Porter's Five Forces","Money Strategies"].map(t=>(<button key={t} onClick={()=>setInsightTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:insightTab===t?"#534AB7":"transparent",color:insightTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:insightTab===t?600:400}}>{t}</button>))}</div>{insightTab==="SWOT"&&(<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{[{key:"strengths",label:"Strengths",icon:"💪",bg:"#EAF3DE",border:"#6BAD2E",head:"#3B6D11"},{key:"weaknesses",label:"Weaknesses",icon:"⚠",bg:"#FCEBEB",border:"#E05A5A",head:"#A32D2D"},{key:"opportunities",label:"Opportunities",icon:"🚀",bg:"#E6F1FB",border:"#4A90D9",head:"#185FA5"},{key:"threats",label:"Threats",icon:"🛡",bg:"#FAEEDA",border:"#EF9F27",head:"#854F0B"}].map(q=>(<div key={q.key} style={{background:q.bg,border:`1px solid ${q.border}`,borderRadius:10,padding:14}}><div style={{fontWeight:700,color:q.head,fontSize:13,marginBottom:10}}>{q.icon} {q.label}</div>{(swotData[q.key]||[]).map((item,i)=>(<div key={i} style={{marginBottom:10,paddingBottom:10,borderBottom:i<swotData[q.key].length-1?`1px solid ${q.border}55`:"none"}}><div style={{fontWeight:600,fontSize:12,color:q.head}}>{item.point}</div><div style={{fontSize:11,color:q.head,opacity:0.8,marginTop:3}}>→ {item.action}</div></div>))}</div>))}</div>)}{insightTab==="Porter's Five Forces"&&porterData&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>{[{key:"supplier_power",label:"Supplier Power",icon:"🏭"},{key:"buyer_power",label:"Buyer Power",icon:"🛒"},{key:"competitive_rivalry",label:"Competitive Rivalry",icon:"⚔"},{key:"new_entrants",label:"Threat of New Entrants",icon:"🚪"},{key:"substitutes",label:"Threat of Substitutes",icon:"🔄"}].map(f=>{const d=porterData[f.key];const rC=d.rating==="High"?"#A32D2D":d.rating==="Medium"?"#854F0B":"#3B6D11";const rB=d.rating==="High"?"#FCEBEB":d.rating==="Medium"?"#FAEEDA":"#EAF3DE";const bW=d.rating==="High"?"85%":d.rating==="Medium"?"50%":"25%";return(<div key={f.key} style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{fontWeight:600,fontSize:13}}>{f.icon} {f.label}</div><span style={{background:rB,color:rC,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{d.rating} Risk</span></div><div style={{background:C.border,borderRadius:4,height:6,marginBottom:8}}><div style={{width:bW,background:rC,height:6,borderRadius:4}}/></div><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{d.insight}</div><div style={{fontSize:12,color:"#534AB7",fontWeight:600}}>→ {d.action}</div></div>);})}</div>)}{insightTab==="Money Strategies"&&moneyData&&(<div style={{display:"flex",flexDirection:"column",gap:20}}><div><div style={{fontWeight:700,fontSize:13,color:"#3B6D11",marginBottom:10}}>💰 Revenue Growth Opportunities</div>{(moneyData.revenue_growth||[]).map((item,i)=>(<div key={i} style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#3B6D11"}}>{item.title}</div><span style={{background:item.impact==="High"?"#3B6D11":item.impact==="Medium"?"#6BAD2E":"#A8D57B",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{item.impact} Impact</span></div><div style={{fontSize:12,color:"#3B6D11",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#185FA5",marginBottom:10}}>✂️ Cost Reduction Strategies</div>{(moneyData.cost_reduction||[]).map((item,i)=>(<div key={i} style={{background:"#E6F1FB",border:"1px solid #4A90D9",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5"}}>{item.title}</div><span style={{background:"#185FA5",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>Save {item.saving}</span></div><div style={{fontSize:12,color:"#185FA5",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#7B3FA0",marginBottom:10}}>🆕 New Product / Service Ideas</div>{(moneyData.new_products||[]).map((item,i)=>(<div key={i} style={{background:"#F4EBF9",border:"1px solid #B57FD4",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{fontWeight:600,fontSize:13,color:"#7B3FA0",marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:"#7B3FA0",opacity:0.85,marginBottom:4}}>{item.description}</div><div style={{fontSize:11,color:"#7B3FA0",fontWeight:600}}>Why now → {item.rationale}</div></div>))}</div></div>)}</>)}{swotData?.error&&<div style={{color:"#A32D2D",fontSize:13,padding:12}}>{swotData.error}</div>}</div>)}
+      {tab==="Intelligence"&&(<div>
+        <div style={{display:"flex",gap:4,marginBottom:20}}>
+          {["Forecast","What-If Simulator","Overstock"].map(t=>(<button key={t} onClick={()=>setIntelTab(t)} style={{padding:"7px 16px",borderRadius:20,border:`1px solid ${intelTab===t?"#0D7E6E":C.border}`,background:intelTab===t?"#0D7E6E":"transparent",color:intelTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:intelTab===t?600:400}}>{t==="Forecast"&&"📈 "}{t==="What-If Simulator"&&"🔀 "}{t==="Overstock"&&"📦 "}{t}</button>))}
+        </div>
 
-      {/* IMPORT PRODUCTS */}
+        {intelTab==="Forecast"&&(<div>
+          <div style={{fontSize:13,color:C.muted,marginBottom:16}}>Demand forecast based on your last 7 days of sales velocity. Shows projected units needed over the next 14 and 30 days.</div>
+          {inventory.map(item=>{
+            const fc=getForecast(item);if(fc.totalSold===0) return null;
+            const s=statusBadge(item.qty,item.minQty);const urgent=fc.stockoutDay!==null&&fc.stockoutDay<=14;
+            return(<div key={item.sku} style={{border:`1px solid ${urgent?"#E05A5A":C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:10,background:urgent?"#FFF8F8":"#fff"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,fontSize:14}}>{item.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({item.sku})</span></div>
+                  <div style={{fontSize:12,color:C.muted,marginTop:2}}>{item.category} · {item.supplier}</div>
+                  <div style={{display:"flex",gap:16,marginTop:8,flexWrap:"wrap",fontSize:12}}>
+                    <span>Daily rate: <strong style={{color:"#0D7E6E"}}>{fc.dailyRate.toFixed(1)} units/day</strong></span>
+                    <span>14-day demand: <strong>{fc.days14} units</strong></span>
+                    <span>30-day demand: <strong>{fc.days30} units</strong></span>
+                    <span>Reorder point: <strong>{fc.reorderPoint} units</strong></span>
+                  </div>
+                  <div style={{marginTop:10}}>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:3}}>
+                      <span>Current stock: {item.qty}</span><span>14-day need: {fc.days14}</span><span>30-day need: {fc.days30}</span>
+                    </div>
+                    <div style={{background:C.border,borderRadius:4,height:8,position:"relative"}}>
+                      <div style={{position:"absolute",left:0,top:0,height:8,borderRadius:4,background:"#0D7E6E",width:`${Math.min(100,(item.qty/Math.max(fc.days30,1))*100)}%`}}/>
+                      <div style={{position:"absolute",left:`${Math.min(100,(fc.days14/Math.max(fc.days30,1))*100)}%`,top:-2,height:12,width:2,background:"#854F0B"}}/>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginTop:2}}><span style={{color:"#0D7E6E"}}>■ Current stock</span><span style={{color:"#854F0B"}}>| 14-day mark</span></div>
+                  </div>
+                </div>
+                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}>
+                  <span style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>
+                  {fc.stockoutDay!==null&&<span style={{background:fc.stockoutDay<=3?"#FCEBEB":fc.stockoutDay<=14?"#FAEEDA":"#E6F1FB",color:fc.stockoutDay<=3?"#A32D2D":fc.stockoutDay<=14?"#854F0B":"#185FA5",fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:8}}>Stockout in ~{fc.stockoutDay}d</span>}
+                  {urgent&&<button onClick={()=>{setIntelTab("What-If Simulator");setSimSku(item.sku);}} style={{...btn("#0D7E6E"),padding:"4px 12px",fontSize:11}}>Simulate reorder</button>}
+                </div>
+              </div>
+            </div>);
+          })}
+          {inventory.every(i=>getForecast(i).totalSold===0)&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>📊</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No sales data yet</div><div>Record some sales to see demand forecasts here.</div></div>)}
+        </div>)}
+
+        {intelTab==="What-If Simulator"&&(<div>
+          <div style={{fontSize:13,color:C.muted,marginBottom:16}}>Model the financial impact of a reorder before you commit. See projected cost, revenue, profit, and how many days it extends your stock.</div>
+          <div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:16}}>
+            <div style={{fontWeight:600,fontSize:14,marginBottom:12}}>Configure simulation</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}>
+              <div><label style={{fontSize:12,color:C.muted,display:"block",marginBottom:4}}>Select product</label><select value={simSku} onChange={e=>{setSimSku(e.target.value);setSimResult(null);}} style={inp}><option value="">— Choose a product —</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty})</option>)}</select></div>
+              <div><label style={{fontSize:12,color:C.muted,display:"block",marginBottom:4}}>Reorder quantity</label><input type="number" value={simQty} min="1" onChange={e=>{setSimQty(e.target.value);setSimResult(null);}} style={inp}/></div>
+            </div>
+            <button onClick={runSimulator} disabled={!simSku||!simQty} style={{...btn("#0D7E6E"),opacity:(!simSku||!simQty)?0.5:1}}>Run simulation</button>
+          </div>
+          {simResult&&(<div>
+            <div style={{fontWeight:600,fontSize:14,marginBottom:12,color:"#0D7E6E"}}>Simulation: {simResult.item.name} — reorder {simResult.qty} units</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:16}}>
+              {[{label:"Order cost",val:`$${simResult.orderCost}`,color:"#A32D2D",sub:"cash out"},{label:"Projected revenue",val:`$${simResult.projRevenue}`,color:"#185FA5",sub:"if all sold"},{label:"Projected profit",val:`$${simResult.projProfit}`,color:"#3B6D11",sub:"gross profit"},{label:"Stock after",val:`${simResult.totalQtyAfter} units`,color:"#534AB7",sub:"total on hand"}].map(c=>(<div key={c.label} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>{c.label}</div><div style={{fontSize:22,fontWeight:700,color:c.color}}>{c.val}</div><div style={{fontSize:10,color:C.muted,marginTop:2}}>{c.sub}</div></div>))}
+            </div>
+            <div style={{background:"#E8F7F3",border:"1px solid #0D7E6E",borderRadius:10,padding:"14px 16px"}}>
+              <div style={{fontWeight:600,color:"#0D7E6E",marginBottom:8,fontSize:13}}>📋 Decision summary</div>
+              <div style={{fontSize:13,color:"#0A5A4D",lineHeight:1.7}}>
+                {simResult.coversDays!==null&&<div>✓ This order covers approximately <strong>{simResult.coversDays} days</strong> of demand at {simResult.dailyRate.toFixed(1)} units/day.</div>}
+                {simResult.stockoutAfter!==null&&<div>✓ Combined stock of <strong>{simResult.totalQtyAfter} units</strong> lasts ~<strong>{simResult.stockoutAfter} days</strong> before next stockout.</div>}
+                <div>✓ ROI: spend <strong>${simResult.orderCost}</strong>, earn <strong>${simResult.projRevenue}</strong> — a <strong>${simResult.projProfit}</strong> gross profit ({(((parseFloat(simResult.projRevenue)-parseFloat(simResult.orderCost))/parseFloat(simResult.orderCost))*100).toFixed(0)}% return on spend).</div>
+              </div>
+            </div>
+            <div style={{marginTop:12,display:"flex",gap:8}}>
+              <button onClick={()=>{handleReorder(simResult.item);setTab("Purchase Orders");}} style={btn("#0D7E6E")}>Create purchase order</button>
+              <button onClick={()=>setSimResult(null)} style={btn("#888")}>Clear</button>
+            </div>
+          </div>)}
+        </div>)}
+
+        {intelTab==="Overstock"&&(<div>
+          <div style={{fontSize:13,color:C.muted,marginBottom:16}}>Items with excess inventory relative to sales velocity. Liquidating these frees up cash and shelf space.</div>
+          {(()=>{
+            const overstock=getOverstockItems();
+            if(!overstock.length) return(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No overstock detected</div><div>All inventory looks balanced with your current sales rate.</div></div>);
+            const totalExcessValue=overstock.reduce((s,i)=>s+parseFloat(i.excessValue),0);
+            return(<>
+              <div style={{background:"#FFF8E8",border:"1px solid #F0A500",borderRadius:10,padding:"12px 16px",marginBottom:16}}>
+                <div style={{fontWeight:600,color:"#854F0B",fontSize:13}}>{overstock.length} overstock item{overstock.length!==1?"s":""} detected</div>
+                <div style={{fontSize:12,color:"#A06010",marginTop:2}}>~${totalExcessValue.toFixed(0)} in excess inventory cost tied up in slow-moving stock</div>
+              </div>
+              {overstock.map(i=>{
+                const m=marginBadge(i.unitCost,i.sellingPrice);const discountMargin=marginBadge(i.unitCost,parseFloat(i.discountPrice));
+                return(<div key={i.sku} style={{border:`1px solid #F0A500`,borderRadius:10,padding:"14px 16px",marginBottom:12,background:"#FFFCF0"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:600,fontSize:14}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span></div>
+                      <div style={{fontSize:12,color:C.muted,marginTop:2}}>{i.category} · {i.supplier}</div>
+                      <div style={{display:"flex",gap:16,marginTop:8,flexWrap:"wrap",fontSize:12}}>
+                        <span>In stock: <strong>{i.qty}</strong></span><span>Daily rate: <strong>{i.dailyRate.toFixed(1)}/day</strong></span>
+                        <span>Days stock: <strong style={{color:"#854F0B"}}>{i.daysStock===999?"∞":i.daysStock+"d"}</strong></span>
+                        <span>Excess units: <strong>{i.excessUnits}</strong></span><span>Excess value: <strong style={{color:"#A32D2D"}}>${i.excessValue}</strong></span>
+                      </div>
+                      <div style={{marginTop:10,background:"#FFF0D0",borderRadius:8,padding:"10px 12px"}}>
+                        <div style={{fontSize:12,fontWeight:600,color:"#854F0B",marginBottom:6}}>💡 Liquidation options</div>
+                        <div style={{display:"flex",gap:16,flexWrap:"wrap",fontSize:12,color:"#633806"}}>
+                          <div><strong>Option A — 15% discount</strong><br/>Sell at <strong>${i.discountPrice}</strong> · still {discountMargin.label} margin</div>
+                          <div><strong>Option B — Bundle deal</strong><br/>Pair with a low-margin SKU to move volume</div>
+                        </div>
+                      </div>
+                    </div>
+                    <div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}>
+                      <span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>Overstock</span>
+                      <span style={{background:m.bg,color:m.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{m.label} margin</span>
+                      <button onClick={()=>{setIntelTab("What-If Simulator");setSimSku(i.sku);}} style={{...btn("#854F0B"),padding:"4px 12px",fontSize:11}}>Simulate</button>
+                    </div>
+                  </div>
+                </div>);
+              })}
+            </>);
+          })()}
+        </div>)}
+      </div>)}
+
+      {tab==="Business Insights"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14,flexWrap:"wrap",gap:10}}><div><div style={{fontWeight:600,fontSize:15}}>Business Insights</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>AI-powered SWOT, Porter's Five Forces and money strategies</div></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><input value={industry} onChange={e=>setIndustry(e.target.value)} placeholder="Your industry" style={{...inp,width:200}}/><button onClick={runBusinessInsights} disabled={insightLoading} style={{...btn("#534AB7"),opacity:insightLoading?0.7:1}}>{insightLoading?"Analyzing...":"Run AI Analysis"}</button></div></div>{!swotData&&!insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>✦</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>Ready to analyze your business</div><div>Click "Run AI Analysis" to generate your SWOT, Porter's Five Forces, and money-making strategies.</div></div>)}{insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:24,marginBottom:8}}>⏳</div><div>Analyzing your inventory and generating business insights...</div></div>)}{swotData&&!swotData.error&&(<><div style={{display:"flex",gap:4,marginBottom:18}}>{["SWOT","Porter's Five Forces","Money Strategies"].map(t=>(<button key={t} onClick={()=>setInsightTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:insightTab===t?"#534AB7":"transparent",color:insightTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:insightTab===t?600:400}}>{t}</button>))}</div>{insightTab==="SWOT"&&(<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{[{key:"strengths",label:"Strengths",icon:"💪",bg:"#EAF3DE",border:"#6BAD2E",head:"#3B6D11"},{key:"weaknesses",label:"Weaknesses",icon:"⚠",bg:"#FCEBEB",border:"#E05A5A",head:"#A32D2D"},{key:"opportunities",label:"Opportunities",icon:"🚀",bg:"#E6F1FB",border:"#4A90D9",head:"#185FA5"},{key:"threats",label:"Threats",icon:"🛡",bg:"#FAEEDA",border:"#EF9F27",head:"#854F0B"}].map(q=>(<div key={q.key} style={{background:q.bg,border:`1px solid ${q.border}`,borderRadius:10,padding:14}}><div style={{fontWeight:700,color:q.head,fontSize:13,marginBottom:10}}>{q.icon} {q.label}</div>{(swotData[q.key]||[]).map((item,i)=>(<div key={i} style={{marginBottom:10,paddingBottom:10,borderBottom:i<swotData[q.key].length-1?`1px solid ${q.border}55`:"none"}}><div style={{fontWeight:600,fontSize:12,color:q.head}}>{item.point}</div><div style={{fontSize:11,color:q.head,opacity:0.8,marginTop:3}}>→ {item.action}</div></div>))}</div>))}</div>)}{insightTab==="Porter's Five Forces"&&porterData&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>{[{key:"supplier_power",label:"Supplier Power",icon:"🏭"},{key:"buyer_power",label:"Buyer Power",icon:"🛒"},{key:"competitive_rivalry",label:"Competitive Rivalry",icon:"⚔"},{key:"new_entrants",label:"Threat of New Entrants",icon:"🚪"},{key:"substitutes",label:"Threat of Substitutes",icon:"🔄"}].map(f=>{const d=porterData[f.key];const rC=d.rating==="High"?"#A32D2D":d.rating==="Medium"?"#854F0B":"#3B6D11";const rB=d.rating==="High"?"#FCEBEB":d.rating==="Medium"?"#FAEEDA":"#EAF3DE";const bW=d.rating==="High"?"85%":d.rating==="Medium"?"50%":"25%";return(<div key={f.key} style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{fontWeight:600,fontSize:13}}>{f.icon} {f.label}</div><span style={{background:rB,color:rC,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{d.rating} Risk</span></div><div style={{background:C.border,borderRadius:4,height:6,marginBottom:8}}><div style={{width:bW,background:rC,height:6,borderRadius:4}}/></div><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{d.insight}</div><div style={{fontSize:12,color:"#534AB7",fontWeight:600}}>→ {d.action}</div></div>);})}</div>)}{insightTab==="Money Strategies"&&moneyData&&(<div style={{display:"flex",flexDirection:"column",gap:20}}><div><div style={{fontWeight:700,fontSize:13,color:"#3B6D11",marginBottom:10}}>💰 Revenue Growth Opportunities</div>{(moneyData.revenue_growth||[]).map((item,i)=>(<div key={i} style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#3B6D11"}}>{item.title}</div><span style={{background:item.impact==="High"?"#3B6D11":item.impact==="Medium"?"#6BAD2E":"#A8D57B",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{item.impact} Impact</span></div><div style={{fontSize:12,color:"#3B6D11",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#185FA5",marginBottom:10}}>✂️ Cost Reduction Strategies</div>{(moneyData.cost_reduction||[]).map((item,i)=>(<div key={i} style={{background:"#E6F1FB",border:"1px solid #4A90D9",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5"}}>{item.title}</div><span style={{background:"#185FA5",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>Save {item.saving}</span></div><div style={{fontSize:12,color:"#185FA5",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#7B3FA0",marginBottom:10}}>🆕 New Product / Service Ideas</div>{(moneyData.new_products||[]).map((item,i)=>(<div key={i} style={{background:"#F4EBF9",border:"1px solid #B57FD4",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{fontWeight:600,fontSize:13,color:"#7B3FA0",marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:"#7B3FA0",opacity:0.85,marginBottom:4}}>{item.description}</div><div style={{fontSize:11,color:"#7B3FA0",fontWeight:600}}>Why now → {item.rationale}</div></div>))}</div></div>)}</>)}{swotData?.error&&<div style={{color:"#A32D2D",fontSize:13,padding:12}}>{swotData.error}</div>}</div>)}
+
       {tab==="Import Products"&&(<div><div style={{marginBottom:16}}><div style={{fontWeight:600,fontSize:15}}>Import Products into StockGuard</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Transfer your existing product list all at once. Imported items merge with your current inventory.</div></div>{importStatus==="done"&&mergeStats&&(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:700,fontSize:15,color:"#3B6D11",marginBottom:4}}>Import Successful!</div><div style={{fontSize:13,color:"#3B6D11",marginBottom:12}}><strong>{mergeStats.total}</strong> products imported — <strong>{mergeStats.added}</strong> new, <strong>{mergeStats.updated}</strong> updated.</div><div style={{display:"flex",gap:8,justifyContent:"center"}}><button onClick={()=>setTab("Dashboard")} style={btn("#3B6D11")}>View inventory</button><button onClick={resetImport} style={btn("#185FA5")}>Import more</button></div></div>)}{importStatus!=="done"&&(<><div style={{display:"flex",gap:4,marginBottom:18}}>{[["csv","CSV / Excel"],["paste","Paste from Spreadsheet"],["manual","Type Manually"]].map(([k,l])=>(<button key={k} onClick={()=>{setImportTab(k);resetImport();}} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:importTab===k?"#185FA5":"transparent",color:importTab===k?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:importTab===k?600:400}}>{l}</button>))}</div>{importTab==="csv"&&importStatus!=="preview"&&(<div><div style={{border:`2px dashed ${C.border}`,borderRadius:10,padding:"32px 20px",textAlign:"center",marginBottom:14,background:C.bg2}}><div style={{fontSize:32,marginBottom:8}}>📂</div><div style={{fontWeight:600,marginBottom:4}}>Upload your CSV file</div><div style={{fontSize:12,color:C.muted,marginBottom:14}}>Supported columns: SKU, Name, Category, Qty, MinQty, Supplier, UnitCost, SellingPrice, Location</div><label style={{...btn("#185FA5"),display:"inline-block",cursor:"pointer"}}>Choose file <input type="file" accept=".csv,.txt" onChange={handleCSVUpload} style={{display:"none"}}/></label></div><div style={{display:"flex",alignItems:"center",gap:8,fontSize:12,color:C.muted}}><span>Don't have the right format?</span><button onClick={downloadTemplate} style={{...btn("#0F6E56"),padding:"4px 12px",fontSize:12}}>Download template</button></div></div>)}{importTab==="paste"&&importStatus!=="preview"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:8}}>Copy cells from Excel or Google Sheets (including the header row) and paste below.</div><textarea value={pasteText} onChange={e=>setPasteText(e.target.value)} placeholder={"SKU\tName\tCategory\tQty\tMinQty\tSupplier\tUnitCost\tSellingPrice\tLocation"} style={{...inp,height:160,fontFamily:"monospace",fontSize:12,resize:"vertical"}}/><button onClick={handlePasteParse} style={{...btn("#185FA5"),marginTop:10}}>Preview import</button></div>)}{importTab==="manual"&&importStatus!=="preview"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:10}}>Enter products row by row. SKU and Name are required.</div><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Name","Category","Qty","Min Qty","Supplier","Unit Cost","Sell Price","Location",""].map(h=>(<th key={h} style={{padding:"4px 6px",fontWeight:600,color:C.muted,textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{manualRows.map((row,i)=>(<tr key={i}>{["sku","name","category","qty","minQty","supplier","unitCost","sellingPrice","location"].map(f=>(<td key={f} style={{padding:"3px 4px"}}><input value={row[f]||""} onChange={e=>setManualRows(rows=>rows.map((r,j)=>j===i?{...r,[f]:e.target.value}:r))} style={{...inp,fontSize:12,padding:"5px 7px",minWidth:f==="name"?120:70}} placeholder={["qty","minQty","unitCost","sellingPrice"].includes(f)?"0":""}/></td>))}<td style={{padding:"3px 4px"}}><button onClick={()=>setManualRows(rows=>rows.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#A32D2D",cursor:"pointer",fontSize:16}}>x</button></td></tr>))}</tbody></table></div><div style={{display:"flex",gap:8,marginTop:10}}><button onClick={()=>setManualRows(r=>[...r,{sku:"",name:"",category:"",qty:"",minQty:"",supplier:"",unitCost:"",sellingPrice:"",location:""}])} style={{...btn("#0F6E56"),fontSize:12}}>+ Add row</button><button onClick={handleManualParse} style={btn("#185FA5")}>Preview import</button></div></div>)}{importErrors.length>0&&(<div style={{background:"#FCEBEB",border:"1px solid #E05A5A",borderRadius:8,padding:"10px 14px",marginTop:12,fontSize:12,color:"#A32D2D"}}><strong>Warnings:</strong> {importErrors.join(" · ")}</div>)}{importStatus==="preview"&&importPreview.length>0&&(<div style={{marginTop:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><div style={{fontWeight:600,fontSize:13}}>Preview — {importPreview.length} products ready to import</div><div style={{display:"flex",gap:8}}><button onClick={resetImport} style={{...btn("#888"),padding:"6px 12px",fontSize:12}}>Cancel</button><button onClick={confirmMerge} style={btn("#3B6D11")}>Confirm and merge into StockGuard</button></div></div><div style={{overflowX:"auto",maxHeight:320,overflowY:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Name","Category","Qty","Min","Supplier","Cost","Sell","Location","Status"].map(h=>(<th key={h} style={{padding:"6px 8px",fontWeight:600,color:C.muted,textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{importPreview.map((item,i)=>{const exists=inventory.find(x=>x.sku===item.sku);return(<tr key={i} style={{borderBottom:`1px solid ${C.border}`,background:exists?"#FAEEDA":"#EAF3DE"}}><td style={{padding:"6px 8px",fontFamily:"monospace"}}>{item.sku}</td><td style={{padding:"6px 8px",fontWeight:600}}>{item.name}</td><td style={{padding:"6px 8px"}}>{item.category}</td><td style={{padding:"6px 8px"}}>{item.qty}</td><td style={{padding:"6px 8px"}}>{item.minQty}</td><td style={{padding:"6px 8px"}}>{item.supplier}</td><td style={{padding:"6px 8px"}}>${item.unitCost}</td><td style={{padding:"6px 8px"}}>{item.sellingPrice?`$${item.sellingPrice}`:"—"}</td><td style={{padding:"6px 8px"}}>{item.location}</td><td style={{padding:"6px 8px"}}><span style={{background:exists?"#FAEEDA":"#EAF3DE",color:exists?"#854F0B":"#3B6D11",padding:"2px 8px",borderRadius:10,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{exists?"Update":"New"}</span></td></tr>);})}</tbody></table></div></div>)}</>)}</div>)}
 
-      {/* PRICING */}
       {tab==="Pricing"&&(<div><div style={{textAlign:"center",marginBottom:6}}><p style={{fontSize:12,color:C.muted,marginBottom:16}}>Choose the plan that fits your store</p></div><div style={{display:"flex",alignItems:"center",gap:10,justifyContent:"center",marginBottom:28}}><span style={{fontSize:13,color:annual?C.muted:C.text,fontWeight:annual?400:600}}>Monthly</span><div onClick={()=>setAnnual(a=>!a)} style={{position:"relative",width:40,height:22,cursor:"pointer",background:annual?"#185FA5":C.border,borderRadius:22,transition:".2s"}}><div style={{position:"absolute",width:16,height:16,left:annual?21:3,top:3,background:"#fff",borderRadius:"50%",transition:".2s"}}/></div><span style={{fontSize:13,color:annual?C.text:C.muted,fontWeight:annual?600:400}}>Annual</span><span style={{fontSize:11,background:"#EAF3DE",color:"#3B6D11",padding:"2px 8px",borderRadius:10,fontWeight:700,border:"1px solid #6BAD2E"}}>Save 20%</span></div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit, minmax(200px, 1fr))",gap:14}}>{PLANS.map((pl,i)=>{const p=annual?pl.ap:pl.price;const saving=annual&&pl.price>0?`Save $${(pl.price-pl.ap)*12}/yr`:"";return(<div key={i} style={{background:C.bg,border:pl.featured?`2px solid ${pl.color}`:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column"}}>{pl.badge?<span style={{display:"inline-block",fontSize:11,fontWeight:700,padding:"3px 10px",borderRadius:6,background:pl.badgeBg,color:pl.badgeColor,marginBottom:10,alignSelf:"flex-start"}}>{pl.badge}</span>:<div style={{height:24}}/>}<div style={{fontWeight:600,fontSize:15,color:pl.color,marginBottom:4}}>{pl.name}</div><div style={{fontSize:34,fontWeight:600,lineHeight:1,color:pl.color,marginBottom:4}}>{p===0?"Free":`$${p}`}{p>0&&<span style={{fontSize:13,fontWeight:400,color:C.muted}}>/mo</span>}</div><div style={{fontSize:11,color:"#3B6D11",marginBottom:14,minHeight:16}}>{saving}</div><button style={{display:"block",width:"100%",padding:10,borderRadius:8,border:"none",background:pl.color,color:"#fff",fontWeight:700,fontSize:13,cursor:"pointer",marginBottom:16}}>{pl.cta}</button>{pl.inc.map((f,j)=><div key={j} style={{display:"flex",gap:6,fontSize:12,padding:"3px 0",color:C.text}}><span style={{color:pl.color,fontWeight:700}}>✓</span>{f}</div>)}{pl.exc.map((f,j)=><div key={j} style={{display:"flex",gap:6,fontSize:12,padding:"3px 0",color:C.muted}}><span>✕</span>{f}</div>)}</div>);})}</div></div>)}
 
         </div>
