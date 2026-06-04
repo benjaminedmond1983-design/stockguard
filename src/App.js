@@ -2,8 +2,7 @@ import { useState } from "react";
 
 const TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
-  "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Import Products", "Pricing"
+  "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail", "Intelligence", "Business Insights", "Import Products", "Pricing"
 ];
 
 const INIT_INVENTORY = [
