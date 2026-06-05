@@ -23,6 +23,7 @@ const INIT_INVENTORY = [
 ];
 
 const SIDEBAR = "#1B2B4B";
+const ADD_CATEGORY_VALUE = "__add_category__";
 const C = { bg:"#ffffff", bg2:"#f5f5f5", text:"#111111", muted:"#666666", border:"#e0e0e0" };
 
 function todayStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
@@ -200,6 +201,7 @@ function AppInner({role,onLogout,TABS,userId}){
   const emptySale={sku:"",qty:"",invoice:""};
   const emptyMove={sku:"",qty:"",from:"",to:""};
   const [recForm,setRecForm]=useState(emptyRec);
+  const [categories,setCategories]=useState(["Apparel","Footwear","Electronics","Accessories","General"]);
   const [saleForm,setSaleForm]=useState(emptySale);
   const [moveForm,setMoveForm]=useState(emptyMove);
   const [pos,setPOs]=useState([]);
@@ -230,6 +232,7 @@ function AppInner({role,onLogout,TABS,userId}){
   const [intelTab,setIntelTab]=useState("Forecast");
   const [simSku,setSimSku]=useState("");
   const [simQty,setSimQty]=useState(100);
+  const [showMoreMenu,setShowMoreMenu]=useState(false);
   const [simResult,setSimResult]=useState(null);
   // ── BARCODE SCANNER STATE ──
   const [scanMode,setScanMode]=useState(false);
@@ -342,6 +345,15 @@ function AppInner({role,onLogout,TABS,userId}){
     setInventory(inv=>inv.filter(i=>i.id!==item.id));
     addLog("Deleted",item.name,item.qty,"Staff",`SKU ${item.sku} removed`);setDeleteConfirmId(null);
   }
+  function handleCategorySelect(value){
+    if(value!==ADD_CATEGORY_VALUE){setRecForm(r=>({...r,category:value}));return;}
+    const next=window.prompt("Enter new category name:");
+    if(!next)return;
+    const category=next.trim();
+    if(!category)return;
+    setCategories(prev=>prev.some(c=>c.toLowerCase()===category.toLowerCase())?prev:[...prev,category]);
+    setRecForm(r=>({...r,category}));
+  }
   async function handleReceive(){
     const qty=parseInt(recForm.qty);if(!recForm.sku||!recForm.name||!qty)return;
     const existing=inventory.find(i=>i.sku===recForm.sku);
@@ -425,9 +437,60 @@ function AppInner({role,onLogout,TABS,userId}){
     </div>
   );
 
+  const isMobile=typeof window!=="undefined"&&window.innerWidth<=768;
+  const BOTTOM_TABS=TABS.slice(0,5); // first 5 tabs in bottom nav
+
   return (
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,background:"#EEF2F7"}}>
-      <div style={{width:SIDEBAR_W,minWidth:SIDEBAR_W,background:SIDEBAR,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
+      {/* Sidebar — hidden on mobile via inline media workaround */}
+      <style>{`
+        @media(max-width:768px){
+          .sg-sidebar{display:none!important;}
+          .sg-main{margin-left:0!important;}
+          .sg-content{padding:12px 14px!important;padding-bottom:80px!important;max-width:100%!important;}
+          .sg-header{padding:14px 16px 12px!important;}
+          .sg-header h1{font-size:18px!important;}
+          .sg-bottom-nav{display:flex!important;}
+          .sg-tab-header-icon{font-size:22px!important;}
+          .sg-table-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch;}
+          .sg-form-grid{grid-template-columns:1fr!important;}
+          .sg-stats-grid{grid-template-columns:1fr 1fr!important;}
+          .sg-btn-row{flex-wrap:wrap!important;gap:6px!important;}
+          .sg-po-row{flex-direction:column!important;gap:8px!important;}
+          .sg-po-actions{flex-direction:row!important;justify-content:flex-start!important;}
+          .sg-tab-pills{flex-wrap:wrap!important;}
+          .sg-dash-top{grid-template-columns:1fr!important;}
+          .sg-alert-row{flex-direction:flex-start!important;align-items:flex-start!important;gap:6px!important;}
+          .sg-alert-right{width:100%!important;justify-content:space-between!important;}
+          .sg-two-col{grid-template-columns:1fr!important;}
+        }
+        @media(min-width:769px){
+          .sg-bottom-nav{display:none!important;}
+        }
+        .sg-bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#1B2B4B;z-index:200;border-top:1px solid rgba(255,255,255,0.1);padding:6px 0 8px;}
+        .sg-bottom-nav button{flex:1;background:none;border:none;color:rgba(255,255,255,0.5);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 2px;font-size:10px;font-family:system-ui,-apple-system,sans-serif;}
+        .sg-bottom-nav button.active{color:#fff;}
+        .sg-bottom-nav button i{font-size:20px;}
+        .sg-more-menu{position:fixed;bottom:64px;left:0;right:0;background:#1B2B4B;z-index:199;padding:8px;border-top:1px solid rgba(255,255,255,0.1);display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+        .sg-more-menu button{background:rgba(255,255,255,0.07);border:none;color:rgba(255,255,255,0.8);cursor:pointer;padding:10px 12px;border-radius:8px;font-size:13px;font-family:system-ui,-apple-system,sans-serif;display:flex;align-items:center;gap:8px;text-align:left;}
+        .sg-more-menu button.active{background:rgba(255,255,255,0.18);color:#fff;font-weight:600;}
+        @media(max-width:768px){
+          div[style*='grid-template-columns: 1fr 1fr'],
+          div[style*='gridTemplateColumns: "1fr 1fr"'],
+          div[style*='gridTemplateColumns:"1fr 1fr"']{grid-template-columns:1fr!important;}
+          div[style*='grid-template-columns: repeat(auto-fit'],
+          div[style*='gridTemplateColumns:"repeat(auto-fit']{grid-template-columns:1fr 1fr!important;}
+          div[style*='grid-template-columns: 180px'],
+          div[style*='gridTemplateColumns:"180px']{grid-template-columns:1fr!important;}
+          table{font-size:11px!important;}
+          th,td{padding:5px 6px!important;}
+          div[style*='maxWidth:960']{max-width:100%!important;}
+          div[style*='padding:"24px 28px']{padding:12px 14px!important;}
+        }
+      `}</style>
+
+      {/* Desktop sidebar */}
+      <div className="sg-sidebar" style={{width:SIDEBAR_W,minWidth:SIDEBAR_W,background:SIDEBAR,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
         <div style={{padding:"24px 16px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
             <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/><rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/></svg>
@@ -456,10 +519,41 @@ function AppInner({role,onLogout,TABS,userId}){
         </div>
       </div>
 
-      <div style={{marginLeft:SIDEBAR_W,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
-        <div style={{background:TAB_COLORS[tab]||"#185FA5",padding:"20px 28px 16px",color:"#fff"}}>
+      {/* Mobile bottom nav */}
+      <nav className="sg-bottom-nav">
+        {BOTTOM_TABS.map(t=>(
+          <button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setShowMoreMenu(false);}}>
+            <i className={`ti ${TAB_ICONS[t]}`} aria-hidden="true"/>
+            <span>{t==="Reorder Center"?"Reorder":t==="Purchase Orders"?"POs":t}</span>
+            {t==="Reorder Center"&&lowItems.length>0&&<span style={{position:"absolute",top:4,background:"#E24B4A",color:"#fff",fontSize:9,fontWeight:700,padding:"1px 5px",borderRadius:10,marginLeft:12}}>{lowItems.length}</span>}
+          </button>
+        ))}
+        <button className={!BOTTOM_TABS.includes(tab)&&showMoreMenu?"active":""} onClick={()=>setShowMoreMenu(m=>!m)}>
+          <i className="ti ti-dots" aria-hidden="true"/>
+          <span>More</span>
+        </button>
+      </nav>
+
+      {/* Mobile more menu */}
+      {showMoreMenu&&(
+        <div className="sg-more-menu">
+          {TABS.slice(5).map(t=>(
+            <button key={t} className={tab===t?"active":""} onClick={()=>{setTab(t);setShowMoreMenu(false);}}>
+              <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:16}} aria-hidden="true"/>
+              {t}
+            </button>
+          ))}
+          <button onClick={()=>{onLogout();setShowMoreMenu(false);}} style={{gridColumn:"1/-1"}}>
+            <i className="ti ti-logout" style={{fontSize:16}} aria-hidden="true"/>
+            Switch Role
+          </button>
+        </div>
+      )}
+
+      <div className="sg-main" style={{marginLeft:SIDEBAR_W,flex:1,display:"flex",flexDirection:"column",minHeight:"100vh"}}>
+        <div className="sg-header" style={{background:TAB_COLORS[tab]||"#185FA5",padding:"20px 28px 16px",color:"#fff"}}>
           <div style={{display:"flex",alignItems:"center",gap:12}}>
-            <i className={`ti ${TAB_ICONS[tab]}`} style={{fontSize:28,opacity:0.9}} aria-hidden="true"/>
+            <i className={`ti ${TAB_ICONS[tab]} sg-tab-header-icon`} style={{fontSize:28,opacity:0.9}} aria-hidden="true"/>
             <div>
               <h1 style={{fontSize:22,fontWeight:600,margin:0,color:"#fff"}}>{tab}</h1>
               <p style={{fontSize:12,margin:0,opacity:0.75}}>
@@ -480,7 +574,7 @@ function AppInner({role,onLogout,TABS,userId}){
           </div>
         </div>
 
-        <div style={{flex:1,padding:"24px 28px",maxWidth:960}}>
+        <div className="sg-content" style={{flex:1,padding:"24px 28px",maxWidth:960}}>
 
       {tab==="Dashboard"&&(<div>
         <div style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:16,marginBottom:20}}>
@@ -521,7 +615,7 @@ function AppInner({role,onLogout,TABS,userId}){
           <div style={{display:"flex",gap:6}}><button onClick={()=>exportCSV("inventory")} style={{...btn("#185FA5"),padding:"5px 12px",fontSize:11}}>⬇ Inventory CSV</button><button onClick={()=>exportCSV("sales")} style={{...btn("#3B6D11"),padding:"5px 12px",fontSize:11}}>⬇ Sales CSV</button><button onClick={()=>exportCSV("audit")} style={{...btn("#534AB7"),padding:"5px 12px",fontSize:11}}>⬇ Audit CSV</button></div>
         </div>
         <input placeholder="Search by name, SKU, or category" value={search} onChange={e=>setSearch(e.target.value)} style={{...inp,marginBottom:10}}/>
-        <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
+        <div className="sg-table-wrap" style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}>
           <thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Item","Cat","Qty","Min","Cost","Sell","Margin","Location","Status","Actions"].map(h=>(<th key={h} style={{textAlign:h==="Actions"?"right":"left",padding:"6px 8px",fontWeight:500,color:C.muted,whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead>
           <tbody>{filteredInv.map(i=>{const s=statusBadge(i.qty,i.minQty);const m=marginBadge(i.unitCost,i.sellingPrice);const isEditing=editId===i.id;const isConfirmingDelete=deleteConfirmId===i.id;
             if(isEditing)return(<tr key={i.id} style={{borderBottom:`1px solid ${C.border}`,background:"#F0F4FF"}}>{[["sku",70],["name",120],["category",90],["qty",55,"number"],["minQty",55,"number"],["unitCost",70,"number"],["sellingPrice",70,"number"]].map(([f,w,t])=>(<td key={f} style={{padding:"5px 6px"}}><input type={t||"text"} value={editForm[f]||""} onChange={e=>setEditForm(f2=>({...f2,[f]:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:w}}/></td>))}<td style={{padding:"5px 6px"}}><input value={editForm.location||""} onChange={e=>setEditForm(f=>({...f,location:e.target.value}))} style={{...inp,fontSize:11,padding:"4px 6px",width:80}}/></td><td/><td style={{padding:"5px 6px",textAlign:"right"}}><div style={{display:"flex",gap:4,justifyContent:"flex-end"}}><button onClick={saveEdit} style={{...btn("#3B6D11"),padding:"4px 10px",fontSize:11}}>Save</button><button onClick={cancelEdit} style={{...btn("#888"),padding:"4px 10px",fontSize:11}}>Cancel</button></div></td></tr>);
@@ -538,7 +632,7 @@ function AppInner({role,onLogout,TABS,userId}){
         </table></div>
       </div>)}
 
-      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"],["category","Category","Apparel / Electronics"],["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
+      {tab==="Receiving"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log incoming shipment</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}>{[["sku","SKU *","SKU-001"],["name","Item name *","Product name"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type="text" placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}<div><label style={{fontSize:12,color:C.muted}}>Category</label><select value={recForm.category} onChange={e=>handleCategorySelect(e.target.value)} style={inp}><option value="">Select category</option>{categories.map(cat=><option key={cat} value={cat}>{cat}</option>)}<option value={ADD_CATEGORY_VALUE}>+ Add Category...</option></select></div>{[["qty","Qty received *","0"],["supplier","Supplier","Supplier name"],["unitCost","Unit cost ($)","0.00"],["sellingPrice","Selling price ($)","0.00"],["location","Storage location","Aisle A1"],["po","PO number","PO-2201"]].map(([f,l,p])=>(<div key={f}><label style={{fontSize:12,color:C.muted}}>{l}</label><input type={["qty","unitCost","sellingPrice"].includes(f)?"number":"text"} placeholder={p} value={recForm[f]} onChange={e=>setRecForm(r=>({...r,[f]:e.target.value}))} style={inp}/></div>))}</div><button onClick={handleReceive} style={btn("#185FA5")}>Confirm receipt</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Recent receipts</div>{audit.filter(a=>a.action==="Received").slice(0,8).map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>+{a.qty} · {a.note} · {a.time}</span></div>))}</div>)}
 
       {tab==="Movements"&&(<div><div style={{fontWeight:500,marginBottom:12}}>Log inventory movement</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:10}}><div><label style={{fontSize:12,color:C.muted}}>Select item</label><select value={moveForm.sku} onChange={e=>setMoveForm(f=>({...f,sku:e.target.value}))} style={inp}><option value="">Select SKU</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} - {i.name}</option>)}</select></div><div><label style={{fontSize:12,color:C.muted}}>Qty moved</label><input type="number" placeholder="0" value={moveForm.qty} onChange={e=>setMoveForm(f=>({...f,qty:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>From</label><input placeholder="Stockroom" value={moveForm.from} onChange={e=>setMoveForm(f=>({...f,from:e.target.value}))} style={inp}/></div><div><label style={{fontSize:12,color:C.muted}}>To</label><input placeholder="Sales Floor" value={moveForm.to} onChange={e=>setMoveForm(f=>({...f,to:e.target.value}))} style={inp}/></div></div><button onClick={handleMove} style={btn("#0F6E56")}>Log movement</button><div style={{marginTop:24,fontSize:13,fontWeight:500,color:C.muted,marginBottom:8}}>Movement log</div>{audit.filter(a=>a.action==="Moved").map(a=>(<div key={a.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}><span style={{fontWeight:500}}>{a.item}</span><span style={{color:C.muted}}>{a.qty} units · {a.note} · {a.time}</span></div>))}</div>)}
 
