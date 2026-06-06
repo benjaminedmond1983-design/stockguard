@@ -6,7 +6,7 @@ const OWNER_PIN = "1234";
 const OWNER_TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
   "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Import Products", "Pricing"
+  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing"
 ];
 
 const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
@@ -59,8 +59,8 @@ function marginBadge(cost,sell){if(!sell||sell<=cost)return{label:"No margin",pc
 function parseRows(rows){const errors=[];const parsed=rows.map((r,i)=>{const sku=(r.sku||r.SKU||"").toString().trim();const name=(r.name||r.Name||r["Item Name"]||r["Product Name"]||r["item"]||"").toString().trim();const qty=parseInt(r.qty||r.Qty||r.Quantity||r.quantity||0);const minQty=parseInt(r.minQty||r["Min Qty"]||r["min qty"]||r.minimum||10);const unitCost=parseFloat(r.unitCost||r["Unit Cost"]||r.cost||r.Cost||r.price||r.Price||0);const sellingPrice=parseFloat(r.sellingPrice||r["Selling Price"]||r.sell||r.Sell||r.retail||0);if(!sku)errors.push(`Row ${i+1}: Missing SKU`);if(!name)errors.push(`Row ${i+1}: Missing item name`);return{sku,name,category:(r.category||r.Category||"General").toString().trim(),qty:isNaN(qty)?0:qty,minQty:isNaN(minQty)?10:minQty,supplier:(r.supplier||r.Supplier||"—").toString().trim(),unitCost:isNaN(unitCost)?0:unitCost,sellingPrice:isNaN(sellingPrice)?0:sellingPrice,location:(r.location||r.Location||"—").toString().trim()};}).filter(r=>r.sku&&r.name);return{parsed,errors};}
 function nowStr(){const d=new Date();return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;}
 
-const TAB_ICONS={"Dashboard":"ti-layout-dashboard","Receiving":"ti-package","Movements":"ti-arrows-transfer-up","Sales":"ti-receipt","Reorder Center":"ti-bell","Purchase Orders":"ti-file-invoice","Suppliers":"ti-building-factory","Audit Trail":"ti-clipboard-list","Intelligence":"ti-brain","Business Insights":"ti-chart-bar","Import Products":"ti-file-upload","Pricing":"ti-credit-card"};
-const TAB_COLORS={"Dashboard":"#185FA5","Receiving":"#0F6E56","Movements":"#534AB7","Sales":"#A32D2D","Reorder Center":"#854F0B","Purchase Orders":"#185FA5","Suppliers":"#0F6E56","Audit Trail":"#444441","Intelligence":"#0D7E6E","Business Insights":"#534AB7","Import Products":"#185FA5","Pricing":"#3B6D11"};
+const TAB_ICONS={"Dashboard":"ti-layout-dashboard","Receiving":"ti-package","Movements":"ti-arrows-transfer-up","Sales":"ti-receipt","Reorder Center":"ti-bell","Purchase Orders":"ti-file-invoice","Suppliers":"ti-building-factory","Audit Trail":"ti-clipboard-list","Intelligence":"ti-brain","Business Insights":"ti-chart-bar","Automations":"ti-robot","Import Products":"ti-file-upload","Pricing":"ti-credit-card"};
+const TAB_COLORS={"Dashboard":"#185FA5","Receiving":"#0F6E56","Movements":"#534AB7","Sales":"#A32D2D","Reorder Center":"#854F0B","Purchase Orders":"#185FA5","Suppliers":"#0F6E56","Audit Trail":"#444441","Intelligence":"#0D7E6E","Business Insights":"#534AB7","Automations":"#7B3FA0","Import Products":"#185FA5","Pricing":"#3B6D11"};
 const SIDEBAR_W=200;
 
 const SG_LOGO=(<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#1B2B4B"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/><rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/></svg>);
@@ -242,6 +242,10 @@ function AppInner({role,onLogout,TABS,userId}){
   const [comments,setComments]=useState([]);
   const [commentText,setCommentText]=useState("");
   const [commentLoading,setCommentLoading]=useState(false);
+  const [automations,setAutomations]=useState([]);
+  const [showAddAuto,setShowAddAuto]=useState(false);
+  const emptyAuto={name:"",trigger_type:"stock_below_min",trigger_value:0,action_type:"create_po",action_value:""};
+  const [autoForm,setAutoForm]=useState(emptyAuto);
 
   useEffect(()=>{
     async function loadAll(){
@@ -280,6 +284,8 @@ function AppInner({role,onLogout,TABS,userId}){
         const{data:ins}=await supabase.from("suppliers").insert(seed).select();
         if(ins)setSuppliers(ins.map(mapSup));
       }
+      const{data:autos}=await supabase.from("automations").select("*").eq("user_id",userId).order("created_at",{ascending:true});
+      if(autos)setAutomations(autos);
       setDbLoading(false);
     }
     loadAll();
@@ -322,6 +328,61 @@ function AppInner({role,onLogout,TABS,userId}){
       setScanFeedback({ok:false,msg:`✗ No item found for "${code}"`});
     }
     setTimeout(()=>setScanFeedback(null),3000);
+  }
+  // ── AUTOMATION FUNCTIONS ──
+  async function saveAutomation(){
+    if(!autoForm.name.trim())return;
+    const row={user_id:userId,name:autoForm.name,enabled:true,trigger_type:autoForm.trigger_type,trigger_value:parseFloat(autoForm.trigger_value)||0,action_type:autoForm.action_type,action_value:autoForm.action_value||""};
+    const{data}=await supabase.from("automations").insert(row).select().single();
+    if(data){setAutomations(a=>[...a,data]);setAutoForm(emptyAuto);setShowAddAuto(false);}
+  }
+  async function toggleAutomation(id,enabled){
+    await supabase.from("automations").update({enabled:!enabled}).eq("id",id);
+    setAutomations(a=>a.map(x=>x.id===id?{...x,enabled:!enabled}:x));
+  }
+  async function deleteAutomation(id){
+    await supabase.from("automations").delete().eq("id",id);
+    setAutomations(a=>a.filter(x=>x.id!==id));
+  }
+  async function runAutomations(updatedInventory){
+    const enabled=automations.filter(a=>a.enabled);
+    for(const rule of enabled){
+      if(rule.trigger_type==="stock_below_min"){
+        const items=updatedInventory.filter(i=>i.qty<i.minQty);
+        for(const item of items){
+          if(rule.action_type==="create_po"){
+            const alreadyPending=pos.find(p=>p.sku===item.sku&&p.status==="Draft");
+            if(!alreadyPending){
+              const poNumber=`AUTO-PO-${Date.now()}`;
+              const poRow={po_number:poNumber,status:"Draft",sku:item.sku,item_name:item.name,description:`Auto-generated: ${rule.name}`,supplier:item.supplier,qty:Math.max(item.minQty*2-item.qty,10),unit_cost:item.unitCost,date:new Date().toISOString().slice(0,10),delivery_date:"",notes:`Created by automation: ${rule.name}`,created_from:"Automation",user_id:userId};
+              const{data}=await supabase.from("purchase_orders").insert(poRow).select().single();
+              if(data)setPOs(p=>[{...data,poNumber:data.po_number,itemName:data.item_name,unitCost:parseFloat(data.unit_cost),deliveryDate:"",createdFrom:"Automation"},...p]);
+              await addLog("Automation",item.name,0,"System",`Auto PO created: ${poNumber}`);
+            }
+          }
+          if(rule.action_type==="log_alert"){
+            await addLog("Alert",item.name,item.qty,"System",`Low stock alert: ${rule.name}`);
+          }
+        }
+      }
+      if(rule.trigger_type==="stock_zero"){
+        const items=updatedInventory.filter(i=>i.qty===0);
+        for(const item of items){
+          if(rule.action_type==="log_alert"){
+            await addLog("Alert",item.name,0,"System",`Out of stock: ${rule.name}`);
+          }
+        }
+      }
+      if(rule.trigger_type==="margin_below"){
+        const items=updatedInventory.filter(i=>i.sellingPrice>0&&((i.sellingPrice-i.unitCost)/i.sellingPrice)*100<rule.trigger_value);
+        for(const item of items){
+          if(rule.action_type==="log_alert"){
+            await addLog("Alert",item.name,item.qty,"System",`Low margin alert: ${rule.name}`);
+          }
+        }
+      }
+      await supabase.from("automations").update({last_fired:new Date().toISOString(),fire_count:(rule.fire_count||0)+1}).eq("id",rule.id);
+    }
   }
   // ── CHAT FUNCTIONS ──
   async function openChat(type, id, name){
@@ -395,7 +456,10 @@ function AppInner({role,onLogout,TABS,userId}){
     const newQty=item.qty-qty;
     await supabase.from("inventory").update({qty:newQty}).eq("id",item.id);
     setInventory(inv=>inv.map(i=>i.sku===saleForm.sku?{...i,qty:newQty}:i));
-    addLog("Sold",item.name,qty,"Staff",saleForm.invoice||"—",{sku:item.sku,revenue,profit});setSaleForm(emptySale);
+    const updatedInv=inventory.map(i=>i.sku===saleForm.sku?{...i,qty:newQty}:i);
+    addLog("Sold",item.name,qty,"Staff",saleForm.invoice||"—",{sku:item.sku,revenue,profit});
+    setSaleForm(emptySale);
+    runAutomations(updatedInv);
   }
   async function handleMove(){
     const qty=parseInt(moveForm.qty);const item=inventory.find(i=>i.sku===moveForm.sku);
@@ -587,6 +651,7 @@ function AppInner({role,onLogout,TABS,userId}){
                 {tab==="Audit Trail"&&"Full activity history"}
                 {tab==="Intelligence"&&"Demand forecasting, what-if simulation, and overstock analysis"}
                 {tab==="Business Insights"&&"AI-powered business analysis"}
+                {tab==="Automations"&&"Automate your inventory workflows"}
                 {tab==="Import Products"&&"Bulk import your inventory"}
                 {tab==="Pricing"&&"Choose the right plan"}
               </p>
@@ -713,6 +778,79 @@ function AppInner({role,onLogout,TABS,userId}){
       {tab==="Intelligence"&&(<div><div style={{display:"flex",gap:4,marginBottom:20}}>{["Forecast","What-If Simulator","Overstock"].map(t=>(<button key={t} onClick={()=>setIntelTab(t)} style={{padding:"7px 16px",borderRadius:20,border:`1px solid ${intelTab===t?"#0D7E6E":C.border}`,background:intelTab===t?"#0D7E6E":"transparent",color:intelTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:intelTab===t?600:400}}>{t==="Forecast"&&"📈 "}{t==="What-If Simulator"&&"🔀 "}{t==="Overstock"&&"📦 "}{t}</button>))}</div>{intelTab==="Forecast"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:16}}>Demand forecast based on your last 7 days of sales velocity.</div>{inventory.map(item=>{const fc=getForecast(item);if(fc.totalSold===0)return null;const s=statusBadge(item.qty,item.minQty);const urgent=fc.stockoutDay!==null&&fc.stockoutDay<=14;return(<div key={item.sku} style={{border:`1px solid ${urgent?"#E05A5A":C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:10,background:urgent?"#FFF8F8":"#fff"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}><div style={{flex:1}}><div style={{fontWeight:600,fontSize:14}}>{item.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({item.sku})</span></div><div style={{fontSize:12,color:C.muted,marginTop:2}}>{item.category} · {item.supplier}</div><div style={{display:"flex",gap:16,marginTop:8,flexWrap:"wrap",fontSize:12}}><span>Daily rate: <strong style={{color:"#0D7E6E"}}>{fc.dailyRate.toFixed(1)} units/day</strong></span><span>14-day demand: <strong>{fc.days14} units</strong></span><span>30-day demand: <strong>{fc.days30} units</strong></span><span>Reorder point: <strong>{fc.reorderPoint} units</strong></span></div><div style={{marginTop:10}}><div style={{display:"flex",justifyContent:"space-between",fontSize:11,color:C.muted,marginBottom:3}}><span>Current stock: {item.qty}</span><span>14-day need: {fc.days14}</span><span>30-day need: {fc.days30}</span></div><div style={{background:C.border,borderRadius:4,height:8,position:"relative"}}><div style={{position:"absolute",left:0,top:0,height:8,borderRadius:4,background:"#0D7E6E",width:`${Math.min(100,(item.qty/Math.max(fc.days30,1))*100)}%`}}/><div style={{position:"absolute",left:`${Math.min(100,(fc.days14/Math.max(fc.days30,1))*100)}%`,top:-2,height:12,width:2,background:"#854F0B"}}/></div><div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted,marginTop:2}}><span style={{color:"#0D7E6E"}}>■ Current stock</span><span style={{color:"#854F0B"}}>| 14-day mark</span></div></div></div><div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6}}><span style={{background:s.bg,color:s.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span>{fc.stockoutDay!==null&&<span style={{background:fc.stockoutDay<=3?"#FCEBEB":fc.stockoutDay<=14?"#FAEEDA":"#E6F1FB",color:fc.stockoutDay<=3?"#A32D2D":fc.stockoutDay<=14?"#854F0B":"#185FA5",fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:8}}>Stockout in ~{fc.stockoutDay}d</span>}{urgent&&<button onClick={()=>{setIntelTab("What-If Simulator");setSimSku(item.sku);}} style={{...btn("#0D7E6E"),padding:"4px 12px",fontSize:11}}>Simulate reorder</button>}</div></div></div>);})}{inventory.every(i=>getForecast(i).totalSold===0)&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>📊</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No sales data yet</div></div>)}</div>)}{intelTab==="What-If Simulator"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:16}}>Model the financial impact of a reorder before you commit.</div><div style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:16,marginBottom:16}}><div style={{fontWeight:600,fontSize:14,marginBottom:12}}>Configure simulation</div><div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:12}}><div><label style={{fontSize:12,color:C.muted,display:"block",marginBottom:4}}>Select product</label><select value={simSku} onChange={e=>{setSimSku(e.target.value);setSimResult(null);}} style={inp}><option value="">— Choose a product —</option>{inventory.map(i=><option key={i.sku} value={i.sku}>{i.sku} — {i.name} (stock: {i.qty})</option>)}</select></div><div><label style={{fontSize:12,color:C.muted,display:"block",marginBottom:4}}>Reorder quantity</label><input type="number" value={simQty} min="1" onChange={e=>{setSimQty(e.target.value);setSimResult(null);}} style={inp}/></div></div><button onClick={runSimulator} disabled={!simSku||!simQty} style={{...btn("#0D7E6E"),opacity:(!simSku||!simQty)?0.5:1}}>Run simulation</button></div>{simResult&&(<div><div style={{fontWeight:600,fontSize:14,marginBottom:12,color:"#0D7E6E"}}>Simulation: {simResult.item.name} — reorder {simResult.qty} units</div><div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:16}}>{[{label:"Order cost",val:`$${simResult.orderCost}`,color:"#A32D2D",sub:"cash out"},{label:"Projected revenue",val:`$${simResult.projRevenue}`,color:"#185FA5",sub:"if all sold"},{label:"Projected profit",val:`$${simResult.projProfit}`,color:"#3B6D11",sub:"gross profit"},{label:"Stock after",val:`${simResult.totalQtyAfter} units`,color:"#534AB7",sub:"total on hand"}].map(c=>(<div key={c.label} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{fontSize:11,color:C.muted,marginBottom:4}}>{c.label}</div><div style={{fontSize:22,fontWeight:700,color:c.color}}>{c.val}</div><div style={{fontSize:10,color:C.muted,marginTop:2}}>{c.sub}</div></div>))}</div><div style={{background:"#E8F7F3",border:"1px solid #0D7E6E",borderRadius:10,padding:"14px 16px"}}><div style={{fontWeight:600,color:"#0D7E6E",marginBottom:8,fontSize:13}}>📋 Decision summary</div><div style={{fontSize:13,color:"#0A5A4D",lineHeight:1.7}}>{simResult.coversDays!==null&&<div>✓ This order covers approximately <strong>{simResult.coversDays} days</strong> of demand at {simResult.dailyRate.toFixed(1)} units/day.</div>}{simResult.stockoutAfter!==null&&<div>✓ Combined stock of <strong>{simResult.totalQtyAfter} units</strong> lasts ~<strong>{simResult.stockoutAfter} days</strong> before next stockout.</div>}<div>✓ ROI: spend <strong>${simResult.orderCost}</strong>, earn <strong>${simResult.projRevenue}</strong> — a <strong>${simResult.projProfit}</strong> gross profit ({(((parseFloat(simResult.projRevenue)-parseFloat(simResult.orderCost))/parseFloat(simResult.orderCost))*100).toFixed(0)}% return on spend).</div></div></div><div style={{marginTop:12,display:"flex",gap:8}}><button onClick={()=>{handleReorder(simResult.item);setTab("Purchase Orders");}} style={btn("#0D7E6E")}>Create purchase order</button><button onClick={()=>setSimResult(null)} style={btn("#888")}>Clear</button></div></div>)}</div>)}{intelTab==="Overstock"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:16}}>Items with excess inventory relative to sales velocity.</div>{(()=>{const overstock=getOverstockItems();if(!overstock.length)return(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>No overstock detected</div></div>);const totalExcessValue=overstock.reduce((s,i)=>s+parseFloat(i.excessValue),0);return(<><div style={{background:"#FFF8E8",border:"1px solid #F0A500",borderRadius:10,padding:"12px 16px",marginBottom:16}}><div style={{fontWeight:600,color:"#854F0B",fontSize:13}}>{overstock.length} overstock item{overstock.length!==1?"s":""} detected</div><div style={{fontSize:12,color:"#A06010",marginTop:2}}>~${totalExcessValue.toFixed(0)} in excess inventory cost tied up</div></div>{overstock.map(i=>{const m=marginBadge(i.unitCost,i.sellingPrice);const discountMargin=marginBadge(i.unitCost,parseFloat(i.discountPrice));return(<div key={i.sku} style={{border:`1px solid #F0A500`,borderRadius:10,padding:"14px 16px",marginBottom:12,background:"#FFFCF0"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:8}}><div style={{flex:1}}><div style={{fontWeight:600,fontSize:14}}>{i.name} <span style={{color:C.muted,fontWeight:400,fontSize:12}}>({i.sku})</span></div><div style={{fontSize:12,color:C.muted,marginTop:2}}>{i.category} · {i.supplier}</div><div style={{display:"flex",gap:16,marginTop:8,flexWrap:"wrap",fontSize:12}}><span>In stock: <strong>{i.qty}</strong></span><span>Daily rate: <strong>{i.dailyRate.toFixed(1)}/day</strong></span><span>Days stock: <strong style={{color:"#854F0B"}}>{i.daysStock===999?"∞":i.daysStock+"d"}</strong></span><span>Excess: <strong>{i.excessUnits} units</strong></span><span>Value: <strong style={{color:"#A32D2D"}}>${i.excessValue}</strong></span></div><div style={{marginTop:10,background:"#FFF0D0",borderRadius:8,padding:"10px 12px"}}><div style={{fontSize:12,fontWeight:600,color:"#854F0B",marginBottom:6}}>💡 Liquidation options</div><div style={{display:"flex",gap:16,flexWrap:"wrap",fontSize:12,color:"#633806"}}><div><strong>Option A — 15% discount</strong><br/>Sell at <strong>${i.discountPrice}</strong> · still {discountMargin.label} margin</div><div><strong>Option B — Bundle deal</strong><br/>Pair with a low-margin SKU to move volume</div></div></div></div><div style={{display:"flex",flexDirection:"column",gap:6,alignItems:"flex-end"}}><span style={{background:"#FAEEDA",color:"#854F0B",padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>Overstock</span><span style={{background:m.bg,color:m.color,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:600}}>{m.label} margin</span><button onClick={()=>{setIntelTab("What-If Simulator");setSimSku(i.sku);}} style={{...btn("#854F0B"),padding:"4px 12px",fontSize:11}}>Simulate</button></div></div></div>);})}</>);})()}</div>)}</div>)}
 
       {tab==="Business Insights"&&(<div><div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:14,flexWrap:"wrap",gap:10}}><div><div style={{fontWeight:600,fontSize:15}}>Business Insights</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>AI-powered SWOT, Porter's Five Forces and money strategies</div></div><div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}><input value={industry} onChange={e=>setIndustry(e.target.value)} placeholder="Your industry" style={{...inp,width:200}}/><button onClick={runBusinessInsights} disabled={insightLoading} style={{...btn("#534AB7"),opacity:insightLoading?0.7:1}}>{insightLoading?"Analyzing...":"Run AI Analysis"}</button></div></div>{!swotData&&!insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:28,marginBottom:8}}>✦</div><div style={{fontWeight:600,marginBottom:4,color:C.text}}>Ready to analyze your business</div><div>Click "Run AI Analysis" to generate your SWOT, Porter's Five Forces, and money-making strategies.</div></div>)}{insightLoading&&(<div style={{background:C.bg2,borderRadius:10,padding:"32px 20px",textAlign:"center",color:C.muted,fontSize:13}}><div style={{fontSize:24,marginBottom:8}}>⏳</div><div>Analyzing...</div></div>)}{swotData&&!swotData.error&&(<><div style={{display:"flex",gap:4,marginBottom:18}}>{["SWOT","Porter's Five Forces","Money Strategies"].map(t=>(<button key={t} onClick={()=>setInsightTab(t)} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:insightTab===t?"#534AB7":"transparent",color:insightTab===t?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:insightTab===t?600:400}}>{t}</button>))}</div>{insightTab==="SWOT"&&(<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{[{key:"strengths",label:"Strengths",icon:"💪",bg:"#EAF3DE",border:"#6BAD2E",head:"#3B6D11"},{key:"weaknesses",label:"Weaknesses",icon:"⚠",bg:"#FCEBEB",border:"#E05A5A",head:"#A32D2D"},{key:"opportunities",label:"Opportunities",icon:"🚀",bg:"#E6F1FB",border:"#4A90D9",head:"#185FA5"},{key:"threats",label:"Threats",icon:"🛡",bg:"#FAEEDA",border:"#EF9F27",head:"#854F0B"}].map(q=>(<div key={q.key} style={{background:q.bg,border:`1px solid ${q.border}`,borderRadius:10,padding:14}}><div style={{fontWeight:700,color:q.head,fontSize:13,marginBottom:10}}>{q.icon} {q.label}</div>{(swotData[q.key]||[]).map((item,i)=>(<div key={i} style={{marginBottom:10,paddingBottom:10,borderBottom:i<swotData[q.key].length-1?`1px solid ${q.border}55`:"none"}}><div style={{fontWeight:600,fontSize:12,color:q.head}}>{item.point}</div><div style={{fontSize:11,color:q.head,opacity:0.8,marginTop:3}}>→ {item.action}</div></div>))}</div>))}</div>)}{insightTab==="Porter's Five Forces"&&porterData&&(<div style={{display:"flex",flexDirection:"column",gap:10}}>{[{key:"supplier_power",label:"Supplier Power",icon:"🏭"},{key:"buyer_power",label:"Buyer Power",icon:"🛒"},{key:"competitive_rivalry",label:"Competitive Rivalry",icon:"⚔"},{key:"new_entrants",label:"Threat of New Entrants",icon:"🚪"},{key:"substitutes",label:"Threat of Substitutes",icon:"🔄"}].map(f=>{const d=porterData[f.key];const rC=d.rating==="High"?"#A32D2D":d.rating==="Medium"?"#854F0B":"#3B6D11";const rB=d.rating==="High"?"#FCEBEB":d.rating==="Medium"?"#FAEEDA":"#EAF3DE";const bW=d.rating==="High"?"85%":d.rating==="Medium"?"50%":"25%";return(<div key={f.key} style={{background:C.bg2,border:`1px solid ${C.border}`,borderRadius:10,padding:"14px 16px"}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}><div style={{fontWeight:600,fontSize:13}}>{f.icon} {f.label}</div><span style={{background:rB,color:rC,padding:"2px 10px",borderRadius:10,fontSize:11,fontWeight:700}}>{d.rating} Risk</span></div><div style={{background:C.border,borderRadius:4,height:6,marginBottom:8}}><div style={{width:bW,background:rC,height:6,borderRadius:4}}/></div><div style={{fontSize:12,color:C.muted,marginBottom:4}}>{d.insight}</div><div style={{fontSize:12,color:"#534AB7",fontWeight:600}}>→ {d.action}</div></div>);})}</div>)}{insightTab==="Money Strategies"&&moneyData&&(<div style={{display:"flex",flexDirection:"column",gap:20}}><div><div style={{fontWeight:700,fontSize:13,color:"#3B6D11",marginBottom:10}}>💰 Revenue Growth</div>{(moneyData.revenue_growth||[]).map((item,i)=>(<div key={i} style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#3B6D11"}}>{item.title}</div><span style={{background:item.impact==="High"?"#3B6D11":item.impact==="Medium"?"#6BAD2E":"#A8D57B",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>{item.impact} Impact</span></div><div style={{fontSize:12,color:"#3B6D11",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#185FA5",marginBottom:10}}>✂️ Cost Reduction</div>{(moneyData.cost_reduction||[]).map((item,i)=>(<div key={i} style={{background:"#E6F1FB",border:"1px solid #4A90D9",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}><div style={{fontWeight:600,fontSize:13,color:"#185FA5"}}>{item.title}</div><span style={{background:"#185FA5",color:"#fff",fontSize:10,fontWeight:700,padding:"2px 8px",borderRadius:10}}>Save {item.saving}</span></div><div style={{fontSize:12,color:"#185FA5",opacity:0.85}}>{item.description}</div></div>))}</div><div><div style={{fontWeight:700,fontSize:13,color:"#7B3FA0",marginBottom:10}}>🆕 New Ideas</div>{(moneyData.new_products||[]).map((item,i)=>(<div key={i} style={{background:"#F4EBF9",border:"1px solid #B57FD4",borderRadius:8,padding:"12px 14px",marginBottom:8}}><div style={{fontWeight:600,fontSize:13,color:"#7B3FA0",marginBottom:4}}>{item.title}</div><div style={{fontSize:12,color:"#7B3FA0",opacity:0.85,marginBottom:4}}>{item.description}</div><div style={{fontSize:11,color:"#7B3FA0",fontWeight:600}}>Why now → {item.rationale}</div></div>))}</div></div>)}</>)}{swotData?.error&&<div style={{color:"#A32D2D",fontSize:13,padding:12}}>{swotData.error}</div>}</div>)}
+
+      {tab==="Automations"&&(<div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <div><div style={{fontWeight:600,fontSize:15}}>Workflow Automations</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Set rules that run automatically when conditions are met</div></div>
+          <button onClick={()=>setShowAddAuto(s=>!s)} style={btn("#7B3FA0")}>+ New Rule</button>
+        </div>
+
+        {showAddAuto&&(<div style={{border:"2px solid #7B3FA0",borderRadius:10,padding:16,marginBottom:16,background:"#F9F5FF"}}>
+          <div style={{fontWeight:600,fontSize:13,color:"#7B3FA0",marginBottom:12}}>New Automation Rule</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
+            <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Rule name *</label><input placeholder="e.g. Auto-reorder when low" value={autoForm.name} onChange={e=>setAutoForm(f=>({...f,name:e.target.value}))} style={inp}/></div>
+            <div><label style={{fontSize:12,color:C.muted}}>When (trigger)</label>
+              <select value={autoForm.trigger_type} onChange={e=>setAutoForm(f=>({...f,trigger_type:e.target.value}))} style={inp}>
+                <option value="stock_below_min">Stock drops below minimum</option>
+                <option value="stock_zero">Item goes out of stock</option>
+                <option value="margin_below">Margin drops below %</option>
+              </select>
+            </div>
+            <div><label style={{fontSize:12,color:C.muted}}>{autoForm.trigger_type==="margin_below"?"Margin threshold (%)":"Trigger value (0 = use item min)"}</label>
+              <input type="number" value={autoForm.trigger_value} onChange={e=>setAutoForm(f=>({...f,trigger_value:e.target.value}))} style={inp}/>
+            </div>
+            <div style={{gridColumn:"1/-1"}}><label style={{fontSize:12,color:C.muted}}>Then (action)</label>
+              <select value={autoForm.action_type} onChange={e=>setAutoForm(f=>({...f,action_type:e.target.value}))} style={inp}>
+                <option value="create_po">Auto-create purchase order</option>
+                <option value="log_alert">Log alert in audit trail</option>
+              </select>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:8}}>
+            <button onClick={saveAutomation} style={btn("#7B3FA0")}>Save rule</button>
+            <button onClick={()=>{setShowAddAuto(false);setAutoForm(emptyAuto);}} style={btn("#888")}>Cancel</button>
+          </div>
+        </div>)}
+
+        {automations.length===0&&!showAddAuto&&(<div style={{background:C.bg2,borderRadius:10,padding:"40px 20px",textAlign:"center",color:C.muted,fontSize:13}}>
+          <div style={{fontSize:36,marginBottom:12}}>🤖</div>
+          <div style={{fontWeight:600,fontSize:15,color:C.text,marginBottom:6}}>No automations yet</div>
+          <div style={{marginBottom:16}}>Create your first rule to automate repetitive inventory tasks.</div>
+          <div style={{display:"flex",gap:8,justifyContent:"center",flexWrap:"wrap",fontSize:12}}>
+            {[["Auto-reorder low stock","stock_below_min","create_po"],["Alert on stockout","stock_zero","log_alert"],["Alert on low margin","margin_below","log_alert"]].map(([name,trigger,action])=>(
+              <button key={name} onClick={()=>{setAutoForm({name,trigger_type:trigger,trigger_value:0,action_type:action,action_value:""});setShowAddAuto(true);}} style={{...btn("#7B3FA0"),padding:"6px 14px",fontSize:12}}>+ {name}</button>
+            ))}
+          </div>
+        </div>)}
+
+        {automations.map(rule=>{
+          const triggerLabel={stock_below_min:"Stock below minimum",stock_zero:"Item out of stock",margin_below:`Margin below ${rule.trigger_value}%`}[rule.trigger_type]||rule.trigger_type;
+          const actionLabel={create_po:"Auto-create purchase order",log_alert:"Log alert in audit trail"}[rule.action_type]||rule.action_type;
+          return(<div key={rule.id} style={{border:`1px solid ${rule.enabled?"#B57FD4":C.border}`,borderRadius:10,padding:"14px 16px",marginBottom:10,background:rule.enabled?"#F9F5FF":C.bg}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8}}>
+              <div style={{flex:1}}>
+                <div style={{fontWeight:600,fontSize:14,color:rule.enabled?"#7B3FA0":C.muted,marginBottom:4}}>{rule.name}</div>
+                <div style={{fontSize:12,color:C.muted,marginBottom:6}}>
+                  <span style={{background:"#F4EBF9",color:"#7B3FA0",padding:"2px 8px",borderRadius:6,marginRight:6}}>When: {triggerLabel}</span>
+                  <span style={{background:"#EAF3DE",color:"#3B6D11",padding:"2px 8px",borderRadius:6}}>Then: {actionLabel}</span>
+                </div>
+                {rule.last_fired&&<div style={{fontSize:11,color:C.muted}}>Last ran: {new Date(rule.last_fired).toLocaleString()} · Fired {rule.fire_count} times</div>}
+                {!rule.last_fired&&<div style={{fontSize:11,color:C.muted}}>Never fired yet</div>}
+              </div>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
+                <div onClick={()=>toggleAutomation(rule.id,rule.enabled)} style={{position:"relative",width:36,height:20,cursor:"pointer",background:rule.enabled?"#7B3FA0":C.border,borderRadius:20,transition:".2s"}}>
+                  <div style={{position:"absolute",width:14,height:14,left:rule.enabled?19:3,top:3,background:"#fff",borderRadius:"50%",transition:".2s"}}/>
+                </div>
+                <button onClick={()=>deleteAutomation(rule.id)} style={{...btn("#A32D2D"),padding:"4px 10px",fontSize:11}}>Delete</button>
+              </div>
+            </div>
+          </div>);
+        })}
+
+        {automations.length>0&&(<div style={{background:"#F0F4FF",border:"1px solid #B8C9F5",borderRadius:8,padding:"10px 14px",fontSize:12,color:"#185FA5",marginTop:8}}>
+          ℹ️ Rules run automatically when you record a sale. They check all inventory against your conditions.
+        </div>)}
+      </div>)}
 
       {tab==="Import Products"&&(<div><div style={{marginBottom:16}}><div style={{fontWeight:600,fontSize:15}}>Import Products into StockGuard</div><div style={{fontSize:12,color:C.muted,marginTop:2}}>Transfer your existing product list all at once.</div></div>{importStatus==="done"&&mergeStats&&(<div style={{background:"#EAF3DE",border:"1px solid #6BAD2E",borderRadius:10,padding:"20px 24px",marginBottom:16,textAlign:"center"}}><div style={{fontSize:28,marginBottom:8}}>✅</div><div style={{fontWeight:700,fontSize:15,color:"#3B6D11",marginBottom:4}}>Import Successful!</div><div style={{fontSize:13,color:"#3B6D11",marginBottom:12}}><strong>{mergeStats.total}</strong> products imported — <strong>{mergeStats.added}</strong> new, <strong>{mergeStats.updated}</strong> updated.</div><div style={{display:"flex",gap:8,justifyContent:"center"}}><button onClick={()=>setTab("Dashboard")} style={btn("#3B6D11")}>View inventory</button><button onClick={resetImport} style={btn("#185FA5")}>Import more</button></div></div>)}{importStatus!=="done"&&(<><div style={{display:"flex",gap:4,marginBottom:18}}>{[["csv","CSV / Excel"],["paste","Paste from Spreadsheet"],["manual","Type Manually"]].map(([k,l])=>(<button key={k} onClick={()=>{setImportTab(k);resetImport();}} style={{padding:"6px 13px",borderRadius:20,border:`1px solid ${C.border}`,background:importTab===k?"#185FA5":"transparent",color:importTab===k?"#fff":C.muted,fontSize:12,cursor:"pointer",fontWeight:importTab===k?600:400}}>{l}</button>))}</div>{importTab==="csv"&&importStatus!=="preview"&&(<div><div style={{border:`2px dashed ${C.border}`,borderRadius:10,padding:"32px 20px",textAlign:"center",marginBottom:14,background:C.bg2}}><div style={{fontSize:32,marginBottom:8}}>📂</div><div style={{fontWeight:600,marginBottom:4}}>Upload your CSV file</div><div style={{fontSize:12,color:C.muted,marginBottom:14}}>Supported columns: SKU, Name, Category, Qty, MinQty, Supplier, UnitCost, SellingPrice, Location</div><label style={{...btn("#185FA5"),display:"inline-block",cursor:"pointer"}}>Choose file <input type="file" accept=".csv,.txt" onChange={handleCSVUpload} style={{display:"none"}}/></label></div><div style={{display:"flex",alignItems:"center",gap:8,fontSize:12,color:C.muted}}><span>Don't have the right format?</span><button onClick={downloadTemplate} style={{...btn("#0F6E56"),padding:"4px 12px",fontSize:12}}>Download template</button></div></div>)}{importTab==="paste"&&importStatus!=="preview"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:8}}>Copy cells from Excel or Google Sheets and paste below.</div><textarea value={pasteText} onChange={e=>setPasteText(e.target.value)} placeholder={"SKU\tName\tCategory\tQty\tMinQty\tSupplier\tUnitCost\tSellingPrice\tLocation"} style={{...inp,height:160,fontFamily:"monospace",fontSize:12,resize:"vertical"}}/><button onClick={handlePasteParse} style={{...btn("#185FA5"),marginTop:10}}>Preview import</button></div>)}{importTab==="manual"&&importStatus!=="preview"&&(<div><div style={{fontSize:13,color:C.muted,marginBottom:10}}>Enter products row by row.</div><div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Name","Category","Qty","Min Qty","Supplier","Unit Cost","Sell Price","Location",""].map(h=>(<th key={h} style={{padding:"4px 6px",fontWeight:600,color:C.muted,textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{manualRows.map((row,i)=>(<tr key={i}>{["sku","name","category","qty","minQty","supplier","unitCost","sellingPrice","location"].map(f=>(<td key={f} style={{padding:"3px 4px"}}><input value={row[f]||""} onChange={e=>setManualRows(rows=>rows.map((r,j)=>j===i?{...r,[f]:e.target.value}:r))} style={{...inp,fontSize:12,padding:"5px 7px",minWidth:f==="name"?120:70}} placeholder={["qty","minQty","unitCost","sellingPrice"].includes(f)?"0":""}/></td>))}<td style={{padding:"3px 4px"}}><button onClick={()=>setManualRows(rows=>rows.filter((_,j)=>j!==i))} style={{background:"none",border:"none",color:"#A32D2D",cursor:"pointer",fontSize:16}}>x</button></td></tr>))}</tbody></table></div><div style={{display:"flex",gap:8,marginTop:10}}><button onClick={()=>setManualRows(r=>[...r,{sku:"",name:"",category:"",qty:"",minQty:"",supplier:"",unitCost:"",sellingPrice:"",location:""}])} style={{...btn("#0F6E56"),fontSize:12}}>+ Add row</button><button onClick={handleManualParse} style={btn("#185FA5")}>Preview import</button></div></div>)}{importErrors.length>0&&(<div style={{background:"#FCEBEB",border:"1px solid #E05A5A",borderRadius:8,padding:"10px 14px",marginTop:12,fontSize:12,color:"#A32D2D"}}><strong>Warnings:</strong> {importErrors.join(" · ")}</div>)}{importStatus==="preview"&&importPreview.length>0&&(<div style={{marginTop:16}}><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}><div style={{fontWeight:600,fontSize:13}}>Preview — {importPreview.length} products ready</div><div style={{display:"flex",gap:8}}><button onClick={resetImport} style={{...btn("#888"),padding:"6px 12px",fontSize:12}}>Cancel</button><button onClick={confirmMerge} style={btn("#3B6D11")}>Confirm and merge</button></div></div><div style={{overflowX:"auto",maxHeight:320,overflowY:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:12}}><thead><tr style={{borderBottom:`1px solid ${C.border}`}}>{["SKU","Name","Category","Qty","Min","Supplier","Cost","Sell","Location","Status"].map(h=>(<th key={h} style={{padding:"6px 8px",fontWeight:600,color:C.muted,textAlign:"left",whiteSpace:"nowrap"}}>{h}</th>))}</tr></thead><tbody>{importPreview.map((item,i)=>{const exists=inventory.find(x=>x.sku===item.sku);return(<tr key={i} style={{borderBottom:`1px solid ${C.border}`,background:exists?"#FAEEDA":"#EAF3DE"}}><td style={{padding:"6px 8px",fontFamily:"monospace"}}>{item.sku}</td><td style={{padding:"6px 8px",fontWeight:600}}>{item.name}</td><td style={{padding:"6px 8px"}}>{item.category}</td><td style={{padding:"6px 8px"}}>{item.qty}</td><td style={{padding:"6px 8px"}}>{item.minQty}</td><td style={{padding:"6px 8px"}}>{item.supplier}</td><td style={{padding:"6px 8px"}}>${item.unitCost}</td><td style={{padding:"6px 8px"}}>{item.sellingPrice?`$${item.sellingPrice}`:"—"}</td><td style={{padding:"6px 8px"}}>{item.location}</td><td style={{padding:"6px 8px"}}><span style={{background:exists?"#FAEEDA":"#EAF3DE",color:exists?"#854F0B":"#3B6D11",padding:"2px 8px",borderRadius:10,fontSize:10,fontWeight:700,whiteSpace:"nowrap"}}>{exists?"Update":"New"}</span></td></tr>);})}</tbody></table></div></div>)}</>)}</div>)}
 
