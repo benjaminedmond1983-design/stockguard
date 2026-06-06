@@ -310,6 +310,25 @@ function AppInner({role,onLogout,TABS,userId}){
   const avgMargin=marginsWithPrice.length?marginsWithPrice.reduce((s,i)=>s+((i.sellingPrice-i.unitCost)/i.sellingPrice)*100,0)/marginsWithPrice.length:0;
   const filteredInv=inventory.filter(i=>i.name.toLowerCase().includes(search.toLowerCase())||i.sku.toLowerCase().includes(search.toLowerCase())||i.category.toLowerCase().includes(search.toLowerCase()));
 
+  // ── DEAD INVENTORY ──
+  const deadInventory=inventory.filter(i=>{
+    if(i.qty===0) return false;
+    const lastSold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).sort((a,b)=>b.time.localeCompare(a.time))[0];
+    if(!lastSold){
+      // Never sold — if has qty and cost, it's dead
+      return i.qty>0&&i.unitCost>0;
+    }
+    const daysSince=Math.floor((new Date()-new Date(lastSold.time))/(1000*60*60*24));
+    return daysSince>=30;
+  }).map(i=>{
+    const lastSold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).sort((a,b)=>b.time.localeCompare(a.time))[0];
+    const daysSince=lastSold?Math.floor((new Date()-new Date(lastSold.time))/(1000*60*60*24)):null;
+    const trapped=(i.qty*i.unitCost);
+    const discountPrice=(i.sellingPrice*0.75).toFixed(2);
+    return{...i,daysSince,trapped,discountPrice};
+  }).sort((a,b)=>b.trapped-a.trapped);
+  const totalDeadValue=deadInventory.reduce((s,i)=>s+i.trapped,0);
+
   function daysUntilStockout(item){const sold=audit.filter(a=>a.action==="Sold"&&a.sku===item.sku);if(!sold.length)return null;const rate=sold.reduce((s,a)=>s+a.qty,0)/7;if(rate<=0)return null;return Math.floor(item.qty/rate);}
   function getForecast(item){const sold=audit.filter(a=>a.action==="Sold"&&a.sku===item.sku);const totalSold=sold.reduce((s,a)=>s+a.qty,0);const dailyRate=totalSold/7;const days14=Math.round(dailyRate*14);const days30=Math.round(dailyRate*30);const stockoutDay=dailyRate>0?Math.floor(item.qty/dailyRate):null;const reorderPoint=Math.ceil(dailyRate*14);return{dailyRate,days14,days30,stockoutDay,reorderPoint,totalSold};}
   function getOverstockItems(){return inventory.filter(i=>{const sold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).reduce((s,a)=>s+a.qty,0);return i.qty>i.minQty*2.5&&sold>0&&i.sellingPrice>0;}).map(i=>{const sold=audit.filter(a=>a.action==="Sold"&&a.sku===i.sku).reduce((s,a)=>s+a.qty,0);const dailyRate=sold/7;const daysStock=dailyRate>0?Math.floor(i.qty/dailyRate):999;const excessUnits=Math.max(0,i.qty-i.minQty*2);const excessValue=(excessUnits*i.unitCost).toFixed(2);const discountPrice=(i.sellingPrice*0.85).toFixed(2);return{...i,dailyRate,daysStock,excessUnits,excessValue,discountPrice};}).sort((a,b)=>b.daysStock-a.daysStock);}
@@ -694,6 +713,28 @@ function AppInner({role,onLogout,TABS,userId}){
             <span style={{color:"#633806"}}>{i.name} <span style={{color:"#BA7517"}}>({i.sku})</span>{days!==null&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,background:days<=3?"#FCEBEB":days<=7?"#FAEEDA":"#E6F1FB",color:days<=3?"#A32D2D":days<=7?"#854F0B":"#185FA5",padding:"2px 7px",borderRadius:8}}>{days<=0?"Stockout imminent":`~${days}d until stockout`}</span>}</span>
             <span style={{display:"flex",alignItems:"center",gap:8}}><span style={{color:"#854F0B"}}>{i.qty} / {i.minQty}</span><span style={{background:s.bg,color:s.color,padding:"2px 8px",borderRadius:10,fontSize:11,fontWeight:600}}>{s.label}</span><button onClick={()=>{handleReorder(i);setTab("Reorder Center");}} style={{...btn("#BA7517"),padding:"3px 10px",fontSize:11}}>Reorder</button></span>
           </div>);})}
+        </div>}
+        {deadInventory.length>0&&<div style={{background:"#1B2B4B",border:"1px solid #0D1F36",borderRadius:8,padding:"12px 16px",marginBottom:16}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
+            <div style={{fontWeight:600,color:"#fff",fontSize:13}}>💀 Dead Inventory Alert</div>
+            <button onClick={()=>{setTab("Intelligence");setIntelTab("Overstock");}} style={{...btn("#E24B4A"),padding:"3px 10px",fontSize:11}}>View all →</button>
+          </div>
+          <div style={{background:"rgba(226,75,74,0.15)",border:"1px solid rgba(226,75,74,0.4)",borderRadius:8,padding:"10px 14px",marginBottom:10}}>
+            <div style={{fontSize:22,fontWeight:700,color:"#E24B4A"}}>${totalDeadValue.toLocaleString("en-US",{maximumFractionDigits:0})}</div>
+            <div style={{fontSize:12,color:"rgba(255,255,255,0.7)",marginTop:2}}>trapped in {deadInventory.length} slow-moving item{deadInventory.length!==1?"s":""} — not selling</div>
+          </div>
+          {deadInventory.slice(0,3).map(i=>(
+            <div key={i.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.08)",fontSize:12}}>
+              <div>
+                <span style={{color:"#fff",fontWeight:500}}>{i.name}</span>
+                <span style={{color:"rgba(255,255,255,0.5)",marginLeft:8}}>{i.daysSince===null?"Never sold":`No sales in ${i.daysSince}d`}</span>
+              </div>
+              <div style={{display:"flex",alignItems:"center",gap:8}}>
+                <span style={{color:"#E24B4A",fontWeight:600}}>${i.trapped.toLocaleString("en-US",{maximumFractionDigits:0})} trapped</span>
+                <span style={{background:"rgba(255,255,255,0.1)",color:"rgba(255,255,255,0.7)",fontSize:10,padding:"2px 7px",borderRadius:6}}>Try ${i.discountPrice}</span>
+              </div>
+            </div>
+          ))}
         </div>}
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
           <div style={{fontSize:13,fontWeight:500,color:C.muted}}>All inventory</div>
