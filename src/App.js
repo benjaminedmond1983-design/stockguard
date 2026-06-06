@@ -238,6 +238,8 @@ function AppInner({role,onLogout,TABS,userId}){
   const [scanMode,setScanMode]=useState(false);
   const [scanInput,setScanInput]=useState("");
   const [scanFeedback,setScanFeedback]=useState(null);
+  const [cameraActive,setCameraActive]=useState(false);
+  const [cameraError,setCameraError]=useState("");
   const [chatOpen,setChatOpen]=useState(null); // {type:"inventory"|"po", id, name}
   const [comments,setComments]=useState([]);
   const [commentText,setCommentText]=useState("");
@@ -347,6 +349,46 @@ function AppInner({role,onLogout,TABS,userId}){
       setScanFeedback({ok:false,msg:`✗ No item found for "${code}"`});
     }
     setTimeout(()=>setScanFeedback(null),3000);
+  }
+  // ── CAMERA SCAN ──
+  async function startCameraScan(){
+    setCameraError("");
+    if(!("BarcodeDetector" in window)){
+      setCameraError("Camera barcode scanning not supported on this browser. Use the text input below or try Chrome on Android.");
+      setCameraActive(false);
+      return;
+    }
+    try{
+      const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+      setCameraActive(true);
+      const video=document.getElementById("sg-camera-feed");
+      if(!video){stream.getTracks().forEach(t=>t.stop());return;}
+      video.srcObject=stream;
+      await video.play();
+      const detector=new window.BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});
+      let scanning=true;
+      window._sgStopCamera=()=>{scanning=false;stream.getTracks().forEach(t=>t.stop());setCameraActive(false);};
+      const scan=async()=>{
+        if(!scanning)return;
+        try{
+          const codes=await detector.detect(video);
+          if(codes.length>0){
+            const code=codes[0].rawValue;
+            window._sgStopCamera();
+            handleScan(code);
+            return;
+          }
+        }catch(e){}
+        if(scanning)requestAnimationFrame(scan);
+      };
+      requestAnimationFrame(scan);
+    }catch(e){
+      setCameraError(e.name==="NotAllowedError"?"Camera access denied. Please allow camera access and try again.":"Camera not available. Use the text input below.");
+      setCameraActive(false);
+    }
+  }
+  function stopCamera(){
+    if(window._sgStopCamera)window._sgStopCamera();
   }
   // ── AUTOMATION FUNCTIONS ──
   async function saveAutomation(){
@@ -781,14 +823,36 @@ function AppInner({role,onLogout,TABS,userId}){
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <div style={{fontWeight:500}}>Record sale / dispatch</div>
-          <button onClick={()=>{setScanMode(s=>!s);setScanInput("");setScanFeedback(null);}} style={{...btn(scanMode?"#A32D2D":"#0D7E6E"),padding:"6px 14px",fontSize:12}}>
+          <button onClick={()=>{
+            if(scanMode){setScanMode(false);setScanInput("");setScanFeedback(null);stopCamera();setCameraActive(false);setCameraError("");}
+            else{setScanMode(true);setScanFeedback(null);startCameraScan();}
+          }} style={{...btn(scanMode?"#A32D2D":"#0D7E6E"),padding:"6px 14px",fontSize:12}}>
             {scanMode?"✕ Cancel scan":"📷 Scan barcode"}
           </button>
         </div>
         {scanMode&&(
-          <div style={{background:"#E8F7F3",border:"1px solid #0D7E6E",borderRadius:10,padding:"14px 16px",marginBottom:14}}>
-            <div style={{fontSize:13,fontWeight:600,color:"#0D7E6E",marginBottom:8}}>🔍 Scanner ready — scan a barcode or type a SKU and press Enter</div>
-            <input autoFocus placeholder="Scan or type SKU (e.g. SKU-001)" value={scanInput} onChange={e=>setScanInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")handleScan(scanInput);}} style={{...inp,fontSize:14,padding:"10px 14px",letterSpacing:1}}/>
+          <div style={{background:"#0D1F2D",borderRadius:12,padding:"14px 16px",marginBottom:14,overflow:"hidden"}}>
+            {cameraActive&&(
+              <div style={{position:"relative",marginBottom:12}}>
+                <video id="sg-camera-feed" style={{width:"100%",borderRadius:8,display:"block",maxHeight:240,objectFit:"cover"}} playsInline muted/>
+                <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:200,height:100,border:"2px solid #0D7E6E",borderRadius:8,boxShadow:"0 0 0 1000px rgba(0,0,0,0.4)"}}/>
+                <div style={{position:"absolute",bottom:8,left:0,right:0,textAlign:"center",color:"rgba(255,255,255,0.8)",fontSize:12}}>Point camera at barcode</div>
+              </div>
+            )}
+            {!cameraActive&&!cameraError&&(
+              <div style={{textAlign:"center",padding:"20px 0",color:"rgba(255,255,255,0.6)",fontSize:13}}>
+                <div style={{fontSize:32,marginBottom:8}}>📷</div>
+                <div>Starting camera...</div>
+              </div>
+            )}
+            {cameraError&&(
+              <div style={{background:"rgba(226,75,74,0.15)",border:"1px solid rgba(226,75,74,0.4)",borderRadius:8,padding:"10px 14px",marginBottom:12,fontSize:12,color:"#E24B4A"}}>{cameraError}</div>
+            )}
+            <div style={{color:"rgba(255,255,255,0.6)",fontSize:12,marginBottom:6}}>Or type / paste SKU manually:</div>
+            <div style={{display:"flex",gap:8}}>
+              <input autoFocus placeholder="Type SKU and press Enter" value={scanInput} onChange={e=>setScanInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")handleScan(scanInput);}} style={{...inp,fontSize:13,padding:"9px 12px",background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",color:"#fff",flex:1}}/>
+              <button onClick={()=>handleScan(scanInput)} style={{...btn("#0D7E6E"),padding:"9px 16px"}}>Go</button>
+            </div>
           </div>
         )}
         {scanFeedback&&(
