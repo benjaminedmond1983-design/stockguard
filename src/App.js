@@ -6,7 +6,7 @@ const OWNER_PIN = "1234";
 const OWNER_TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
   "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing"
+  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing", "shopify"
 ];
 
 const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
@@ -963,6 +963,9 @@ function AppInner({role,onLogout,TABS,userId}){
 
         </div>
       </div>
+      {tab==="Shopify"&&(
+  <ShopifyTab supabase={supabase} userId={user.id} />
+)}
 
       {/* ── CHAT SLIDE-OVER PANEL ── */}
       {chatOpen&&(
@@ -1003,6 +1006,248 @@ function AppInner({role,onLogout,TABS,userId}){
         </div>
       )}
       {chatOpen&&<div onClick={closeChat} style={{position:"fixed",top:0,left:0,width:"100vw",height:"100vh",background:"rgba(0,0,0,0.3)",zIndex:299}}/>}
+    </div>
+  );
+}function ShopifyTab({ supabase, userId }) {
+  const [connection, setConnection] = React.useState(null);
+  const [shopUrl, setShopUrl] = React.useState('');
+  const [accessToken, setAccessToken] = React.useState('');
+  const [status, setStatus] = React.useState('idle');
+  const [message, setMessage] = React.useState('');
+  const [syncStats, setSyncStats] = React.useState(null);
+  const [showToken, setShowToken] = React.useState(false);
+  const [loadingConnection, setLoadingConnection] = React.useState(true);
+
+  React.useEffect(() => { loadConnection(); }, [userId]);
+
+  async function loadConnection() {
+    setLoadingConnection(true);
+    try {
+      const { data } = await supabase
+        .from('shopify_connections')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+      if (data) { setConnection(data); setShopUrl(data.shop_url || ''); }
+    } catch (e) {}
+    setLoadingConnection(false);
+  }
+
+  async function testAndSaveConnection() {
+    if (!shopUrl || !accessToken) {
+      setStatus('error'); setMessage('Please enter both your store URL and access token.'); return;
+    }
+    setStatus('testing'); setMessage('Testing connection...');
+    try {
+      const res = await fetch('/api/shopify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'test_connection', shop_url: shopUrl, access_token: accessToken }),
+      });
+      const data = await res.json();
+      if (!data.success) { setStatus('error'); setMessage('Connection failed: ' + (data.error || 'Invalid credentials')); return; }
+      const { error: upsertErr } = await supabase.from('shopify_connections').upsert({
+        user_id: userId,
+        shop_url: shopUrl.replace(/^https?:\/\//, '').replace(/\/$/, ''),
+        access_token: accessToken,
+        shop_name: data.shop?.name || shopUrl,
+        connected_at: new Date().toISOString(),
+        last_sync: null,
+      }, { onConflict: 'user_id' });
+      if (upsertErr) throw upsertErr;
+      setStatus('success'); setMessage('✓ Connected to ' + (data.shop?.name || shopUrl));
+      loadConnection();
+    } catch (err) { setStatus('error'); setMessage('Error: ' + err.message); }
+  }
+
+  async function syncProducts() {
+    if (!connection) return;
+    setStatus('syncing'); setMessage('Fetching products from Shopify...');
+    try {
+      const res = await fetch('/api/shopify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'fetch_products', shop_url: connection.shop_url, access_token: connection.access_token }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      const products = data.products;
+      setMessage(`Processing ${products.length} products...`);
+      let newCount = 0, updatedCount = 0;
+      for (const product of products) {
+        for (const variant of product.variants) {
+          const sku = variant.sku || `shopify-${variant.id}`;
+          const { data: existing } = await supabase.from('inventory').select('id, qty')
+            .eq('shopify_variant_id', String(variant.id)).eq('user_id', userId).single();
+          const inventoryRow = {
+            user_id: userId,
+            name: product.title + (variant.title !== 'Default Title' ? ` - ${variant.title}` : ''),
+            sku, qty: variant.inventory_quantity || 0,
+            cost: parseFloat(variant.compare_at_price || variant.price) * 0.6 || 0,
+            selling_price: parseFloat(variant.price) || 0,
+            category: product.product_type || 'Shopify',
+            supplier: product.vendor || '', location: 'Main', min_stock: 5,
+            shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true,
+          };
+          if (existing) {
+            await supabase.from('inventory').update({ qty: variant.inventory_quantity || 0, shopify_synced: true }).eq('id', existing.id);
+            updatedCount++;
+          } else {
+            await supabase.from('inventory').insert(inventoryRow);
+            newCount++;
+          }
+        }
+      }
+      await supabase.from('shopify_connections').update({ last_sync: new Date().toISOString(), product_count: products.length }).eq('user_id', userId);
+      setSyncStats({ newCount, updatedCount, total: products.length });
+      setStatus('success'); setMessage(`✓ Sync complete! ${newCount} new, ${updatedCount} updated.`);
+      loadConnection();
+    } catch (err) { setStatus('error'); setMessage('Sync failed: ' + err.message); }
+  }
+
+  async function syncOrders() {
+    if (!connection) return;
+    setStatus('syncing'); setMessage('Fetching recent Shopify orders...');
+    try {
+      const since = connection.last_sync || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+      const res = await fetch('/api/shopify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'fetch_orders', shop_url: connection.shop_url, access_token: connection.access_token, since_date: since }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      let deducted = 0;
+      for (const order of data.orders) {
+        for (const item of order.line_items) {
+          if (!item.variant_id) continue;
+          const { data: invItem } = await supabase.from('inventory').select('id, qty, name, selling_price, cost')
+            .eq('shopify_variant_id', String(item.variant_id)).eq('user_id', userId).single();
+          if (!invItem) continue;
+          const newQty = Math.max(0, (invItem.qty || 0) - item.quantity);
+          await supabase.from('inventory').update({ qty: newQty }).eq('id', invItem.id);
+          await supabase.from('audit_log').insert({
+            user_id: userId, action: 'sold', item_id: invItem.id, item_name: invItem.name,
+            qty_change: -item.quantity, note: `Shopify Order ${order.name}`,
+            revenue: item.quantity * (invItem.selling_price || 0),
+            profit: item.quantity * ((invItem.selling_price || 0) - (invItem.cost || 0)),
+            created_at: order.created_at,
+          });
+          deducted++;
+        }
+      }
+      await supabase.from('shopify_connections').update({ last_sync: new Date().toISOString() }).eq('user_id', userId);
+      setStatus('success'); setMessage(`✓ Orders synced! ${data.orders.length} orders, ${deducted} inventory adjustments.`);
+      loadConnection();
+    } catch (err) { setStatus('error'); setMessage('Order sync failed: ' + err.message); }
+  }
+
+  async function disconnect() {
+    if (!window.confirm('Disconnect Shopify? Your inventory data will remain, but syncing will stop.')) return;
+    await supabase.from('shopify_connections').delete().eq('user_id', userId);
+    setConnection(null); setShopUrl(''); setAccessToken(''); setStatus('idle'); setMessage('');
+  }
+
+  const sidebarColor = '#1B2B4B', green = '#10b981', red = '#ef4444', shopifyGreen = '#96bf48';
+
+  if (loadingConnection) return <div style={{padding:40,color:'#64748b'}}>Loading Shopify connection...</div>;
+
+  return (
+    <div style={{padding:'32px',maxWidth:720,fontFamily:'system-ui,sans-serif'}}>
+      <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:8}}>
+        <div style={{width:40,height:40,borderRadius:10,background:shopifyGreen,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,fontWeight:700,color:'#fff'}}>S</div>
+        <div>
+          <h2 style={{margin:0,fontSize:22,fontWeight:700,color:sidebarColor}}>Shopify Integration</h2>
+          <p style={{margin:0,fontSize:13,color:'#64748b'}}>Import products and sync orders from your Shopify store</p>
+        </div>
+      </div>
+      <hr style={{border:'none',borderTop:'1px solid #e2e8f0',margin:'20px 0'}} />
+      {message && (
+        <div style={{padding:'10px 16px',borderRadius:8,marginBottom:20,fontSize:14,
+          background:status==='error'?'#fef2f2':status==='success'?'#f0fdf4':'#f0f9ff',
+          color:status==='error'?red:status==='success'?green:'#0369a1',
+          border:`1px solid ${status==='error'?'#fecaca':status==='success'?'#bbf7d0':'#bae6fd'}`}}>
+          {message}
+        </div>
+      )}
+      {!connection && (
+        <div style={{background:'#f8fafc',borderRadius:12,padding:28,border:'1px solid #e2e8f0'}}>
+          <h3 style={{margin:'0 0 6px',fontSize:16,fontWeight:600,color:sidebarColor}}>Connect Your Shopify Store</h3>
+          <p style={{margin:'0 0 24px',fontSize:13,color:'#64748b',lineHeight:1.5}}>Enter your Shopify store URL and Admin API access token.</p>
+          <div style={{display:'flex',flexDirection:'column',gap:16}}>
+            <div>
+              <label style={{display:'block',fontSize:13,fontWeight:600,color:'#374151',marginBottom:6}}>Store URL</label>
+              <input type="text" placeholder="your-store.myshopify.com" value={shopUrl} onChange={e=>setShopUrl(e.target.value)}
+                style={{width:'100%',padding:'10px 14px',borderRadius:8,boxSizing:'border-box',border:'1.5px solid #d1d5db',fontSize:14,fontFamily:'monospace'}} />
+            </div>
+            <div>
+              <label style={{display:'block',fontSize:13,fontWeight:600,color:'#374151',marginBottom:6}}>Admin API Access Token</label>
+              <div style={{position:'relative'}}>
+                <input type={showToken?'text':'password'} placeholder="shpat_xxxxxxxxxxxxxxxxxxxx" value={accessToken} onChange={e=>setAccessToken(e.target.value)}
+                  style={{width:'100%',padding:'10px 40px 10px 14px',borderRadius:8,boxSizing:'border-box',border:'1.5px solid #d1d5db',fontSize:14,fontFamily:'monospace'}} />
+                <button onClick={()=>setShowToken(v=>!v)} style={{position:'absolute',right:10,top:'50%',transform:'translateY(-50%)',background:'none',border:'none',cursor:'pointer',color:'#6b7280',fontSize:13}}>
+                  {showToken?'Hide':'Show'}
+                </button>
+              </div>
+            </div>
+            <div style={{background:'#fff',borderRadius:8,padding:16,border:'1px solid #e2e8f0',fontSize:13,color:'#374151'}}>
+              <p style={{margin:'0 0 8px',fontWeight:600,color:sidebarColor}}>How to get your access token:</p>
+              <ol style={{margin:0,paddingLeft:18,lineHeight:2}}>
+                <li>Shopify Admin → <strong>Settings</strong> → <strong>Apps and sales channels</strong></li>
+                <li>Click <strong>Develop apps</strong> → <strong>Create an app</strong></li>
+                <li>Name it "StockGuard" → <strong>Configure Admin API scopes</strong></li>
+                <li>Enable: <code>read_products</code>, <code>read_inventory</code>, <code>read_orders</code>, <code>write_inventory</code></li>
+                <li>Click <strong>Install app</strong> → copy the <strong>Admin API access token</strong></li>
+              </ol>
+            </div>
+            <button onClick={testAndSaveConnection} disabled={status==='testing'}
+              style={{padding:'12px 24px',borderRadius:8,border:'none',background:status==='testing'?'#94a3b8':sidebarColor,color:'#fff',fontWeight:600,fontSize:15,cursor:status==='testing'?'not-allowed':'pointer'}}>
+              {status==='testing'?'Testing connection...':'Connect Shopify'}
+            </button>
+          </div>
+        </div>
+      )}
+      {connection && (
+        <div style={{display:'flex',flexDirection:'column',gap:16}}>
+          <div style={{background:'#f0fdf4',borderRadius:12,padding:20,border:'1.5px solid #bbf7d0',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{display:'flex',alignItems:'center',gap:12}}>
+              <span style={{fontSize:22}}>✓</span>
+              <div>
+                <div style={{fontWeight:700,fontSize:15,color:'#065f46'}}>{connection.shop_name||connection.shop_url}</div>
+                <div style={{fontSize:12,color:'#059669'}}>{connection.shop_url} · Connected {new Date(connection.connected_at).toLocaleDateString()}</div>
+              </div>
+            </div>
+            <button onClick={disconnect} style={{padding:'6px 14px',borderRadius:6,border:'1px solid #fca5a5',background:'#fff',color:red,fontSize:13,cursor:'pointer',fontWeight:500}}>Disconnect</button>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12}}>
+            {[{label:'Products Synced',value:connection.product_count||'—'},{label:'Last Sync',value:connection.last_sync?new Date(connection.last_sync).toLocaleString():'Never'},{label:'Store',value:connection.shop_url}].map((stat,i)=>(
+              <div key={i} style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',border:'1px solid #e2e8f0'}}>
+                <div style={{fontSize:11,color:'#64748b',fontWeight:600,textTransform:'uppercase',letterSpacing:0.5,marginBottom:4}}>{stat.label}</div>
+                <div style={{fontSize:14,fontWeight:700,color:sidebarColor,wordBreak:'break-all'}}>{stat.value}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:12,padding:24,border:'1px solid #e2e8f0'}}>
+            <h3 style={{margin:'0 0 6px',fontSize:16,fontWeight:600,color:sidebarColor}}>Sync Actions</h3>
+            <p style={{margin:'0 0 20px',fontSize:13,color:'#64748b'}}>Products sync qty; orders deduct inventory and log to Audit Trail.</p>
+            <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
+              <button onClick={syncProducts} disabled={status==='syncing'}
+                style={{padding:'11px 20px',borderRadius:8,border:'none',background:status==='syncing'?'#94a3b8':sidebarColor,color:'#fff',fontWeight:600,fontSize:14,cursor:status==='syncing'?'not-allowed':'pointer'}}>
+                {status==='syncing'?'Syncing...':'⬇ Sync Products'}
+              </button>
+              <button onClick={syncOrders} disabled={status==='syncing'}
+                style={{padding:'11px 20px',borderRadius:8,border:`1.5px solid ${sidebarColor}`,background:'#fff',color:sidebarColor,fontWeight:600,fontSize:14,cursor:status==='syncing'?'not-allowed':'pointer'}}>
+                {status==='syncing'?'Syncing...':'📦 Sync Orders'}
+              </button>
+            </div>
+          </div>
+          {syncStats && (
+            <div style={{background:'#fff',borderRadius:10,padding:18,border:'1px solid #e2e8f0',fontSize:14}}>
+              <p style={{margin:0,fontWeight:600,color:sidebarColor,marginBottom:8}}>Last sync results:</p>
+              <p style={{margin:'4px 0',color:'#374151'}}>• {syncStats.total} total Shopify products processed</p>
+              <p style={{margin:'4px 0',color:green}}>• {syncStats.newCount} new items added to inventory</p>
+              <p style={{margin:'4px 0',color:'#0369a1'}}>• {syncStats.updatedCount} existing items updated</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
