@@ -1019,6 +1019,8 @@ function AppInner({role,onLogout,TABS,userId}){
     </div>
   );
 }function ShopifyTab({ supabase, userId }) {
+  // Debug: render immediately to test
+  if (!userId) return <div style={{padding:40,color:'red'}}>No userId provided</div>;
   const [connection, setConnection] = React.useState(null);
   const [shopUrl, setShopUrl] = React.useState('');
   const [accessToken, setAccessToken] = React.useState('');
