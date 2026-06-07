@@ -1021,16 +1021,16 @@ function AppInner({role,onLogout,TABS,userId}){
 }function ShopifyTab({ supabase, userId }) {
   // Debug: render immediately to test
   if (!userId) return <div style={{padding:40,color:'red'}}>No userId provided</div>;
-  const [connection, setConnection] = React.useState(null);
-  const [shopUrl, setShopUrl] = React.useState('');
-  const [accessToken, setAccessToken] = React.useState('');
-  const [status, setStatus] = React.useState('idle');
-  const [message, setMessage] = React.useState('');
-  const [syncStats, setSyncStats] = React.useState(null);
-  const [showToken, setShowToken] = React.useState(false);
-  const [loadingConnection, setLoadingConnection] = React.useState(true);
+  const [connection, setConnection] = useState(null);
+  const [shopUrl, setShopUrl] = useState('');
+  const [accessToken, setAccessToken] = useState('');
+  const [status, setStatus] = useState('idle');
+  const [message, setMessage] = useState('');
+  const [syncStats, setSyncStats] = useState(null);
+  const [showToken, setShowToken] = useState(false);
+  const [loadingConnection, setLoadingConnection] = useState(true);
 
-  React.useEffect(() => { loadConnection(); }, [userId]);
+  useEffect(() => { loadConnection(); }, [userId]);
 
   async function loadConnection() {
     setLoadingConnection(true);
