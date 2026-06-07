@@ -964,7 +964,7 @@ function AppInner({role,onLogout,TABS,userId}){
         </div>
       </div>
       {tab==="Shopify"&&(
-  <ShopifyTab supabase={supabase} userId={user.id} />
+  <ShopifyTab supabase={supabase} userId={userid} />
 )}
 
       {/* ── CHAT SLIDE-OVER PANEL ── */}
