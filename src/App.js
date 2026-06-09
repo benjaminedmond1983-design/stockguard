@@ -716,7 +716,7 @@ function AppInner({role,onLogout,TABS,userId}){
                 {tab==="Automations"&&"Automate your inventory workflows"}
                 {tab==="Import Products"&&"Bulk import your inventory"}
                 {tab==="billing"&&(
-          <BillingTab supabase={supabase} userId={userId} userEmail={session?.user?.email} />
+          <BillingTab supabase={supabase} userId={userId} userEmail={session ? session.user.email : null} />
         )}
         {tab==="Pricing"&&"Choose the right plan"}
               </p>
