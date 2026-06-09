@@ -1,4 +1,4 @@
-const CACHE = "stockguard-v2";
+const CACHE = "stockguard-v3";
 const URLS = ["/", "/index.html"];
 
 self.addEventListener("install", e => {
