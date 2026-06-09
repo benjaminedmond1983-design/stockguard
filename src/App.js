@@ -715,9 +715,6 @@ function AppInner({role,onLogout,TABS,userId}){
                 {tab==="Business Insights"&&"AI-powered business analysis"}
                 {tab==="Automations"&&"Automate your inventory workflows"}
                 {tab==="Import Products"&&"Bulk import your inventory"}
-                {tab==="billing"&&(
-          <BillingTab supabase={supabase} userId={userId} userEmail={session ? session.user.email : null} />
-        )}
         {tab==="Pricing"&&"Choose the right plan"}
               </p>
             </div>
@@ -981,7 +978,11 @@ function AppInner({role,onLogout,TABS,userId}){
   <ShopifyTab supabase={supabase} userId={userId} />
 )}
 
-      {/* ── CHAT SLIDE-OVER PANEL ── */}
+      
+        {tab==="billing"&&(
+          <BillingTab supabase={supabase} userId={userId} userEmail={null} />
+        )}
+        {/* ── CHAT SLIDE-OVER PANEL ── */}
       {chatOpen&&(
         <div style={{position:"fixed",top:0,right:0,width:360,height:"100vh",background:"#fff",boxShadow:"-4px 0 24px rgba(0,0,0,0.12)",zIndex:300,display:"flex",flexDirection:"column",fontFamily:"system-ui,-apple-system,sans-serif"}}>
           <div style={{background:"#1B2B4B",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
