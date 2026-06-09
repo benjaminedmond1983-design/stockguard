@@ -6,7 +6,7 @@ const OWNER_PIN = "1234";
 const OWNER_TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
   "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing", "shopify"
+  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing", "shopify", "billing"
 ];
 
 const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
