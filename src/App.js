@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
+import BillingTab from "./BillingTab";
 
 const OWNER_PIN = "1234";
 
@@ -714,7 +715,10 @@ function AppInner({role,onLogout,TABS,userId}){
                 {tab==="Business Insights"&&"AI-powered business analysis"}
                 {tab==="Automations"&&"Automate your inventory workflows"}
                 {tab==="Import Products"&&"Bulk import your inventory"}
-                {tab==="Pricing"&&"Choose the right plan"}
+                {tab==="billing"&&(
+          <BillingTab supabase={supabase} userId={userId} userEmail={session?.user?.email} />
+        )}
+        {tab==="Pricing"&&"Choose the right plan"}
               </p>
             </div>
           </div>
