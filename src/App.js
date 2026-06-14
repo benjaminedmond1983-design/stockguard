@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
 import BillingTab from "./BillingTab";
+import AuthScreen  from "./components/AuthScreen";
+import RoleScreen  from "./components/RoleScreen";
+import Sidebar     from "./components/Sidebar";
+import BottomNav   from "./components/BottomNav";
+import ChatPanel   from "./components/ChatPanel";
+import AuditTrail  from "./tabs/AuditTrail";
+import Pricing     from "./tabs/Pricing";
+import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, TAB_ICONS, TAB_COLORS, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
+import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRows, buildInitAudit, inp, btn } from "./components/helpers";
 
 const OWNER_PIN = "1234";
 
