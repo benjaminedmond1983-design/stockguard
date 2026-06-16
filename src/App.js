@@ -8,6 +8,7 @@ import BottomNav   from "./components/BottomNav";
 import ChatPanel   from "./components/ChatPanel";
 import AuditTrail  from "./tabs/AuditTrail";
 import Pricing     from "./tabs/Pricing";
+import { useSlack } from "./components/useSlack";
 import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, TAB_ICONS, TAB_COLORS, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
 import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRows, buildInitAudit, inp, btn } from "./components/helpers";
 
@@ -197,6 +198,7 @@ export default function App(){
 
 function AppInner({role,onLogout,TABS,userId}){
   const isOwner=role==="owner";
+  const { sendSlackAlert, sendLowStockAlerts } = useSlack();
   const [tab,setTab]=useState(TABS[0]);
   const [inventory,setInventory]=useState([]);
   const [audit,setAudit]=useState([]);
@@ -531,6 +533,7 @@ function AppInner({role,onLogout,TABS,userId}){
     addLog("Sold",item.name,qty,"Staff",saleForm.invoice||"—",{sku:item.sku,revenue,profit});
     setSaleForm(emptySale);
     runAutomations(updatedInv);
+    sendLowStockAlerts(updatedInv, audit);
   }
   async function handleMove(){
     const qty=parseInt(moveForm.qty);const item=inventory.find(i=>i.sku===moveForm.sku);
