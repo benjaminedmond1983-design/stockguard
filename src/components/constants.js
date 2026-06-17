@@ -50,3 +50,4 @@ export const SIDEBAR_W = 200;
 export const ADD_CATEGORY_VALUE = "__add_category__";
 export const C = { bg:"#ffffff", bg2:"#f5f5f5", text:"#111111", muted:"#666666", border:"#e0e0e0" };
 export const CSV_TEMPLATE = `SKU,Name,Category,Qty,MinQty,Supplier,UnitCost,SellingPrice,Location\nSKU-101,Sample Product,Apparel,50,10,My Supplier,19.99,49.99,Aisle A1`;
+export const SIDEBAR = "#1B2B4B";
