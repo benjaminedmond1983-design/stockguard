@@ -9,7 +9,7 @@ import ChatPanel   from "./components/ChatPanel";
 import AuditTrail  from "./tabs/AuditTrail";
 import Pricing     from "./tabs/Pricing";
 import { useSlack } from "./components/useSlack";
-import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, TAB_ICONS, TAB_COLORS, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
+import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, SIDEBAR, TAB_ICONS, TAB_COLORS, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
 import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRows, buildInitAudit, inp, btn } from "./components/helpers";
 
 const OWNER_PIN = "1234";
