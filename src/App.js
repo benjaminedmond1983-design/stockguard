@@ -6,6 +6,7 @@ import RoleScreen  from "./components/RoleScreen";
 import Sidebar     from "./components/Sidebar";
 import BottomNav   from "./components/BottomNav";
 import ChatPanel   from "./components/ChatPanel";
+import HelpPanel   from "./components/HelpPanel";
 import AuditTrail  from "./tabs/AuditTrail";
 import Pricing     from "./tabs/Pricing";
 import { useSlack } from "./components/useSlack";
@@ -877,6 +878,7 @@ function AppInner({role,onLogout,TABS,userId}){
         </div>
       )}
       {chatOpen&&<div onClick={closeChat} style={{position:"fixed",top:0,left:0,width:"100vw",height:"100vh",background:"rgba(0,0,0,0.3)",zIndex:299}}/>}
+      <HelpPanel />
     </div>
   );
 }function ShopifyTab({ supabase, userId }) {
