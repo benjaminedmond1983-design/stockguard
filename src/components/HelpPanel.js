@@ -1,0 +1,1 @@
+pbpaste > src/components/HelpPanel.js
