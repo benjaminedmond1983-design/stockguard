@@ -444,7 +444,7 @@ function AppInner({role,onLogout,TABS,userId}){
   );
 
   const isMobile=typeof window!=="undefined"&&window.innerWidth<=768;
-  const BOTTOM_TABS=TABS.slice(0,5); // first 5 tabs in bottom nav
+  const BOTTOM_TABS=["Dashboard","Sales","Reorder Center","Receiving","Purchase Orders"].filter(t=>TABS.includes(t)); // first 5 tabs in bottom nav
 
   return (
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"system-ui,-apple-system,sans-serif",color:C.text,background:"#EEF2F7"}}>
@@ -507,18 +507,7 @@ function AppInner({role,onLogout,TABS,userId}){
             <span style={{fontSize:11,color:"#fff",fontWeight:600}}>{isOwner?"Owner":"Cashier"}</span>
           </div>
         </div>
-        <nav style={{flex:1,padding:"12px 8px"}}>
-          {TABS.map(t=>{const active=tab===t;return(
-            <button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"10px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#fff":"rgba(255,255,255,0.6)",fontSize:13,fontWeight:active?600:400,marginBottom:2,textAlign:"left"}}
-              onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}}
-              onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}
-            >
-              <i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:18,minWidth:18}} aria-hidden="true"/>
-              <span>{t}</span>
-              {t==="Reorder Center"&&lowItems.length>0&&(<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>)}
-            </button>
-          );})}
-        </nav>
+        <nav style={{flex:1,padding:"12px 8px"}}>{[{label:"OVERVIEW",tabs:["Dashboard"]},{label:"INVENTORY",tabs:["Receiving","Movements","Reorder Center","Import Products"]},{label:"TRADING",tabs:["Sales","Purchase Orders"]},{label:"SUPPLY CHAIN",tabs:["Suppliers","shopify","Shopify"]},{label:"INTELLIGENCE",tabs:["Intelligence","Business Insights","Automations"]},{label:"RECORDS",tabs:["Audit Trail"]},{label:"ACCOUNT",tabs:["Pricing","billing"]}].map((group,gi)=>{const groupTabs=group.tabs.filter(t=>TABS.includes(t));if(!groupTabs.length)return null;return(<div key={group.label}><div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,0.3)",letterSpacing:"0.08em",padding:gi===0?"12px 12px 4px":"16px 12px 4px",textTransform:"uppercase"}}>{group.label}</div>{groupTabs.map(t=>{const active=tab===t;return(<button key={t} onClick={()=>setTab(t)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"9px 12px",borderRadius:8,border:"none",cursor:"pointer",background:active?"rgba(255,255,255,0.15)":"transparent",color:active?"#fff":"rgba(255,255,255,0.6)",fontSize:13,fontWeight:active?600:400,marginBottom:1,textAlign:"left"}} onMouseEnter={e=>{if(!active){e.currentTarget.style.background="rgba(255,255,255,0.08)";e.currentTarget.style.color="#fff";}}} onMouseLeave={e=>{if(!active){e.currentTarget.style.background="transparent";e.currentTarget.style.color="rgba(255,255,255,0.6)";}}}><i className={`ti ${TAB_ICONS[t]}`} style={{fontSize:17,minWidth:18}} aria-hidden="true"/><span style={{fontSize:13}}>{t==="shopify"?"Shopify":t==="billing"?"Billing":t}</span>{t==="Reorder Center"&&lowItems.length>0&&(<span style={{marginLeft:"auto",background:"#E24B4A",color:"#fff",fontSize:10,fontWeight:700,padding:"1px 6px",borderRadius:10}}>{lowItems.length}</span>)}</button>);})}</div>);})}</nav>
         <div style={{padding:"16px",borderTop:"1px solid rgba(255,255,255,0.08)"}}>
           <button onClick={onLogout} style={{width:"100%",padding:"8px",borderRadius:8,border:"1px solid rgba(255,255,255,0.2)",background:"transparent",color:"rgba(255,255,255,0.6)",fontSize:12,cursor:"pointer",marginBottom:12}}>🔄 Switch Role</button>
           <div style={{color:"rgba(255,255,255,0.35)",fontSize:10,textAlign:"center",lineHeight:1.5,fontStyle:"italic"}}>"Commit to the Lord whatever you do"<br/>Proverbs 16:3</div>
