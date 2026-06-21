@@ -220,8 +220,9 @@ function AppInner({role,onLogout,TABS,userId}){
     try{
       const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
       setCameraActive(true);
+      await new Promise(res=>setTimeout(res,150));
       const video=document.getElementById("sg-camera-feed");
-      if(!video){stream.getTracks().forEach(t=>t.stop());return;}
+      if(!video){stream.getTracks().forEach(t=>t.stop());setCameraActive(false);return;}
       video.srcObject=stream;
       await video.play();
       const detector=new window.BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});
