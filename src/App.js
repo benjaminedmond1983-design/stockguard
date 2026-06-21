@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { BrowserMultiFormatReader } from '@zxing/browser';
 import { supabase } from "./supabase";
 import BillingTab from "./BillingTab";
 import AuthScreen  from "./components/AuthScreen";
@@ -199,29 +200,7 @@ function AppInner({role,onLogout,TABS,userId}){
   function runSimulator(){const item=inventory.find(i=>i.sku===simSku);if(!item||!simQty)return;const fc=getForecast(item);const qty=parseInt(simQty)||0;const totalQtyAfter=item.qty+qty;const stockoutAfter=fc.dailyRate>0?Math.floor(totalQtyAfter/fc.dailyRate):null;const orderCost=(qty*item.unitCost).toFixed(2);const projRevenue=(qty*item.sellingPrice).toFixed(2);const projProfit=(qty*(item.sellingPrice-item.unitCost)).toFixed(2);const coversDays=fc.dailyRate>0?Math.floor(qty/fc.dailyRate):null;setSimResult({item,qty,orderCost,projRevenue,projProfit,stockoutAfter,coversDays,totalQtyAfter,dailyRate:fc.dailyRate});}
   // ── BARCODE SCAN HANDLER ──
   function handleRecScan(raw){const code=raw.trim();setRecScanMode(false);setRecCameraActive(false);if(window._sgStopRecCamera)window._sgStopRecCamera();if(!code)return;const existing=inventory.find(i=>i.sku===code||i.sku.toLowerCase()===code.toLowerCase());if(existing){setRecForm(r=>({...r,sku:existing.sku,name:existing.name,category:existing.category,supplier:existing.supplier,unitCost:existing.unitCost,sellingPrice:existing.sellingPrice,location:existing.location}));}else{setRecForm(r=>({...r,sku:code}));}}
-  async function startRecCameraScan(){setRecCameraError("");if(!("BarcodeDetector" in window)){setRecCameraError("Auto-scan not supported on this browser. Type SKU below.");return;}try{const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});setRecCameraActive(true);await new Promise(res=>setTimeout(res,150));const video=document.getElementById("sg-rec-camera-feed");if(!video){stream.getTracks().forEach(t=>t.stop());setRecCameraActive(false);return;}video.srcObject=stream;await video.play();const detector=new window.BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});let scanning=true;window._sgStopRecCamera=()=>{scanning=false;stream.getTracks().forEach(t=>t.stop());setRecCameraActive(false);};const scan=async()=>{if(!scanning)return;try{const codes=await detector.detect(video);if(codes.length>0){const code=codes[0].rawValue;window._sgStopRecCamera();handleRecScan(code);return;}}catch(e){}if(scanning)requestAnimationFrame(scan);};requestAnimationFrame(scan);}catch(e){setRecCameraError(e.name==="NotAllowedError"?"Camera access denied. Please allow camera access.":"Camera not available. Type SKU below.");setRecCameraActive(false);}}
-  function handleScan(raw){
-    const code=raw.trim();
-    setScanInput("");
-    if(!code)return;
-    const item=inventory.find(i=>i.sku===code||i.sku.toLowerCase()===code.toLowerCase());
-    if(item){
-      setSaleForm(f=>({...f,sku:item.sku,qty:"1"}));
-      setScanFeedback({ok:true,msg:`✓ ${item.name} — $${item.sellingPrice?.toFixed(2)||"no price"}`});
-      setScanMode(false);
-    }else{
-      setScanFeedback({ok:false,msg:`✗ No item found for "${code}"`});
-    }
-    setTimeout(()=>setScanFeedback(null),3000);
-  }
-  // ── CAMERA SCAN ──
-  async function startCameraScan(){
-    setCameraError("");
-    if(!("BarcodeDetector" in window)){
-      setCameraError("Camera barcode scanning not supported on this browser. Use the text input below or try Chrome on Android.");
-      setCameraActive(false);
-      return;
-    }
+  async function startRecCameraScan(){setRecCameraError("");
     try{
       const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
       setCameraActive(true);
@@ -230,21 +209,7 @@ function AppInner({role,onLogout,TABS,userId}){
       if(!video){stream.getTracks().forEach(t=>t.stop());setCameraActive(false);return;}
       video.srcObject=stream;
       await video.play();
-      const detector=new window.BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});
-      let scanning=true;
-      window._sgStopCamera=()=>{scanning=false;stream.getTracks().forEach(t=>t.stop());setCameraActive(false);};
-      const scan=async()=>{
-        if(!scanning)return;
-        try{
-          const codes=await detector.detect(video);
-          if(codes.length>0){
-            const code=codes[0].rawValue;
-            window._sgStopCamera();
-            handleScan(code);
-            return;
-          }
-        }catch(e){}
-        if(scanning)requestAnimationFrame(scan);
+      const reader=new BrowserMultiFormatReader();window._sgStopCamera=()=>{try{reader.reset();}catch(e){}stream.getTracks().forEach(t=>t.stop());setCameraActive(false);};reader.decodeFromVideoElement(video,(result)=>{if(result){window._sgStopCamera();handleScan(result.getText());}});
       };
       requestAnimationFrame(scan);
     }catch(e){
