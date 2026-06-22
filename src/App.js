@@ -209,14 +209,7 @@ function AppInner({role,onLogout,TABS,userId}){
       if(!video){stream.getTracks().forEach(t=>t.stop());setCameraActive(false);return;}
       video.srcObject=stream;
       await video.play();
-      const reader=new BrowserMultiFormatReader();window._sgStopCamera=()=>{try{reader.reset();}catch(e){}stream.getTracks().forEach(t=>t.stop());setCameraActive(false);};reader.decodeFromVideoElement(video,(result)=>{if(result){window._sgStopCamera();handleScan(result.getText());}});
-      };
-      requestAnimationFrame(scan);
-    }catch(e){
-      setCameraError(e.name==="NotAllowedError"?"Camera access denied. Please allow camera access and try again.":"Camera not available. Use the text input below.");
-      setCameraActive(false);
-    }
-  }
+      async function startCameraScan(){setCameraError("");const reader=new BrowserMultiFormatReader();window._sgStopCamera=()=>{try{reader.reset();}catch(e){}setCameraActive(false);};try{setCameraActive(true);await new Promise(res=>setTimeout(res,200));const video=document.getElementById("sg-camera-feed");if(!video){setCameraActive(false);return;}reader.decodeFromVideoDevice(undefined,video,(result)=>{if(result){window._sgStopCamera();handleScan(result.getText());}}).catch(err=>{setCameraError(err.name==="NotAllowedError"?"Camera access denied. Please allow camera access.":"Camera not available. Use the text input below.");setCameraActive(false);});}catch(e){setCameraError(e.name==="NotAllowedError"?"Camera access denied. Please allow camera access.":"Camera not available. Use the text input below.");setCameraActive(false);}}
   function stopCamera(){
     if(window._sgStopCamera)window._sgStopCamera();
   }
