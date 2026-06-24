@@ -632,7 +632,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
           <div style={{fontWeight:500}}>Record sale / dispatch</div>
           <button onClick={()=>{
             if(scanMode){setScanMode(false);setScanInput("");setScanFeedback(null);stopCamera();setCameraActive(false);setCameraError("");}
-            else{setScanMode(true);setScanFeedback(null);startCameraScan();}
+            else{setScanMode(true);setScanFeedback(null);if(!scanMode&&window._sgSalesScanned){const s=window._sgSalesScanned;window._sgSalesScanned=null;setSaleForm(f=>({...f,sku:s}));}else{startCameraScan();}}
           }} style={{...btn(scanMode?"#A32D2D":"#0D7E6E"),padding:"6px 14px",fontSize:12}}>
             {scanMode?"✕ Cancel scan":"📷 Scan barcode"}
           </button>
@@ -643,7 +643,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
               <div style={{position:"relative",marginBottom:12}}>
                 <video id="sg-camera-feed" style={{width:"100%",borderRadius:8,display:"block",maxHeight:240,objectFit:"cover"}} playsInline muted/>
                 <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:200,height:100,border:"2px solid #0D7E6E",borderRadius:8,boxShadow:"0 0 0 1000px rgba(0,0,0,0.4)"}}/>
-                <div style={{position:"absolute",bottom:8,left:0,right:0,textAlign:"center",color:"rgba(255,255,255,0.8)",fontSize:12}}><button onClick={async()=>{const vid=document.getElementById("sg-camera-feed");if(!vid||!vid.videoWidth){setScanFeedback({ok:false,msg:"Camera not ready yet."});return;}setScanFeedback({ok:false,msg:"Scanning..."});try{if("BarcodeDetector" in window){const det=new BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});const codes=await det.detect(vid);if(codes.length>0){const scanned=codes[0].rawValue;alert("Sales scanned: "+scanned);if(window._sgStopCamera)window._sgStopCamera();setScanMode(false);setSaleForm(f=>({...f,sku:scanned}));return;}}setScanFeedback({ok:false,msg:"No barcode found. Tap again."});}catch(e){setScanFeedback({ok:false,msg:"No barcode found. ("+e.name+")"});}}} style={{background:"#0D7E6E",border:"none",color:"#fff",padding:"10px 28px",borderRadius:20,fontSize:15,fontWeight:700,cursor:"pointer"}}>📷 Tap to scan</button></div>
+                <div style={{position:"absolute",bottom:8,left:0,right:0,textAlign:"center",color:"rgba(255,255,255,0.8)",fontSize:12}}><button onClick={async()=>{const vid=document.getElementById("sg-camera-feed");if(!vid||!vid.videoWidth){setScanFeedback({ok:false,msg:"Camera not ready yet."});return;}setScanFeedback({ok:false,msg:"Scanning..."});try{if("BarcodeDetector" in window){const det=new BarcodeDetector({formats:["ean_13","ean_8","code_128","code_39","qr_code","upc_a","upc_e"]});const codes=await det.detect(vid);if(codes.length>0){const scanned=codes[0].rawValue;if(window._sgStopCamera)window._sgStopCamera();window._sgSalesScanned=scanned;const btn=document.querySelector("[data-sales-scan-btn]");if(btn)btn.click();return;}}setScanFeedback({ok:false,msg:"No barcode found. Tap again."});}catch(e){setScanFeedback({ok:false,msg:"No barcode found. ("+e.name+")"});}}} style={{background:"#0D7E6E",border:"none",color:"#fff",padding:"10px 28px",borderRadius:20,fontSize:15,fontWeight:700,cursor:"pointer"}}>📷 Tap to scan</button></div>
               </div>
             )}
             {!cameraActive&&!cameraError&&(
