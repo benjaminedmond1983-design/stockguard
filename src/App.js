@@ -632,7 +632,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
           <div style={{fontWeight:500}}>Record sale / dispatch</div>
           <button onClick={()=>{
             if(scanMode){setScanMode(false);setScanInput("");setScanFeedback(null);stopCamera();setCameraActive(false);setCameraError("");}
-            else{setScanMode(true);setScanFeedback(null);if(!scanMode&&window._sgSalesScanned){const s=window._sgSalesScanned;window._sgSalesScanned=null;setSaleForm(f=>({...f,sku:s}));}else{startCameraScan();}}
+            else{setScanMode(true);setScanFeedback(null);startCameraScan();}
           }} style={{...btn(scanMode?"#A32D2D":"#0D7E6E"),padding:"6px 14px",fontSize:12}}>
             {scanMode?"✕ Cancel scan":"📷 Scan barcode"}
           </button>
