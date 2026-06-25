@@ -329,7 +329,9 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
   }
   async function handleSale(){
     const qty=parseInt(saleForm.qty);const item=inventory.find(i=>i.sku===saleForm.sku);
-    if(!item||!qty||qty>item.qty)return;
+    if(!item){setScanFeedback({ok:false,msg:"❌ SKU not in inventory. Receive this item first."});return;}
+    if(!qty){setScanFeedback({ok:false,msg:"❌ Enter a quantity."});return;}
+    if(qty>item.qty){setScanFeedback({ok:false,msg:"❌ Only "+item.qty+" in stock."});return;}
     const revenue=(item.sellingPrice||0)*qty,profit=((item.sellingPrice||0)-item.unitCost)*qty;
     const newQty=item.qty-qty;
     await supabase.from("inventory").update({qty:newQty}).eq("id",item.id);
