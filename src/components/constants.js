@@ -1,7 +1,7 @@
 export const OWNER_TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
   "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing", "shopify", "billing"
+  "Intelligence", "Business Insights", "Automations", "Import Products", "Pricing", "shopify", "quickbooks", "billing"
 ];
 
 export const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
