@@ -3,6 +3,7 @@ import { BrowserMultiFormatReader } from '@zxing/browser';
 import { MultiFormatReader, BinaryBitmap, HybridBinarizer, HTMLCanvasElementLuminanceSource } from '@zxing/library';
 import { supabase } from "./supabase";
 import BillingTab from "./BillingTab";
+import QuickBooksTab from "./QuickBooksTab";
 import AuthScreen  from "./components/AuthScreen";
 import RoleScreen  from "./components/RoleScreen";
 import Sidebar     from "./components/Sidebar";
@@ -785,6 +786,10 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
       {tab==="shopify"&&(
   <ShopifyTab supabase={supabase} userId={userId} />
 )}
+
+      {tab==="quickbooks"&&(
+        <QuickBooksTab supabase={supabase} userId={userId} />
+      )}
 
       
         {tab==="billing"&&(
