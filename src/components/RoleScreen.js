@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../supabase";
 
-const OWNER_PIN = "1234";
 
 const SG_LOGO = (
   <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -15,8 +14,6 @@ const SG_LOGO = (
 
 export default function RoleScreen({ onRole, onSignOut }) {
   const [showPin, setShowPin] = useState(false);
-  const [pin, setPin] = useState("");
-  const [pinError, setPinError] = useState("");
 
   function tryOwnerPin() {
     if (pin === OWNER_PIN) { onRole("owner"); }
@@ -61,7 +58,7 @@ export default function RoleScreen({ onRole, onSignOut }) {
           </div>
         </div>
         <div style={{ fontSize:15, color:"#444", marginBottom:32 }}>Who is signing in today?</div>
-        <button onClick={() => setShowPin(true)} style={{ width:"100%", padding:"18px 20px", borderRadius:12, border:"2px solid #1B2B4B", background:"#1B2B4B", color:"#fff", cursor:"pointer", marginBottom:14, display:"flex", alignItems:"center", gap:16, textAlign:"left" }}>
+        <button onClick={() => onRole("owner")} style={{ width:"100%", padding:"18px 20px", borderRadius:12, border:"2px solid #1B2B4B", background:"#1B2B4B", color:"#fff", cursor:"pointer", marginBottom:14, display:"flex", alignItems:"center", gap:16, textAlign:"left" }}>
           <span style={{ fontSize:28 }}>👔</span>
           <div>
             <div style={{ fontWeight:700, fontSize:15 }}>Owner</div>
