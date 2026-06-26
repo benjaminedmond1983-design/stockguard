@@ -41,10 +41,10 @@ export default function App(){
   if(!session) return <AuthScreen/>;
   if(!role) return <RoleScreen onRole={setRole} onSignOut={()=>supabase.auth.signOut()}/>;
   const TABS=role==="owner"?OWNER_TABS:CASHIER_TABS;
-  return <AppInner role={role} userId={session.user.id} onLogout={()=>setRole(null)} TABS={TABS}/>;
+  return <AppInner role={role} userId={session.user.id} userEmail={session.user.email} onLogout={()=>setRole(null)} TABS={TABS}/>;
 }
 
-function AppInner({role,onLogout,TABS,userId}){
+function AppInner({role,onLogout,TABS,userId,userEmail}){
   const isOwner=role==="owner";
   const { sendSlackAlert, sendLowStockAlerts } = useSlack();
   const [tab,setTab]=useState(TABS[0]);
@@ -792,7 +792,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
 
       
         {tab==="billing"&&(
-          <BillingTab supabase={supabase} userId={userId} userEmail={null} />
+          <BillingTab supabase={supabase} userId={userId} userEmail={userEmail} />
         )}
         {/* ── CHAT SLIDE-OVER PANEL ── */}
       <DashboardPopover popover={popover} onClose={()=>setPopover(null)} onAction={(fn)=>{fn&&fn();setPopover(null);}}/>
