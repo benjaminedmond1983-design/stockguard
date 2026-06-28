@@ -18,7 +18,6 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
           <span style={{ fontSize:12 }}>{isOwner ? "👔" : "🧾"}</span>
           <span style={{ fontSize:11, color:"#fff", fontWeight:600 }}>{isOwner ? "Owner" : "Cashier"}</span>
         </div>
-      </div>
 
       <nav style={{ flex:1, padding:"12px 8px" }}>
         {tabs.map(t => {
