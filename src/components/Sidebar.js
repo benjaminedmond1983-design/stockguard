@@ -7,15 +7,8 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
       display: "flex", flexDirection: "column", position: "fixed",
       top: 0, left: 0, height: "100vh", zIndex: 100, overflowY: "auto"
     }}>
-      <div style={{ padding:"24px 16px 20px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+        <div style={{ padding:"16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>
           <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'160px', display:'block', margin:'0 auto', mixBlendMode:'multiply'}} />
-          <div>
-            <div style={{ color:"#fff", fontWeight:700, fontSize:16, lineHeight:1 }}>StockGuard</div>
-            <div style={{ color:"rgba(255,255,255,0.5)", fontSize:10, marginTop:3 }}>
-              {isOwner ? "Owner View" : "Cashier View"}
-            </div>
-          </div>
         </div>
         <div style={{
           marginTop:10, display:"inline-flex", alignItems:"center", gap:6,
