@@ -396,7 +396,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
   if(dbLoading) return(
     <div style={{minHeight:"100vh",background:"#EEF2F7",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui,-apple-system,sans-serif"}}>
       <div style={{textAlign:"center"}}>
-        <svg width="48" height="48" viewBox="0 0 40 40" fill="none" style={{marginBottom:16}}><rect width="40" height="40" rx="10" fill="#1B2B4B"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text></svg>
+        <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />
         <div style={{fontWeight:600,fontSize:16,color:"#1B2B4B",marginBottom:8}}>Loading StockGuard...</div>
         <div style={{fontSize:13,color:"#888"}}>Connecting to database</div>
       </div>
@@ -459,7 +459,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
       <div className="sg-sidebar" style={{width:SIDEBAR_W,minWidth:SIDEBAR_W,background:SIDEBAR,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
         <div style={{padding:"24px 16px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/><rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/></svg>
+            <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />
             <div><div style={{color:"#fff",fontWeight:700,fontSize:16,lineHeight:1}}>StockGuard</div><div style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginTop:3}}>{isOwner?"Owner View":"Cashier View"}</div></div>
           </div>
           <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:isOwner?"rgba(255,255,255,0.1)":"rgba(15,110,86,0.4)",borderRadius:8,padding:"4px 10px"}}>

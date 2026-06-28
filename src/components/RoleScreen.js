@@ -2,9 +2,7 @@ import { useState } from "react";
 import { supabase } from "../supabase";
 
 
-const SG_LOGO = (
-  <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'200px', display:'block', margin:'0 auto 16px', mixBlendMode:'multiply'}} />
-);
+const SG_LOGO = (<img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'180px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />);
 
 export default function RoleScreen({ onRole, onSignOut }) {
   const [showPin, setShowPin] = useState(false);
