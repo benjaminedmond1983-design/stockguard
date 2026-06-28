@@ -9,23 +9,19 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
     }}>
       <div style={{ padding:"24px 16px 20px", borderBottom:"1px solid rgba(255,255,255,0.08)" }}>
         <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-          <svg width="44" height="44" viewBox="0 0 44 44" fill="none">
-              <rect width="44" height="44" rx="10" fill="#ffffff"/>
-              <path d="M22 4L38 13V31L22 40L6 31V13Z" fill="#1B2B4B" stroke="#2563EB" strokeWidth="1.2"/>
-              <path d="M22 8L34 15V29L22 36L10 29V15Z" fill="none" stroke="#3B82F6" strokeWidth="0.8" opacity="0.5"/>
-              <rect x="14" y="10" width="3.5" height="9" rx="1.5" fill="#22d3ee"/>
-              <rect x="19" y="7" width="3.5" height="12" rx="1.5" fill="#3B82F6"/>
-              <rect x="24" y="12" width="3.5" height="7" rx="1.5" fill="#60a5fa"/>
-              <rect x="31" y="7" width="2.5" height="9" rx="1.25" fill="#22d3ee"/>
-              <rect x="28" y="10" width="9" height="2.5" rx="1.25" fill="#22d3ee"/>
-              <text x="11" y="32" fontSize="12" fontWeight="800" fill="white" fontFamily="system-ui">S</text>
-              <text x="21" y="32" fontSize="12" fontWeight="800" fill="#3B82F6" fontFamily="system-ui">G</text>
-            <rect width="40" height="40" rx="10" fill="#ffffff" fillOpacity="0.12"/>
-            <text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text>
-            <text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text>
-            <rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/>
-            <rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/>
-          </svg>
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+              <rect width="48" height="48" rx="12" fill="#0F1C35"/>
+              <path d="M24 5L41 14.5V33.5L24 43L7 33.5V14.5Z" fill="#1B2B4B" stroke="#2563EB" strokeWidth="1.5"/>
+              <path d="M24 9L37 16.5V31.5L24 39L11 31.5V16.5Z" fill="none" stroke="#3B82F6" strokeWidth="1" opacity="0.4"/>
+              <rect x="16" y="11" width="4" height="11" rx="2" fill="#1d4ed8"/>
+              <rect x="22" y="8" width="4" height="14" rx="2" fill="#2563EB"/>
+              <rect x="28" y="13" width="4" height="9" rx="2" fill="#3B82F6"/>
+              <rect x="35" y="7" width="2.5" height="10" rx="1.25" fill="#22d3ee"/>
+              <rect x="32" y="10.5" width="9" height="2.5" rx="1.25" fill="#22d3ee"/>
+              <text x="11" y="37" fontSize="14" fontWeight="800" fill="white" fontFamily="system-ui,sans-serif">S</text>
+              <text x="23" y="37" fontSize="14" fontWeight="800" fill="#3B82F6" fontFamily="system-ui,sans-serif">G</text>
+              <path d="M24 41L17 37H31Z" fill="#2563EB" opacity="0.5"/>
+            </svg>
           <div>
             <div style={{ color:"#fff", fontWeight:700, fontSize:16, lineHeight:1 }}>StockGuard</div>
             <div style={{ color:"rgba(255,255,255,0.5)", fontSize:10, marginTop:3 }}>
