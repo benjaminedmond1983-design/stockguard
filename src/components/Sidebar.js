@@ -5,10 +5,10 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
     <div className="sg-sidebar" style={{
       width: SIDEBAR_W, minWidth: SIDEBAR_W, background: "#1B2B4B",
       display: "flex", flexDirection: "column", position: "fixed",
-      top: 0, left: 0, height: "100vh", zIndex: 100, overflowY: "auto"
+      top: 0, left: 0, height: "100vh", zIndex: 100, overflowY: "hidden"
     }}>
-        <div style={{ padding:"16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>
-          <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'120px', display:'block', margin:'0 auto', opacity:'1'}} />
+        <div style={{ padding:"8px 16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>
+          <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'150px', display:'block', margin:'0 auto', opacity:'1'}} />
         </div>
         <div style={{
           marginTop:10, display:"inline-flex", alignItems:"center", gap:6,
@@ -45,7 +45,7 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
         })}
       </nav>
 
-      <div style={{ padding:"16px", borderTop:"1px solid rgba(255,255,255,0.08)" }}>
+      <div style={{ padding:"8px 16px", borderTop:"1px solid rgba(255,255,255,0.08)" }}>
         <button onClick={onLogout} style={{
           width:"100%", padding:"8px", borderRadius:8,
           border:"1px solid rgba(255,255,255,0.2)", background:"transparent",
