@@ -8,7 +8,7 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
       top: 0, left: 0, height: "100vh", zIndex: 100, overflow: "hidden"
     }}>
         <div style={{ padding:"8px 16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center", flexShrink:0 }}>
-          <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'180px', display:'block', margin:'0 auto'}} />
+          <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'140px', display:'block', margin:'0 auto'}} />
         </div>
 
       <nav style={{ flex:1, padding:"12px 8px", overflowY:"auto", minHeight:0 }}>
