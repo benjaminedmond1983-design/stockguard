@@ -20,7 +20,7 @@ import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRo
 
 
 
-const SG_LOGO=(<svg width="40" height="40" viewBox="0 0 40 40" fill="none"><rect width="40" height="40" rx="10" fill="#1B2B4B"/><text x="4" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">S</text><text x="19" y="28" fontSize="22" fontWeight="700" fill="#ffffff" fontFamily="system-ui">G</text><rect x="33" y="10" width="2" height="10" rx="1" fill="#ffffff" opacity="0.9"/><rect x="30" y="13.5" width="8" height="2" rx="1" fill="#ffffff" opacity="0.9"/></svg>);
+const SG_LOGO=(<img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />);
 export default function App(){
   const [session,setSession]=useState(undefined); // undefined=loading, null=no session, object=logged in
   const [role,setRole]=useState(null);
