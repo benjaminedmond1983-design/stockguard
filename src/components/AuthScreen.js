@@ -2,19 +2,7 @@ import { useState } from "react";
 import { supabase } from "../supabase";
 
 const SG_LOGO = (
-  <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
-              <rect width="48" height="48" rx="12" fill="#0F1C35"/>
-              <path d="M24 5L41 14.5V33.5L24 43L7 33.5V14.5Z" fill="#1B2B4B" stroke="#2563EB" strokeWidth="1.5"/>
-              <path d="M24 9L37 16.5V31.5L24 39L11 31.5V16.5Z" fill="none" stroke="#3B82F6" strokeWidth="1" opacity="0.4"/>
-              <rect x="16" y="11" width="4" height="11" rx="2" fill="#1d4ed8"/>
-              <rect x="22" y="8" width="4" height="14" rx="2" fill="#2563EB"/>
-              <rect x="28" y="13" width="4" height="9" rx="2" fill="#3B82F6"/>
-              <rect x="35" y="7" width="2.5" height="10" rx="1.25" fill="#22d3ee"/>
-              <rect x="32" y="10.5" width="9" height="2.5" rx="1.25" fill="#22d3ee"/>
-              <text x="11" y="37" fontSize="14" fontWeight="800" fill="white" fontFamily="system-ui,sans-serif">S</text>
-              <text x="23" y="37" fontSize="14" fontWeight="800" fill="#3B82F6" fontFamily="system-ui,sans-serif">G</text>
-              <path d="M24 41L17 37H31Z" fill="#2563EB" opacity="0.5"/>
-            </svg>
+  <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'200px', display:'block', margin:'0 auto 16px', mixBlendMode:'multiply'}} />
 );
 
 export default function AuthScreen() {
