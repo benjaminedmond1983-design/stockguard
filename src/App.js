@@ -20,7 +20,7 @@ import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRo
 
 
 
-const SG_LOGO=(<img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />);
+const SG_LOGO=(<img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',filter:'brightness(0) invert(1)'}} />);
 export default function App(){
   const [session,setSession]=useState(undefined); // undefined=loading, null=no session, object=logged in
   const [role,setRole]=useState(null);
@@ -396,7 +396,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
   if(dbLoading) return(
     <div style={{minHeight:"100vh",background:"#EEF2F7",display:"flex",alignItems:"center",justifyContent:"center",fontFamily:"system-ui,-apple-system,sans-serif"}}>
       <div style={{textAlign:"center"}}>
-        <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />
+        <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',filter:'brightness(0) invert(1)'}} />
         <div style={{fontWeight:600,fontSize:16,color:"#1B2B4B",marginBottom:8}}>Loading StockGuard...</div>
         <div style={{fontSize:13,color:"#888"}}>Connecting to database</div>
       </div>
@@ -459,7 +459,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
       <div className="sg-sidebar" style={{width:SIDEBAR_W,minWidth:SIDEBAR_W,background:SIDEBAR,display:"flex",flexDirection:"column",position:"fixed",top:0,left:0,height:"100vh",zIndex:100,overflowY:"auto"}}>
         <div style={{padding:"24px 16px 20px",borderBottom:"1px solid rgba(255,255,255,0.08)"}}>
           <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />
+            <img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',filter:'brightness(0) invert(1)'}} />
             <div><div style={{color:"#fff",fontWeight:700,fontSize:16,lineHeight:1}}>StockGuard</div><div style={{color:"rgba(255,255,255,0.5)",fontSize:10,marginTop:3}}>{isOwner?"Owner View":"Cashier View"}</div></div>
           </div>
           <div style={{marginTop:10,display:"inline-flex",alignItems:"center",gap:6,background:isOwner?"rgba(255,255,255,0.1)":"rgba(15,110,86,0.4)",borderRadius:8,padding:"4px 10px"}}>

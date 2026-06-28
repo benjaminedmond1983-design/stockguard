@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { supabase } from "../supabase";
 
-const SG_LOGO = (<img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'180px',display:'block',margin:'0 auto',mixBlendMode:'multiply'}} />);
+const SG_LOGO = (<img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'180px',display:'block',margin:'0 auto',filter:'brightness(0) invert(1)'}} />);
 
 export default function AuthScreen() {
   const [mode, setMode] = useState("signin");

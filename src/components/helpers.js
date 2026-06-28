@@ -94,5 +94,5 @@ export const btn = (bg) => ({
 });
 
 export const SG_LOGO = (
-  <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'120px', display:'block', mixBlendMode:'multiply'}} />
+  <img src={require('../assets/logo.png')} alt="StockGuard" style={{width:'120px', display:'block', filter:'brightness(0) invert(1)'}} />
 );
