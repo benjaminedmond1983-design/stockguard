@@ -8,15 +8,7 @@ export default function Sidebar({ tabs, tab, setTab, isOwner, onLogout, lowItems
       top: 0, left: 0, height: "100vh", zIndex: 100, overflowY: "hidden"
     }}>
         <div style={{ padding:"8px 16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>
-          <img src={require('../assets/logo-sidebar.png')} alt="StockGuard" style={{width:'150px', display:'block', margin:'0 auto', opacity:'1'}} />
-        </div>
-        <div style={{
-          marginTop:10, display:"inline-flex", alignItems:"center", gap:6,
-          background: isOwner ? "rgba(255,255,255,0.1)" : "rgba(15,110,86,0.4)",
-          borderRadius:8, padding:"4px 10px"
-        }}>
-          <span style={{ fontSize:12 }}>{isOwner ? "👔" : "🧾"}</span>
-          <span style={{ fontSize:11, color:"#fff", fontWeight:600 }}>{isOwner ? "Owner" : "Cashier"}</span>
+          <img src={require('../assets/logo-sidebar.png')} alt="StockGuard" style={{width:'160px', display:'block', margin:'0 auto', opacity:'1'}} />
         </div>
 
       <nav style={{ flex:1, padding:"12px 8px" }}>
