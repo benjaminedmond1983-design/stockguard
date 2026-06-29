@@ -68,6 +68,7 @@ export default function TaxCenterTab({ inventory, audit, pos }) {
 
   const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const fmtDollar = (n) => `$${parseFloat(n||0).toLocaleString("en-US", { minimumFractionDigits:2, maximumFractionDigits:2 })}`;
+  const grossMargin = salesData.totalRevenue > 0 ? ((salesData.totalProfit / salesData.totalRevenue)*100).toFixed(1) : "0.0";
   function downloadCSV(filename, rows, headers) {
     const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type:"text/csv" });
