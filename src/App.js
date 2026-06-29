@@ -450,7 +450,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
           div[style*='gridTemplateColumns:"180px']{grid-template-columns:1fr!important;}
           table{font-size:11px!important;}
           th,td{padding:5px 6px!important;}
-          div[style*='maxWidth:960']{max-width:100%!important;}
+          div[style*='maxWidth:"100%"']{max-width:100%!important;}
           div[style*='padding:"24px 28px']{padding:12px 14px!important;}
         }
       `}</style>
@@ -529,7 +529,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
           </div>
         </div>
 
-        <div className="sg-content" style={{flex:1,padding:"24px 28px",maxWidth:960}}>
+        <div className="sg-content" style={{flex:1,padding:"24px 28px",maxWidth:"100%"}}>
 
       {tab==="Dashboard"&&(<div>
         <div style={{display:"grid",gridTemplateColumns:"180px 1fr",gap:16,marginBottom:20}}>
