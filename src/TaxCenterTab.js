@@ -130,8 +130,6 @@ export default function TaxCenterTab({ inventory, audit, pos }) {
   ];
   return (
     <div style={{ display:"flex", gap:0, minHeight:"100%" }}>
-      <div style={{ width:200, minWidth:200, borderRight:`1px solid ${C.border}`, paddingTop:8, paddingRight:8, background:"#fafafa" }}>
-        <div style={{ fontSize:11, fontWeight:700, color:C.muted, padding:"8px 12px 4px", letterSpacing:"0.06em", textTransform:"uppercase" }}>Tax Center {selectedYear}</div>
         {sections.map(s => (
           <button key={s.id} onClick={()=>setActiveSection(s.id)} style={{
             display:"flex", alignItems:"center", gap:8, width:"100%", padding:"9px 12px",
