@@ -60,7 +60,7 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
   }
 
   function connectClover() {
-    const redirectUri = encodeURIComponent('https://app.getstockguard.com/api/clover?action=callback');
+    const redirectUri = encodeURIComponent('https://app.getstockguard.com/api/clover?callback');
     window.location.href = `${CLOVER_BASE}/oauth/authorize?client_id=${CLOVER_APP_ID}&redirect_uri=${redirectUri}`;
   }
 
