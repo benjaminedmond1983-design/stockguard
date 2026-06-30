@@ -1,4 +1,30 @@
 export default async function handler(req, res) {
+  const { action, code, merchant_id } = req.query;
+
+  // Clover OAuth callback — detected by presence of code + merchant_id
+  if (code && merchant_id) {
+    try {
+      const CLOVER_BASE = 'https://sandbox.dev.clover.com';
+      const tokenRes = await fetch(`${CLOVER_BASE}/oauth/v2/token`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: process.env.CLOVER_APP_ID,
+          client_secret: process.env.CLOVER_APP_SECRET,
+          code: code
+        })
+      });
+      const tokenData = await tokenRes.json();
+      if (!tokenData.access_token) {
+        return res.status(400).json({ error: 'Failed to get access token', details: tokenData });
+      }
+      return res.redirect(
+        `https://app.getstockguard.com?clover_token=${tokenData.access_token}&clover_mid=${merchant_id}&clover_connected=1`
+      );
+    } catch (err) {
+      return res.status(500).json({ error: err.message, stack: err.stack });
+    }
+  }
   const CLOVER_APP_ID = process.env.CLOVER_APP_ID;
   const CLOVER_APP_SECRET = process.env.CLOVER_APP_SECRET;
   const CLOVER_BASE = 'https://sandbox.dev.clover.com';
