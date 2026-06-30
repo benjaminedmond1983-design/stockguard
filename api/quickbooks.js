@@ -2,7 +2,7 @@ const { URL } = require('url');
 
 const CLIENT_ID = process.env.QUICKBOOKS_CLIENT_ID;
 const CLIENT_SECRET = process.env.QUICKBOOKS_CLIENT_SECRET;
-const REDIRECT_URI = 'https://getstockguard.com/api/quickbooks/callback';
+const REDIRECT_URI = 'https://app.getstockguard.com/api/quickbooks/callback';
 const QB_BASE = 'https://appcenter.intuit.com/connect/oauth2';
 const TOKEN_URL = 'https://oauth.platform.intuit.com/oauth2/v1/tokens/bearer';
 const SCOPES = 'com.intuit.quickbooks.accounting';
@@ -45,7 +45,7 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: tokens.error_description || tokens.error });
     }
     // Redirect back to app with tokens in query (app will store in localStorage)
-    const appUrl = `https://getstockguard.com/?qb_access_token=${tokens.access_token}&qb_refresh_token=${tokens.refresh_token}&qb_realm_id=${realmId}`;
+    const appUrl = `https://app.getstockguard.com/?qb_access_token=${tokens.access_token}&qb_refresh_token=${tokens.refresh_token}&qb_realm_id=${realmId}`;
     res.writeHead(302, { Location: appUrl });
     return res.end();
   }
