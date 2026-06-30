@@ -80,7 +80,7 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
       const sku = item.id;
       const existing = inventory.find(i => i.sku === sku || i.name.toLowerCase() === name.toLowerCase());
       if (existing) {
-        log.push({ status: 'skip', msg: `${name} \u2014 already exists in StockGuard` });
+        log.push({ status: 'skip', msg: `${name} — already exists in StockGuard` });
       } else {
         const newItem = {
           id: Date.now() + Math.random(), sku: sku.substring(0, 12), name,
@@ -90,11 +90,11 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
         };
         if (onUpdateInventory) onUpdateInventory(prev => [...prev, newItem]);
         imported++;
-        log.push({ status: 'ok', msg: `${name} \u2014 imported (qty: ${Math.round(stock)}, price: $${price.toFixed(2)})` });
+        log.push({ status: 'ok', msg: `${name} — imported (qty: ${Math.round(stock)}, price: $${price.toFixed(2)})` });
       }
       setSyncLog([...log]);
     }
-    log.push({ status: 'done', msg: `Sync complete \u2014 ${imported} items imported` });
+    log.push({ status: 'done', msg: `Sync complete — ${imported} items imported` });
     setSyncLog([...log]); setLastSynced(new Date().toLocaleTimeString()); setSyncing(false);
   }
 
@@ -110,19 +110,19 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
             body: JSON.stringify({ token, merchant_id: merchantId, item_id: item.id, quantity: sgItem.qty })
           });
           updated++;
-          log.push({ status: 'ok', msg: `${item.name} \u2014 updated to qty ${sgItem.qty}` });
-        } catch (e) { log.push({ status: 'error', msg: `${item.name} \u2014 failed: ${e.message}` }); }
+          log.push({ status: 'ok', msg: `${item.name} — updated to qty ${sgItem.qty}` });
+        } catch (e) { log.push({ status: 'error', msg: `${item.name} — failed: ${e.message}` }); }
       }
       setSyncLog([...log]);
     }
-    log.push({ status: 'done', msg: `Push complete \u2014 ${updated} items updated in Clover` });
+    log.push({ status: 'done', msg: `Push complete — ${updated} items updated in Clover` });
     setSyncLog([...log]); setLastSynced(new Date().toLocaleTimeString()); setSyncing(false);
   }
 
   if (!connected) {
     return (
       <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>\ud83c\udf40</div>
+        <div style={{ fontSize: 48, marginBottom: 16 }}>🍀</div>
         <div style={{ fontWeight: 700, fontSize: 22, marginBottom: 8 }}>Connect Clover POS</div>
         <div style={{ color: C.muted, fontSize: 14, marginBottom: 32, lineHeight: 1.6 }}>
           Sync your Clover inventory with StockGuard. Import items from Clover or push stock updates back to your POS.
@@ -130,13 +130,13 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '16px 20px', marginBottom: 24, textAlign: 'left' }}>
           <div style={{ fontWeight: 600, color: '#166534', marginBottom: 8 }}>What syncs:</div>
           <div style={{ fontSize: 13, color: '#15803d', lineHeight: 1.8 }}>
-            \u2713 Import Clover items \u2192 StockGuard<br/>
-            \u2713 Push stock quantities \u2192 Clover POS<br/>
-            \u2713 Item names, prices, and stock levels
+            ✓ Import Clover items → StockGuard<br/>
+            ✓ Push stock quantities → Clover POS<br/>
+            ✓ Item names, prices, and stock levels
           </div>
         </div>
         <button onClick={connectClover} style={{ ...btn('#22c55e'), fontSize: 15, padding: '12px 32px' }}>
-          \ud83c\udf40 Connect Clover Account
+          🍀 Connect Clover Account
         </button>
         <div style={{ fontSize: 12, color: C.muted, marginTop: 12 }}>You will be redirected to Clover to authorize access</div>
       </div>
@@ -147,15 +147,15 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <div style={{ fontWeight: 700, fontSize: 18 }}>\ud83c\udf40 Clover POS</div>
+          <div style={{ fontWeight: 700, fontSize: 18 }}>🍀 Clover POS</div>
           <div style={{ color: C.muted, fontSize: 13, marginTop: 2 }}>
-            {merchantName ? `Connected to ${merchantName}` : 'Connected'} \u00b7 {cloverItems.length} items
-            {lastSynced && ` \u00b7 Last synced ${lastSynced}`}
+            {merchantName ? `Connected to ${merchantName}` : 'Connected'} · {cloverItems.length} items
+            {lastSynced && ` · Last synced ${lastSynced}`}
           </div>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => loadCloverInventory(token, merchantId)} disabled={loading} style={btn('#185FA5')}>
-            {loading ? 'Loading...' : '\u21bb Refresh'}
+            {loading ? 'Loading...' : '↻ Refresh'}
           </button>
           <button onClick={disconnect} style={{ ...btn('#888'), fontSize: 13 }}>Disconnect</button>
         </div>
@@ -163,20 +163,20 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
 
       {error && (
         <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 8, padding: '12px 16px', marginBottom: 16, color: '#dc2626', fontSize: 13 }}>
-          \u26a0\ufe0f {error}
+          ⚠️ {error}
         </div>
       )}
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 10, padding: '20px 24px' }}>
-          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>\ud83d\udce5 Import from Clover</div>
+          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>📥 Import from Clover</div>
           <div style={{ fontSize: 13, color: '#15803d', marginBottom: 16 }}>Pull items from your Clover POS into StockGuard inventory.</div>
           <button onClick={syncToStockGuard} disabled={syncing || loading || cloverItems.length === 0} style={{ ...btn('#22c55e'), opacity: (syncing || loading) ? 0.6 : 1 }}>
             {syncing ? 'Syncing...' : `Import ${cloverItems.length} Items`}
           </button>
         </div>
         <div style={{ background: '#eff6ff', border: '1px solid #93c5fd', borderRadius: 10, padding: '20px 24px' }}>
-          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>\ud83d\udce4 Push Stock to Clover</div>
+          <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 6 }}>📤 Push Stock to Clover</div>
           <div style={{ fontSize: 13, color: '#1d4ed8', marginBottom: 16 }}>Update stock quantities in Clover POS from StockGuard.</div>
           <button onClick={pushStockToClover} disabled={syncing || loading || cloverItems.length === 0} style={{ ...btn('#185FA5'), opacity: (syncing || loading) ? 0.6 : 1 }}>
             {syncing ? 'Pushing...' : 'Push Stock Levels'}
@@ -189,7 +189,7 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
           <div style={{ fontSize: 11, fontWeight: 700, color: '#888', marginBottom: 8, textTransform: 'uppercase' }}>Sync Log</div>
           {syncLog.map((l, i) => (
             <div key={i} style={{ fontSize: 12, fontFamily: 'monospace', color: l.status === 'ok' ? '#4ade80' : l.status === 'error' ? '#f87171' : l.status === 'done' ? '#60a5fa' : '#888', marginBottom: 2 }}>
-              {l.status === 'ok' ? '\u2713' : l.status === 'error' ? '\u2717' : l.status === 'done' ? '\u2605' : '\u2013'} {l.msg}
+              {l.status === 'ok' ? '✓' : l.status === 'error' ? '✗' : l.status === 'done' ? '★' : '–'} {l.msg}
             </div>
           ))}
         </div>
@@ -218,13 +218,13 @@ export default function CloverTab({ inventory, onUpdateInventory, userId, supaba
                   const inSG = inventory.find(inv => inv.sku === item.id.substring(0, 12) || inv.name.toLowerCase() === item.name?.toLowerCase());
                   return (
                     <tr key={item.id} style={{ borderBottom: `1px solid ${C.border}`, background: i % 2 === 0 ? '#fafafa' : '#fff' }}>
-                      <td style={{ padding: '10px 12px', fontWeight: 500 }}>{item.name || '\u2014'}</td>
+                      <td style={{ padding: '10px 12px', fontWeight: 500 }}>{item.name || '—'}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' }}>${price}</td>
                       <td style={{ padding: '10px 12px', textAlign: 'right' }}>{Math.round(stock)}</td>
-                      <td style={{ padding: '10px 12px', color: C.muted }}>{item.category?.name || '\u2014'}</td>
+                      <td style={{ padding: '10px 12px', color: C.muted }}>{item.category?.name || '—'}</td>
                       <td style={{ padding: '10px 12px' }}>
                         {inSG ? (
-                          <span style={{ background: '#EAF3DE', color: '#3B6D11', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600 }}>\u2713 Synced</span>
+                          <span style={{ background: '#EAF3DE', color: '#3B6D11', padding: '2px 8px', borderRadius: 10, fontSize: 11, fontWeight: 600 }}>✓ Synced</span>
                         ) : (
                           <span style={{ background: '#f3f4f6', color: '#6b7280', padding: '2px 8px', borderRadius: 10, fontSize: 11 }}>Not imported</span>
                         )}
