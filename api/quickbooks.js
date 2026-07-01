@@ -92,7 +92,7 @@ module.exports = async (req, res) => {
         CustomerRef: { value: '1' },
       };
       const qbRes = await fetch(
-        `https://quickbooks.api.intuit.com/v3/company/${realm_id}/salesreceipt`,
+        `https://sandbox-quickbooks.api.intuit.com/v3/company/${realm_id}/salesreceipt`,
         {
           method: 'POST',
           headers: {
