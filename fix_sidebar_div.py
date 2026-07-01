@@ -1,16 +1,29 @@
-path = '/Users/benjaminedmond/stockguard/src/components/Sidebar.js'
-with open(path, 'r') as f:
+import re
+
+path = "src/App.js"
+with open(path, "r", encoding="utf-8") as f:
     content = f.read()
 
-old = '        <div style={{ padding:"16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>\n          <img src={require(\'../assets/logo.png\')} alt="StockGuard" style={{width:\'160px\', display:\'block\', margin:\'0 auto\', mixBlendMode:\'multiply\'}} />\n        </div>\n\n      <nav'
+marker = '''              </p>
+        </div>
+      </div>
 
-new = '        <div style={{ padding:"16px", borderBottom:"1px solid rgba(255,255,255,0.08)", textAlign:"center" }}>\n          <img src={require(\'../assets/logo.png\')} alt="StockGuard" style={{width:\'160px\', display:\'block\', margin:\'0 auto\', mixBlendMode:\'multiply\'}} />\n        </div>\n\n      </div>\n      <nav'
+      {/* Mobile bottom nav */}'''
 
-if old in content:
-    content = content.replace(old, new)
-    with open(path, 'w') as f:
-        f.write(content)
-    print("SUCCESS")
+replacement = '''              </p>
+        </div>
+      </div>
+      </div>
+
+      {/* Mobile bottom nav */}'''
+
+count = content.count(marker)
+if count == 0:
+    print("ERROR: marker not found — file may already be edited, or whitespace differs. No changes made.")
+elif count > 1:
+    print(f"ERROR: marker found {count} times — refusing to guess which one. No changes made.")
 else:
-    idx = content.find('textAlign:"center"')
-    print(repr(content[idx:idx+300]))
+    content = content.replace(marker, replacement)
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(content)
+    print("SUCCESS: added missing </div> to close the sg-sidebar element.")
