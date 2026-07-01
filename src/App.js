@@ -476,7 +476,6 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
                 <a href="/privacy.html" target="_blank" rel="noopener noreferrer" style={{color:'#38bdf8',fontSize:'11px',textDecoration:'none',marginRight:'12px'}}>Privacy Policy</a>
                 <a href="/terms.html" target="_blank" rel="noopener noreferrer" style={{color:'#38bdf8',fontSize:'11px',textDecoration:'none'}}>Terms of Service</a>
               </p>
-              <p style={{display:'none'}}>Proverbs 16:3</div>
         </div>
       </div>
 
