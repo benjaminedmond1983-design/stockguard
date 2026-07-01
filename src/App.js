@@ -921,8 +921,13 @@ function ShopifyTab({ supabase, userId }) {
       for (const product of products) {
         for (const variant of product.variants) {
           const sku = variant.sku || `shopify-${variant.id}`;
-          const { data: existing } = await supabase.from('inventory').select('id, qty')
+          let { data: existing } = await supabase.from('inventory').select('id, qty')
             .eq('shopify_variant_id', String(variant.id)).eq('user_id', userId).single();
+          if (!existing && sku) {
+            const { data: skuMatches } = await supabase.from('inventory').select('id, qty')
+              .eq('sku', sku).eq('user_id', userId).is('shopify_variant_id', null).limit(1);
+            if (skuMatches && skuMatches.length) existing = skuMatches[0];
+          }
           const inventoryRow = {
             user_id: userId,
             name: product.title + (variant.title !== 'Default Title' ? ` - ${variant.title}` : ''),
@@ -934,7 +939,7 @@ function ShopifyTab({ supabase, userId }) {
             shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true,
           };
           if (existing) {
-            await supabase.from('inventory').update({ qty: variant.inventory_quantity || 0, shopify_synced: true }).eq('id', existing.id);
+            await supabase.from('inventory').update({ qty: variant.inventory_quantity || 0, shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true }).eq('id', existing.id);
             updatedCount++;
           } else {
             await supabase.from('inventory').insert(inventoryRow);
