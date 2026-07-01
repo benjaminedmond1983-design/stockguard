@@ -58,9 +58,28 @@ export default function QuickBooksTab({ supabase, userId }) {
 
   const handleSyncSales = async () => {
     setStatus('syncing');
-    setMessage('Fetching sales from StockGuard...');
+    setMessage('Refreshing QuickBooks access token...');
     setSyncResult(null);
     try {
+      const storedRefreshToken = localStorage.getItem('qb_refresh_token');
+      let currentAccessToken = accessToken;
+      if (storedRefreshToken) {
+        const refreshRes = await fetch('/api/quickbooks?action=refresh', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh_token: storedRefreshToken }),
+        });
+        const refreshData = await refreshRes.json();
+        if (refreshData.access_token) {
+          currentAccessToken = refreshData.access_token;
+          setAccessToken(refreshData.access_token);
+          localStorage.setItem('qb_access_token', refreshData.access_token);
+          if (refreshData.refresh_token) {
+            localStorage.setItem('qb_refresh_token', refreshData.refresh_token);
+          }
+        }
+      }
+      setMessage('Fetching sales from StockGuard...');
       // Pull sales from Supabase
       const { data: sales, error } = await supabase
         .from('audit_log')
@@ -86,7 +105,7 @@ export default function QuickBooksTab({ supabase, userId }) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          access_token: accessToken,
+          access_token: currentAccessToken,
           realm_id: realmId,
           sales: formattedSales,
         }),
