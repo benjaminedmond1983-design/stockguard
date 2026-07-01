@@ -104,6 +104,7 @@ module.exports = async (req, res) => {
         }
       );
       const result = await qbRes.json();
+      console.log('QB sales receipt response:', JSON.stringify(result));
       results.push(result);
     }
     return res.status(200).json({ synced: results.length, results });
