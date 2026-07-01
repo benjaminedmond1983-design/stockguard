@@ -63,9 +63,10 @@ export default function QuickBooksTab({ supabase, userId }) {
     try {
       // Pull sales from Supabase
       const { data: sales, error } = await supabase
-        .from('sales')
+        .from('audit_log')
         .select('*')
         .eq('user_id', userId)
+        .eq('action', 'Sold')
         .order('created_at', { ascending: false })
         .limit(50);
       if (error) throw error;
@@ -77,9 +78,9 @@ export default function QuickBooksTab({ supabase, userId }) {
       setMessage(`Syncing ${sales.length} sales to QuickBooks...`);
       const formattedSales = sales.map(s => ({
         sku: s.sku || 'ITEM',
-        quantity: s.quantity || 1,
-        unit_price: s.unit_price || s.price || 0,
-        total: s.total || (s.quantity * (s.unit_price || s.price || 0)),
+        quantity: s.qty || 1,
+        unit_price: s.qty ? (s.revenue || 0) / s.qty : 0,
+        total: s.revenue || 0,
       }));
       const res = await fetch('/api/quickbooks?action=sync-sales', {
         method: 'POST',
