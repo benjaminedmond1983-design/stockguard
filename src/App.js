@@ -939,10 +939,12 @@ function ShopifyTab({ supabase, userId }) {
             shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true,
           };
           if (existing) {
-            await supabase.from('inventory').update({ qty: variant.inventory_quantity || 0, shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true }).eq('id', existing.id);
+            const { error: updErr } = await supabase.from('inventory').update({ qty: variant.inventory_quantity || 0, shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true }).eq('id', existing.id);
+              if (updErr) throw new Error('Update failed for ' + sku + ': ' + updErr.message);
             updatedCount++;
           } else {
-            await supabase.from('inventory').insert(inventoryRow);
+            const { error: insErr } = await supabase.from('inventory').insert(inventoryRow);
+              if (insErr) throw new Error('Insert failed for ' + sku + ': ' + insErr.message);
             newCount++;
           }
         }
