@@ -853,7 +853,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
 
 function ShopifyTab({ supabase, userId }) {
   // Debug: render immediately to test
-  if (!userId) return <div style={{padding:40,color:'red'}}>No userId provided</div>;
+  if (!userId) return (<div style={{padding:40,color:'red'}}>No userId provided</div>);
   const [connection, setConnection] = useState(null);
   const [shopUrl, setShopUrl] = useState('');
   const [accessToken, setAccessToken] = useState('');
