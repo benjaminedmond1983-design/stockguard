@@ -932,10 +932,10 @@ function ShopifyTab({ supabase, userId }) {
             user_id: userId,
             name: product.title + (variant.title !== 'Default Title' ? ` - ${variant.title}` : ''),
             sku, qty: variant.inventory_quantity || 0,
-            cost: parseFloat(variant.compare_at_price || variant.price) * 0.6 || 0,
+            unit_cost: parseFloat(variant.compare_at_price || variant.price) * 0.6 || 0,
             selling_price: parseFloat(variant.price) || 0,
             category: product.product_type || 'Shopify',
-            supplier: product.vendor || '', location: 'Main', min_stock: 5,
+            supplier: product.vendor || '', location: 'Main', min_qty: 5,
             shopify_product_id: String(product.id), shopify_variant_id: String(variant.id), shopify_synced: true,
           };
           if (existing) {
