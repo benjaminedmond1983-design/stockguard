@@ -10,6 +10,7 @@ export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const inp = {
     width:"100%", padding:"11px 14px", borderRadius:8,
@@ -54,7 +55,10 @@ export default function AuthScreen() {
         {message && <div style={{ background:"#EAF3DE", color:"#3B6D11", fontSize:12, padding:"8px 12px", borderRadius:8, marginBottom:12 }}>{message}</div>}
         <input placeholder="Email address" type="email" value={email} onChange={e => setEmail(e.target.value)} style={inp} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
         {mode !== "forgot" && (
-          <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} style={inp} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
+          <div style={{ position:"relative" }}>
+            <input placeholder="Password" type={showPw ? "text" : "password"} value={password} onChange={e => setPassword(e.target.value)} style={{ ...inp, paddingRight:40 }} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
+            <button onClick={() => setShowPw(s => !s)} tabIndex={-1} style={{ position:"absolute", right:10, top:11, background:"none", border:"none", cursor:"pointer", fontSize:15, padding:0 }}>{showPw ? "\u{1F648}" : "\u{1F441}\u{FE0F}"}</button>
+          </div>
         )}
         <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"11px", borderRadius:8, border:"none", background:"#1B2B4B", color:"#fff", fontWeight:700, fontSize:14, cursor:"pointer", marginBottom:14, opacity: loading ? 0.7 : 1 }}>
           {loading ? "..." : { signin:"Sign in", signup:"Create account", forgot:"Send reset email" }[mode]}

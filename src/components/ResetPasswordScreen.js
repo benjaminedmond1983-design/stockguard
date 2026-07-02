@@ -6,6 +6,7 @@ export default function ResetPasswordScreen({ onDone }) {
   const [pw2, setPw2] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const inp = { width:"100%", padding:"11px 14px", borderRadius:8, border:"1px solid #e0e0e0", fontSize:14, boxSizing:"border-box", outline:"none", marginBottom:10 };
 
@@ -26,8 +27,11 @@ export default function ResetPasswordScreen({ onDone }) {
         <div style={{ fontWeight:700, fontSize:17, color:"#1B2B4B", marginBottom:6, textAlign:"center" }}>Choose a new password</div>
         <div style={{ fontSize:12, color:"#888", marginBottom:20, textAlign:"center" }}>Enter and confirm your new password below.</div>
         {error && <div style={{ background:"#FCEBEB", color:"#A32D2D", fontSize:12, padding:"8px 12px", borderRadius:8, marginBottom:12 }}>{error}</div>}
-        <input placeholder="New password" type="password" value={pw} onChange={e => setPw(e.target.value)} style={inp} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
-        <input placeholder="Confirm new password" type="password" value={pw2} onChange={e => setPw2(e.target.value)} style={inp} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
+        <div style={{ position:"relative" }}>
+          <input placeholder="New password" type={showPw ? "text" : "password"} value={pw} onChange={e => setPw(e.target.value)} style={{ ...inp, paddingRight:40 }} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
+          <button onClick={() => setShowPw(s => !s)} tabIndex={-1} style={{ position:"absolute", right:10, top:11, background:"none", border:"none", cursor:"pointer", fontSize:15, padding:0 }}>{showPw ? "\u{1F648}" : "\u{1F441}\u{FE0F}"}</button>
+        </div>
+        <input placeholder="Confirm new password" type={showPw ? "text" : "password"} value={pw2} onChange={e => setPw2(e.target.value)} style={inp} onKeyDown={e => e.key === "Enter" && handleSubmit()}/>
         <button onClick={handleSubmit} disabled={loading} style={{ width:"100%", padding:"11px", borderRadius:8, border:"none", background:"#1B2B4B", color:"#fff", fontWeight:700, fontSize:14, cursor:"pointer", opacity: loading ? 0.7 : 1 }}>
           {loading ? "..." : "Set new password"}
         </button>
