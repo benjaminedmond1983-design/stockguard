@@ -50,7 +50,7 @@ export default async function handler(req, res) {
     if (action === 'fetch_orders') {
       const since = req.body.since_date || new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
       let orders = [];
-      let url = `${shopifyBase}/orders.json?status=any&fulfillment_status=fulfilled&updated_at_min=${since}&limit=250&fields=id,name,line_items,created_at,fulfillment_status`;
+      let url = `${shopifyBase}/orders.json?status=any&financial_status=paid&updated_at_min=${since}&limit=250&fields=id,name,line_items,created_at,fulfillment_status`;
       while (url) {
         const r = await fetch(url, { headers });
         if (!r.ok) throw new Error(`Shopify API error: ${r.status}`);
