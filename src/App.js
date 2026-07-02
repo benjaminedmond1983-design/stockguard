@@ -970,6 +970,7 @@ function ShopifyTab({ supabase, userId }) {
           if (qtyErr) throw new Error('Qty update failed for ' + invItem.sku + ': ' + qtyErr.message);
           const { error: audErr } = await supabase.from('audit_log').insert({
             user_id: userId, action: 'Sold', item: invItem.name, sku: invItem.sku,
+            time: new Date(order.created_at).toLocaleString('sv-SE').slice(0, 16),
             qty: item.quantity, note: `Shopify Order ${order.name}`,
             revenue: item.quantity * (invItem.selling_price || 0),
             profit: item.quantity * ((invItem.selling_price || 0) - (invItem.unit_cost || 0)),
