@@ -965,9 +965,6 @@ function ShopifyTab({ supabase, userId }) {
           const { data: invItem } = await supabase.from('inventory').select('id, qty, name, sku, selling_price, unit_cost')
             .eq('shopify_variant_id', String(item.variant_id)).eq('user_id', userId).single();
           if (!invItem) continue;
-          const newQty = Math.max(0, (invItem.qty || 0) - item.quantity);
-          const { error: qtyErr } = await supabase.from('inventory').update({ qty: newQty }).eq('id', invItem.id);
-          if (qtyErr) throw new Error('Qty update failed for ' + invItem.sku + ': ' + qtyErr.message);
           const { error: audErr } = await supabase.from('audit_log').insert({
             user_id: userId, action: 'Sold', item: invItem.name, sku: invItem.sku,
             time: new Date(order.created_at).toLocaleString('sv-SE').slice(0, 16),
@@ -981,7 +978,7 @@ function ShopifyTab({ supabase, userId }) {
         }
       }
       await supabase.from('shopify_connections').update({ last_sync: new Date().toISOString() }).eq('user_id', userId);
-      setStatus('success'); setMessage(`✓ Orders synced! ${data.orders.length} orders, ${deducted} inventory adjustments.`);
+      setStatus('success'); setMessage(`✓ Orders synced! ${data.orders.length} orders, ${deducted} sales recorded.`);
       loadConnection();
     } catch (err) { setStatus('error'); setMessage('Order sync failed: ' + err.message); }
   }
@@ -1073,7 +1070,7 @@ function ShopifyTab({ supabase, userId }) {
           </div>
           <div style={{background:'#f8fafc',borderRadius:12,padding:24,border:'1px solid #e2e8f0'}}>
             <h3 style={{margin:'0 0 6px',fontSize:16,fontWeight:600,color:sidebarColor}}>Sync Actions</h3>
-            <p style={{margin:'0 0 20px',fontSize:13,color:'#64748b'}}>Products sync qty; orders deduct inventory and log to Audit Trail.</p>
+            <p style={{margin:'0 0 20px',fontSize:13,color:'#64748b'}}>Products sync quantities from Shopify; orders record sales to the Audit Trail.</p>
             <div style={{display:'flex',gap:12,flexWrap:'wrap'}}>
               <button onClick={syncProducts} disabled={status==='syncing'}
                 style={{padding:'11px 20px',borderRadius:8,border:'none',background:status==='syncing'?'#94a3b8':sidebarColor,color:'#fff',fontWeight:600,fontSize:14,cursor:status==='syncing'?'not-allowed':'pointer'}}>
