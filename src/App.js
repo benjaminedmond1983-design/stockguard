@@ -8,6 +8,7 @@ import SquareTab from "./SquareTab";
 import CloverTab from "./CloverTab";
 import TaxCenterTab from "./TaxCenterTab";
 import AuthScreen  from "./components/AuthScreen";
+import ResetPasswordScreen from "./components/ResetPasswordScreen";
 import RoleScreen  from "./components/RoleScreen";
 import Sidebar     from "./components/Sidebar";
 import BottomNav   from "./components/BottomNav";
@@ -24,12 +25,13 @@ import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRo
 
 const SG_LOGO=(<img src={require('./assets/logo.png')} alt="StockGuard" style={{width:'160px',display:'block',margin:'0 auto',opacity:'1'}} />);
 export default function App(){
-  const [session,setSession]=useState(undefined); // undefined=loading, null=no session, object=logged in
+  const [session,setSession]=useState(undefined); const [recovery,setRecovery]=useState(false); // undefined=loading, null=no session, object=logged in
   const [role,setRole]=useState(null);
 
   useEffect(()=>{
     supabase.auth.getSession().then(({data:{session}})=>setSession(session));
-    const{data:{subscription}}=supabase.auth.onAuthStateChange((_,session)=>{
+    const{data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
+      if(event==='PASSWORD_RECOVERY') setRecovery(true);
       setSession(session);
       if(!session) setRole(null);
     });
@@ -42,6 +44,7 @@ export default function App(){
     </div>
   );
   if(!session) return <AuthScreen/>;
+  if(recovery) return <ResetPasswordScreen onDone={()=>setRecovery(false)}/>;
   if(!role) return <RoleScreen onRole={setRole} onSignOut={()=>supabase.auth.signOut()}/>;
   const TABS=role==="owner"?OWNER_TABS:CASHIER_TABS;
   return <AppInner role={role} userId={session.user.id} userEmail={session.user.email} onLogout={()=>setRole(null)} TABS={TABS}/>;

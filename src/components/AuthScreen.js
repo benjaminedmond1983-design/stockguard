@@ -27,7 +27,7 @@ export default function AuthScreen() {
       if (e) setError(e.message);
       else setMessage("Account created! You can now sign in.");
     } else {
-      const { error: e } = await supabase.auth.resetPasswordForEmail(email);
+      const { error: e } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
       if (e) setError(e.message);
       else setMessage("Password reset email sent!");
     }
