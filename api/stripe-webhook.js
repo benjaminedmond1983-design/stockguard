@@ -1,14 +1,20 @@
 // api/stripe-webhook.js
 // Stripe subscription-lifecycle webhook for StockGuard.
 //
-// IMPORTANT: This uses Vercel's Web-style handler (export async function POST)
-// so we can read the RAW request body via request.text(). Stripe needs the raw
-// body to verify the signature. The Node (req, res) + bodyParser:false approach
-// does NOT work on non-Next Vercel functions, so do not "convert" this file to
-// match the handler shape in api/stripe.js. It is different on purpose.
+// Uses the classic Vercel Node handler (export default handler(req, res)) so the
+// zero-config builder registers it as a function, same as api/stripe.js. Body
+// parsing is DISABLED via the config export below so we can read the RAW request
+// body — Stripe needs the exact raw bytes to verify the signature. Do NOT remove
+// the config export or the readRawBody helper.
 
 import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
+
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
@@ -26,13 +32,23 @@ const PRICE_TO_PLAN = {
   price_1Tg6qiGaunpstZPiud7uztpX: 'pro',    // Pro Yearly
 };
 
+// Body parsing is off (see config), so req is still the raw stream and we can
+// collect the exact bytes Stripe signed.
+async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(typeof chunk === 'string' ? Buffer.from(chunk) : chunk);
+  }
+  return Buffer.concat(chunks);
+}
+
 function planFromSubscription(subscription) {
   const priceId = subscription.items?.data?.[0]?.price?.id;
   return PRICE_TO_PLAN[priceId] || 'starter';
 }
 
-// current_period_end lives at the top level on older Stripe API versions and at
-// the item level on newer ones — read both so this works either way.
+// current_period_end is top-level on older Stripe API versions and item-level on
+// newer ones — read both so this works either way.
 function periodEnd(subscription) {
   return (
     subscription.current_period_end ??
@@ -63,12 +79,15 @@ async function upsertFromSubscription(subscription, fallbackUserId) {
   if (error) console.error('Webhook upsert error:', error.message);
 }
 
-export async function POST(request) {
-  const rawBody = await request.text();
-  const sig = request.headers.get('stripe-signature');
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    return res.status(405).send('Method not allowed');
+  }
 
+  const sig = req.headers['stripe-signature'];
   let event;
   try {
+    const rawBody = await readRawBody(req);
     event = stripe.webhooks.constructEvent(
       rawBody,
       sig,
@@ -76,7 +95,7 @@ export async function POST(request) {
     );
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   try {
@@ -119,12 +138,9 @@ export async function POST(request) {
     }
   } catch (err) {
     console.error('Webhook handler error:', err.message);
-    // Return 500 so Stripe retries the delivery.
-    return new Response(`Handler Error: ${err.message}`, { status: 500 });
+    // 500 so Stripe retries the delivery.
+    return res.status(500).send(`Handler Error: ${err.message}`);
   }
 
-  return new Response(JSON.stringify({ received: true }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return res.status(200).json({ received: true });
 }
