@@ -26,7 +26,14 @@ export default function AuthScreen() {
     } else if (mode === "signup") {
       const { error: e } = await supabase.auth.signUp({ email, password });
       if (e) setError(e.message);
-      else setMessage("Account created! You can now sign in.");
+      else {
+        setMessage("Account created! You can now sign in.");
+        fetch("/api/welcome-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        }).catch(() => {});
+      }
     } else {
       const { error: e } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
       if (e) setError(e.message);
