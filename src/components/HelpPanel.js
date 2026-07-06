@@ -7,10 +7,10 @@ const GROUPS = [
   { label: 'OVERVIEW',       ids: ['dashboard'] },
   { label: 'INVENTORY',      ids: ['receiving','movements','reorder','import-products'] },
   { label: 'TRADING',        ids: ['sales','purchase-orders'] },
-  { label: 'SUPPLY CHAIN',   ids: ['suppliers','shopify'] },
+  { label: 'SUPPLY CHAIN',   ids: ['suppliers','shopify','quickbooks','square','clover'] },
   { label: 'INTELLIGENCE',   ids: ['intelligence','business-insights','automations'] },
-  { label: 'RECORDS',        ids: ['audit-trail'] },
-  { label: 'ACCOUNT',        ids: ['pricing'] },
+  { label: 'RECORDS',        ids: ['audit-trail','tax-center'] },
+  { label: 'ACCOUNT',        ids: ['pricing','billing'] },
 ];
 
 const TAB_GUIDE = [
