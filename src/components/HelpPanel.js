@@ -8,12 +8,13 @@ const GROUPS = [
   { label: 'INVENTORY',      ids: ['receiving','movements','reorder','import-products'] },
   { label: 'TRADING',        ids: ['sales','purchase-orders'] },
   { label: 'SUPPLY CHAIN',   ids: ['suppliers','shopify','quickbooks','square','clover'] },
-  { label: 'INTELLIGENCE',   ids: ['intelligence','business-insights','automations'] },
+  { label: 'INTELLIGENCE',   ids: ['intelligence','business-insights','automations','ask-stockguard'] },
   { label: 'RECORDS',        ids: ['audit-trail','tax-center'] },
   { label: 'ACCOUNT',        ids: ['pricing','billing'] },
 ];
 
 const TAB_GUIDE = [
+  { id:'ask-stockguard', name:'Ask StockGuard', role:'Owner', description:"Ask questions about your inventory in plain English and get instant AI answers based on your live stock data.", actions:['Type any question about your inventory and click Ask','Use the suggested question buttons for quick insights','Ask about reordering, dead stock, margins, or categories','Answers are read-only — nothing in your inventory is changed'] },
   { id:'dashboard', name:'Dashboard', role:'Owner & Cashier', description:"Your home base. One screen shows today's sales total, your live inventory health score, any active low-stock alerts, and a 7-day revenue chart.", actions:['View the 7-day revenue chart and top sellers','Check the inventory health score at a glance','See active low-stock alerts before they become stockouts','Jump to any other tab from the quick links'], tip:"Check this first thing each morning — it's the fastest way to catch a problem before it becomes a stockout." },
   { id:'receiving', name:'Receiving', role:'Owner & Cashier', description:'Where you log new stock arriving from a supplier — a delivery, a shipment, a restock.', actions:['Record the quantity received for each product','Stock levels update automatically once you save','Link a delivery to an existing purchase order'], tip:'Always receive stock here instead of editing inventory counts directly — it keeps your audit trail accurate.' },
   { id:'movements', name:'Movements', role:'Owner & Cashier', description:'A running log of every time stock changes hands: sales, receiving, manual adjustments, damage write-offs.', actions:['Filter by product, date, or movement type','See exactly who made each change and when','Spot unusual activity before it becomes a bigger issue'], tip:"If a stock number looks wrong, check Movements first — it almost always tells you exactly what happened." },

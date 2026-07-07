@@ -1,7 +1,7 @@
 export const OWNER_TABS = [
   "Dashboard", "Receiving", "Movements", "Sales",
   "Reorder Center", "Purchase Orders", "Suppliers", "Audit Trail",
-  "Intelligence", "Business Insights", "Automations", "Tax Center", "Import Products", "Pricing", "shopify", "Shopify", "quickbooks", "QuickBooks", "square", "Square", "clover", "billing"
+  "Intelligence", "Business Insights", "Automations", "Ask StockGuard", "Tax Center", "Import Products", "Pricing", "shopify", "Shopify", "quickbooks", "QuickBooks", "square", "Square", "clover", "billing"
 ];
 
 export const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
@@ -36,10 +36,11 @@ export const TAB_ICONS = {
   "Sales":"ti-receipt","Reorder Center":"ti-bell","Purchase Orders":"ti-file-invoice",
   "Suppliers":"ti-building-factory","Audit Trail":"ti-clipboard-list","Intelligence":"ti-brain",
   "Business Insights":"ti-chart-bar","Automations":"ti-robot","Import Products":"ti-file-upload",
-  "Pricing":"ti-credit-card"
+  "Pricing":"ti-credit-card","Ask StockGuard":"ti-message-circle"
 };
 
 export const TAB_COLORS = {
+  "Ask StockGuard":"#534AB7",
   "Dashboard":"#185FA5","Receiving":"#0F6E56","Movements":"#534AB7","Sales":"#A32D2D",
   "Reorder Center":"#854F0B","Purchase Orders":"#185FA5","Suppliers":"#0F6E56",
   "Audit Trail":"#444441","Intelligence":"#0D7E6E","Business Insights":"#534AB7",
