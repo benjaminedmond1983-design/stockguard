@@ -33,14 +33,13 @@ export default function AskStockGuard({ inventory }) {
       const res = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt:
+        body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 800, messages: [{ role: "user", content:
           "You are StockGuard's inventory assistant. Answer the store owner's question using ONLY the inventory data below. Be concise and specific — use real item names and numbers. If the data cannot answer it, say so plainly.\n\nInventory data:\n" +
-          buildContext() + "\n\nOwner's question: " + text })
+          buildContext() + "\n\nOwner's question: " + text }] })
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
       const data = await res.json();
-      const out = data.answer || data.text || data.result ||
-        (Array.isArray(data.content) ? data.content.map(c => c.text || "").join("\n") : "");
+      const out = data.content?.find(b => b.type === "text")?.text || "";
       if (!out) throw new Error("Empty response");
       setAnswer(out);
     } catch (e) {
