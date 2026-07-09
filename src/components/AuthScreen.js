@@ -24,6 +24,9 @@ export default function AuthScreen() {
       const { error: e } = await supabase.auth.signInWithPassword({ email, password });
       if (e) setError(e.message);
     } else if (mode === "signup") {
+      setLoading(false);
+      setMessage("StockGuard launches August 4! We're currently onboarding new stores from our waitlist \u2014 join us at getstockguard.com and we'll save your spot.");
+      return;
       const { error: e } = await supabase.auth.signUp({ email, password });
       if (e) setError(e.message);
       else {
