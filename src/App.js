@@ -918,7 +918,7 @@ function ShopifyTab({ supabase, userId }) {
         for (const variant of product.variants) {
           const sku = variant.sku || `shopify-${variant.id}`;
           let { data: existing } = await supabase.from('inventory').select('id, qty')
-            .eq('shopify_variant_id', String(variant.id)).eq('user_id', userId).single();
+            .eq('shopify_variant_id', String(variant.id)).eq('user_id', userId).maybeSingle();
           if (!existing && sku) {
             const { data: skuMatches } = await supabase.from('inventory').select('id, qty')
               .eq('sku', sku).eq('user_id', userId).is('shopify_variant_id', null).limit(1);
@@ -968,7 +968,7 @@ function ShopifyTab({ supabase, userId }) {
         for (const item of order.line_items) {
           if (!item.variant_id) continue;
           const { data: invItem } = await supabase.from('inventory').select('id, qty, name, sku, selling_price, unit_cost')
-            .eq('shopify_variant_id', String(item.variant_id)).eq('user_id', userId).single();
+            .eq('shopify_variant_id', String(item.variant_id)).eq('user_id', userId).maybeSingle();
           if (!invItem) continue;
           const { error: audErr } = await supabase.from('audit_log').insert({
             user_id: userId, action: 'Sold', item: invItem.name, sku: invItem.sku,
