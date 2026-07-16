@@ -40,26 +40,47 @@ export function marginBadge(cost, sell) {
 
 export function parseRows(rows) {
   const errors = [];
+  const FIELD_MAP = {
+    sku:"sku", itemsku:"sku", productsku:"sku", skucode:"sku", itemcode:"sku",
+    name:"name", itemname:"name", productname:"name", item:"name", product:"name", title:"name",
+    category:"category", productcategory:"category", department:"category",
+    qty:"qty", quantity:"qty", stock:"qty", onhand:"qty", qtyonhand:"qty", currentstock:"qty", units:"qty",
+    minqty:"minQty", reorderlevel:"minQty", reorderpoint:"minQty", minimum:"minQty", minstock:"minQty", min:"minQty",
+    unitcost:"unitCost", cost:"unitCost", costprice:"unitCost", wholesale:"unitCost", purchaseprice:"unitCost",
+    sellingprice:"sellingPrice", price:"sellingPrice", sellprice:"sellingPrice", sell:"sellingPrice", retail:"sellingPrice", retailprice:"sellingPrice", saleprice:"sellingPrice",
+    supplier:"supplier", vendor:"supplier", suppliername:"supplier",
+    location:"location", aisle:"location", bin:"location", shelf:"location"
+  };
+  const norm = (k) => String(k).replace(/^\ufeff/, "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  const money = (v) => parseFloat(String(v === undefined || v === null ? "" : v).replace(/[$,\s]/g, ""));
+  const ignored = new Set();
   const parsed = rows.map((r, i) => {
-    const sku = (r.sku||r.SKU||"").toString().trim();
-    const name = (r.name||r.Name||r["Item Name"]||r["Product Name"]||r["item"]||"").toString().trim();
-    const qty = parseInt(r.qty||r.Qty||r.Quantity||r.quantity||0);
-    const minQty = parseInt(r.minQty||r["Min Qty"]||r["min qty"]||r.minimum||10);
-    const unitCost = parseFloat(r.unitCost||r["Unit Cost"]||r.cost||r.Cost||r.price||r.Price||0);
-    const sellingPrice = parseFloat(r.sellingPrice||r["Selling Price"]||r.sell||r.Sell||r.retail||0);
-    if (!sku) errors.push(`Row ${i+1}: Missing SKU`);
-    if (!name) errors.push(`Row ${i+1}: Missing item name`);
+    const c = {};
+    Object.keys(r).forEach((k) => {
+      const field = FIELD_MAP[norm(k)];
+      if (field) { if (c[field] === undefined || c[field] === "") c[field] = r[k]; }
+      else if (String(k).trim()) ignored.add(String(k).trim());
+    });
+    const sku = (c.sku || "").toString().trim();
+    const name = (c.name || "").toString().trim();
+    const qty = parseInt(c.qty, 10);
+    const minQty = parseInt(c.minQty, 10);
+    const unitCost = money(c.unitCost);
+    const sellingPrice = money(c.sellingPrice);
+    if (!sku) errors.push(`Row ${i + 1}: Missing SKU`);
+    if (!name) errors.push(`Row ${i + 1}: Missing item name`);
     return {
       sku, name,
-      category: (r.category||r.Category||"General").toString().trim(),
+      category: (c.category || "General").toString().trim(),
       qty: isNaN(qty) ? 0 : qty,
       minQty: isNaN(minQty) ? 10 : minQty,
-      supplier: (r.supplier||r.Supplier||"—").toString().trim(),
+      supplier: (c.supplier || "\u2014").toString().trim(),
       unitCost: isNaN(unitCost) ? 0 : unitCost,
       sellingPrice: isNaN(sellingPrice) ? 0 : sellingPrice,
-      location: (r.location||r.Location||"—").toString().trim()
+      location: (c.location || "\u2014").toString().trim()
     };
   }).filter(r => r.sku && r.name);
+  if (ignored.size) errors.push("Ignored unrecognized column(s): " + [...ignored].join(", "));
   return { parsed, errors };
 }
 
