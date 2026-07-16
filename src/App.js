@@ -370,7 +370,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
   function handlePasteParse(){if(!pasteText.trim()){setImportErrors(["Please paste some data first."]);return;}try{const lines=pasteText.trim().split(/\r?\n/);if(lines.length<2){setImportErrors(["Please paste at least a header row and one data row."]);return;}const headers=lines[0].split(/\t|,/).map(c=>c.trim());const rows=lines.slice(1).filter(l=>l.trim()).map(line=>{const cols=line.split(/\t|,/).map(c=>c.trim());const obj={};headers.forEach((h,i)=>{obj[h]=cols[i]||"";});return obj;});const{parsed,errors}=parseRows(rows);setImportErrors(errors);setImportPreview(parsed);setImportStatus("preview");}catch(err){setImportErrors(["Failed to parse pasted data: "+err.message]);}}
   function handleManualParse(){const filled=manualRows.filter(r=>r.sku.trim()&&r.name.trim());if(!filled.length){setImportErrors(["Please fill in at least one row with SKU and Name."]);return;}const{parsed,errors}=parseRows(filled);setImportErrors(errors);setImportPreview(parsed);setImportStatus("preview");}
   async function confirmMerge(){
-    let added=0,updated=0;
+    let added=0,updated=0;const toInsert=[];
     const nextInv=[...inventory];
     for(const item of importPreview){
       const idx=nextInv.findIndex(i=>i.sku===item.sku);
@@ -379,11 +379,13 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
         await supabase.from("inventory").update({qty:merged.qty,name:merged.name,category:merged.category,supplier:merged.supplier,unit_cost:merged.unitCost,selling_price:merged.sellingPrice,location:merged.location,min_qty:merged.minQty}).eq("id",merged.id);
         nextInv[idx]=merged;updated++;
       } else {
-        const row={sku:item.sku,name:item.name,category:item.category||"General",qty:item.qty,min_qty:item.minQty||10,supplier:item.supplier||"",unit_cost:item.unitCost||0,selling_price:item.sellingPrice||0,location:item.location||"",user_id:userId};
-        const{data}=await supabase.from("inventory").insert(row).select().single();
-        if(data)nextInv.push({...data,minQty:data.min_qty,unitCost:parseFloat(data.unit_cost),sellingPrice:parseFloat(data.selling_price)});
+        toInsert.push({sku:item.sku,name:item.name,category:item.category||"General",qty:item.qty,min_qty:item.minQty||10,supplier:item.supplier||"",unit_cost:item.unitCost||0,selling_price:item.sellingPrice||0,location:item.location||"",user_id:userId});
         added++;
       }
+    }
+    for(let b=0;b<toInsert.length;b+=500){
+      const{data}=await supabase.from("inventory").insert(toInsert.slice(b,b+500)).select();
+      if(data)data.forEach(d=>nextInv.push({...d,minQty:d.min_qty,unitCost:parseFloat(d.unit_cost),sellingPrice:parseFloat(d.selling_price)}));
     }
     setInventory(nextInv);
     addLog("Import",`Bulk import (${importPreview.length} items)`,importPreview.length,"Staff",`${added} added, ${updated} updated`);
