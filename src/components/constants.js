@@ -4,6 +4,16 @@ export const OWNER_TABS = [
   "Intelligence", "Business Insights", "Automations", "Ask StockGuard", "Tax Center", "Import Products", "Pricing", "shopify", "Shopify", "quickbooks", "QuickBooks", "square", "Square", "clover", "billing"
 ];
 
+// Display titles for tabs whose OWNER_TABS key is a lowercase routing key.
+// Any tab not listed here falls back to its raw name (see banner: TAB_TITLES[tab]||tab).
+export const TAB_TITLES = {
+  shopify: "Shopify",
+  quickbooks: "QuickBooks",
+  square: "Square",
+  clover: "Clover",
+  billing: "Billing"
+};
+
 export const CASHIER_TABS = ["Sales", "Receiving", "Movements", "Reorder Center"];
 
 export const INIT_INVENTORY = [

@@ -19,7 +19,7 @@ import Pricing     from "./tabs/Pricing";
 import AskStockGuard from "./AskStockGuard";
 import { useSlack } from "./components/useSlack";
 import DashboardPopover from "./components/DashboardPopover";
-import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, SIDEBAR, TAB_ICONS, TAB_COLORS, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
+import { OWNER_TABS, CASHIER_TABS, INIT_INVENTORY, SIDEBAR_W, SIDEBAR, TAB_ICONS, TAB_COLORS, TAB_TITLES, ADD_CATEGORY_VALUE, CSV_TEMPLATE, C, PLANS } from "./components/constants";
 import { todayStr, dateStr, shortDate, nowStr, statusBadge, marginBadge, parseRows, buildInitAudit, inp, btn } from "./components/helpers";
 
 
@@ -522,7 +522,7 @@ async function startCameraScan(){setCameraError("");try{const stream=await navig
           <div style={{display:"flex",alignItems:"center",gap:12}}>
             <i className={`ti ${TAB_ICONS[tab]} sg-tab-header-icon`} style={{fontSize:28,opacity:0.9}} aria-hidden="true"/>
             <div>
-              <h1 style={{fontSize:22,fontWeight:600,margin:0,color:"#fff"}}>{tab}</h1>
+              <h1 style={{fontSize:22,fontWeight:600,margin:0,color:"#fff"}}>{TAB_TITLES[tab]||tab}</h1>
               <p style={{fontSize:12,margin:0,opacity:0.75}}>
                 {tab==="Dashboard"&&"Your inventory at a glance"}
                 {tab==="Receiving"&&"Log incoming shipments"}
