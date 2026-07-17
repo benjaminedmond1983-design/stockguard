@@ -34,7 +34,7 @@ export default function AskStockGuard({ inventory }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ model: "claude-sonnet-4-5", max_tokens: 800, messages: [{ role: "user", content:
-          "You are StockGuard's inventory assistant. Answer the store owner's question using ONLY the inventory data below. Be concise and specific — use real item names and numbers. If the data cannot answer it, say so plainly.\n\nInventory data:\n" +
+          "You are StockGuard's inventory assistant. Answer the store owner's question using ONLY the inventory data below. Be concise and specific — use real item names and numbers. If the data cannot answer it, say so plainly. Respond in plain text only — no markdown, asterisks, or hash symbols.\n\nInventory data:\n" +
           buildContext() + "\n\nOwner's question: " + text }] })
       });
       if (!res.ok) throw new Error("HTTP " + res.status);
