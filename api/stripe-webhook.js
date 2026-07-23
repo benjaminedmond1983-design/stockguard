@@ -26,10 +26,10 @@ const supabase = createClient(
 // Sandbox price IDs -> plan tier.
 // SWAP THESE for the live price IDs when you flip Stripe to the live account.
 const PRICE_TO_PLAN = {
-  price_1Tg6tPGaunpstZPiVdD0kigz: 'growth', // Growth Monthly
-  price_1Tg6vmGaunpstZPigriqHqpi: 'growth', // Growth Yearly
-  price_1Tg6nOGaunpstZPiDR88mE57: 'pro',    // Pro Monthly
-  price_1Tg6qiGaunpstZPiud7uztpX: 'pro',    // Pro Yearly
+  price_1Tw9wKGe59QBxetCviy3Ikc2: 'growth', // Growth Monthly
+  price_1TwA1cGe59QBxetCWe2EDDFx: 'growth', // Growth Yearly
+  price_1TwA5VGe59QBxetC0BC5addd: 'pro',    // Pro Monthly
+  price_1TwA6mGe59QBxetCU6e9YJkI: 'pro',    // Pro Yearly
 };
 
 // Body parsing is off (see config), so req is still the raw stream and we can

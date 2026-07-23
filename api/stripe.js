@@ -3,10 +3,10 @@ import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const PLANS = {
-  growth_monthly: 'price_1Tg6tPGaunpstZPiVdD0kigz',
-  growth_yearly: 'price_1Tg6vmGaunpstZPigriqHqpi',
-  pro_monthly: 'price_1Tg6nOGaunpstZPiDR88mE57',
-  pro_yearly: 'price_1Tg6qiGaunpstZPiud7uztpX',
+  growth_monthly: 'price_1Tw9wKGe59QBxetCviy3Ikc2',
+  growth_yearly: 'price_1TwA1cGe59QBxetCWe2EDDFx',
+  pro_monthly: 'price_1TwA5VGe59QBxetC0BC5addd',
+  pro_yearly: 'price_1TwA6mGe59QBxetCU6e9YJkI',
 };
 
 export default async function handler(req, res) {
