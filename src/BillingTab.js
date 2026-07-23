@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 
 const PLANS = [
-  { id: "starter", name: "Starter", price: { monthly: 0, yearly: 0 }, features: ["Up to 25 SKUs", "1 user account", "Receiving and sales log", "Low stock alerts", "CSV import"], color: "#6B7280" },
-  { id: "growth", name: "Growth", price: { monthly: 29, yearly: 278.40 }, yearlyMonthly: 23.20, features: ["Up to 500 SKUs", "3 users", "Everything in Starter", "Profit margin tracking", "CSV export", "AI reorder analysis", "Daily sales summary + 7-day chart"], color: "#16a34a", popular: true, stripePlans: { monthly: "growth_monthly", yearly: "growth_yearly" } },
-  { id: "pro", name: "Pro", price: { monthly: 79, yearly: 758.40 }, yearlyMonthly: 63.20, features: ["Unlimited SKUs", "10 users", "Everything in Growth", "Business Insights", "Intelligence module", "Shopify integration", "Priority support", "Custom branding"], color: "#7C3AED", stripePlans: { monthly: "pro_monthly", yearly: "pro_yearly" } },
+  { id: "starter", name: "Starter", price: { monthly: 0, yearly: 0 }, features: ["Up to 25 SKUs", "Receiving and sales log", "Low stock alerts", "CSV import"], color: "#6B7280" },
+  { id: "growth", name: "Growth", price: { monthly: 29, yearly: 278.40 }, yearlyMonthly: 23.20, features: ["Up to 500 SKUs", "Everything in Starter", "Profit margin tracking", "CSV export", "AI reorder analysis", "Daily sales summary + 7-day chart"], color: "#16a34a", popular: true, stripePlans: { monthly: "growth_monthly", yearly: "growth_yearly" } },
+  { id: "pro", name: "Pro", price: { monthly: 79, yearly: 758.40 }, yearlyMonthly: 63.20, features: ["Unlimited SKUs", "Everything in Growth", "Business Insights", "Intelligence module", "Shopify integration", "Priority support", "Custom branding"], color: "#7C3AED", stripePlans: { monthly: "pro_monthly", yearly: "pro_yearly" } },
 ];
 
 export default function BillingTab({ supabase, userId, userEmail }) {
