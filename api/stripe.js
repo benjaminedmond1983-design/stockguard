@@ -29,7 +29,7 @@ export default async function handler(req, res) {
         success_url: successUrl || 'https://www.getstockguard.com?payment=success',
         cancel_url: cancelUrl || 'https://www.getstockguard.com?payment=cancelled',
         metadata: { userId },
-        subscription_data: { metadata: { userId } },
+        subscription_data: { metadata: { userId }, trial_period_days: 14 },
         allow_promotion_codes: true,
       });
       return res.status(200).json({ url: session.url, sessionId: session.id });
