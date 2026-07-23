@@ -199,7 +199,7 @@
         <div class="plan-name growth">Growth</div>
         <div class="plan-desc">For growing retailers who need AI-powered insights and reordering.</div>
         <div class="plan-price">
-          <span class="plan-amount" id="growth-price">$19</span>
+          <span class="plan-amount" id="growth-price">$29</span>
           <span class="plan-period" id="growth-period">/month</span>
         </div>
         <div class="plan-savings" id="growth-savings">You save $48/year</div>
@@ -227,7 +227,7 @@
         <div class="plan-name pro-name">Pro</div>
         <div class="plan-desc">For multi-location retailers and businesses with larger teams.</div>
         <div class="plan-price">
-          <span class="plan-amount" id="pro-price">$49</span>
+          <span class="plan-amount" id="pro-price">$79</span>
           <span class="plan-period" id="pro-period">/month</span>
         </div>
         <div class="plan-savings" id="pro-savings">You save $120/year</div>
@@ -263,7 +263,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr><td>Price/month</td><td>Free</td><td id="t-growth">$19</td><td id="t-pro">$49</td></tr>
+        <tr><td>Price/month</td><td>Free</td><td id="t-growth">$29</td><td id="t-pro">$79</td></tr>
         <tr><td>SKUs</td><td>50</td><td>500</td><td>Unlimited</td></tr>
         <tr><td>Users</td><td>1</td><td>3</td><td>10</td></tr>
         <tr><td>Audit trail</td><td>30 days</td><td>1 year</td><td>Unlimited</td></tr>
@@ -287,8 +287,8 @@
       <div class="roi-cards">
         <div class="roi-card">
           <div class="roi-card-label">StockGuard Growth plan</div>
-          <div class="roi-card-value">$228/yr</div>
-          <div class="roi-card-sub">($19 × 12 months)</div>
+          <div class="roi-card-value">$348/yr</div>
+          <div class="roi-card-sub">($29 × 12 months)</div>
         </div>
         <div class="roi-card">
           <div class="roi-card-label">Average inventory losses</div>
@@ -297,8 +297,8 @@
         </div>
         <div class="roi-card">
           <div class="roi-card-label">Your potential savings</div>
-          <div class="roi-card-value">$7,772/yr</div>
-          <div class="roi-card-sub">34× return on investment</div>
+          <div class="roi-card-value">$7,652/yr</div>
+          <div class="roi-card-sub">22× return on investment</div>
         </div>
       </div>
     </div>
@@ -363,16 +363,16 @@
       annualLabel.style.color = isAnnual ? '#111' : '#888';
 
       // Update Growth price
-      document.getElementById('growth-price').textContent = isAnnual ? '$15' : '$19';
+      document.getElementById('growth-price').textContent = isAnnual ? '$23.20' : '$29';
       document.getElementById('growth-period').textContent = isAnnual ? '/mo, billed annually' : '/month';
       document.getElementById('growth-savings').classList.toggle('visible', isAnnual);
-      document.getElementById('t-growth').textContent = isAnnual ? '$15' : '$19';
+      document.getElementById('t-growth').textContent = isAnnual ? '$23.20' : '$29';
 
       // Update Pro price
-      document.getElementById('pro-price').textContent = isAnnual ? '$39' : '$49';
+      document.getElementById('pro-price').textContent = isAnnual ? '$63.20' : '$79';
       document.getElementById('pro-period').textContent = isAnnual ? '/mo, billed annually' : '/month';
       document.getElementById('pro-savings').classList.toggle('visible', isAnnual);
-      document.getElementById('t-pro').textContent = isAnnual ? '$39' : '$49';
+      document.getElementById('t-pro').textContent = isAnnual ? '$63.20' : '$79';
     }
 
     function toggleFaq(i) {
