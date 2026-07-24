@@ -1,9 +1,11 @@
 import { useState, useEffect } from "react";
 
+const fmt = (n) => (Number(n) % 1 === 0 ? String(n) : Number(n).toFixed(2));
+
 const PLANS = [
   { id: "starter", name: "Starter", price: { monthly: 0, yearly: 0 }, features: ["Up to 25 SKUs", "Receiving and sales log", "Low stock alerts", "CSV import"], color: "#6B7280" },
-  { id: "growth", name: "Growth", price: { monthly: 29, yearly: 278.40 }, yearlyMonthly: 23.20, features: ["Up to 500 SKUs", "Everything in Starter", "Profit margin tracking", "CSV export", "AI reorder analysis", "Daily sales summary + 7-day chart"], color: "#16a34a", popular: true, stripePlans: { monthly: "growth_monthly", yearly: "growth_yearly" } },
-  { id: "pro", name: "Pro", price: { monthly: 79, yearly: 758.40 }, yearlyMonthly: 63.20, features: ["Unlimited SKUs", "Everything in Growth", "Business Insights", "Intelligence module", "Shopify integration", "Priority support", "Custom branding"], color: "#7C3AED", stripePlans: { monthly: "pro_monthly", yearly: "pro_yearly" } },
+  { id: "growth", name: "Growth", price: { monthly: 29, yearly: 278.40 }, yearlyMonthly: 23.20, features: ["Up to 500 SKUs", "Everything in Starter", "Profit margin tracking", "CSV export", "AI reorder analysis", "Daily sales summary + 7-day chart", "Tax Center & year-end reports"], color: "#16a34a", popular: true, stripePlans: { monthly: "growth_monthly", yearly: "growth_yearly" } },
+  { id: "pro", name: "Pro", price: { monthly: 79, yearly: 758.40 }, yearlyMonthly: 63.20, features: ["Unlimited SKUs", "Everything in Growth", "Business Insights", "Intelligence module", "Shopify integration", "Priority support", "Custom branding", "Tax Center & year-end reports"], color: "#7C3AED", stripePlans: { monthly: "pro_monthly", yearly: "pro_yearly" } },
 ];
 
 export default function BillingTab({ supabase, userId, userEmail }) {
@@ -74,7 +76,7 @@ export default function BillingTab({ supabase, userId, userEmail }) {
               {plan.popular && <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: plan.color, color: "white", fontSize: "12px", fontWeight: "600", padding: "4px 14px", borderRadius: "999px" }}>Most popular</div>}
               <div style={{ color: plan.color, fontWeight: "700", fontSize: "18px", marginBottom: "4px" }}>{plan.name}</div>
               <div style={{ marginBottom: "20px" }}>
-                {plan.price.monthly === 0 ? <span style={{ fontSize: "36px", fontWeight: "800" }}>Free</span> : <><span style={{ fontSize: "36px", fontWeight: "800" }}>${price}</span><span style={{ color: "#6B7280" }}>/mo</span>{billing === "yearly" && <div style={{ fontSize: "13px", color: "#6B7280" }}>Billed ${plan.price.yearly}/year</div>}</>}
+                {plan.price.monthly === 0 ? <span style={{ fontSize: "36px", fontWeight: "800" }}>Free</span> : <><span style={{ fontSize: "36px", fontWeight: "800" }}>${fmt(price)}</span><span style={{ color: "#6B7280" }}>/mo</span>{billing === "yearly" && <div style={{ fontSize: "13px", color: "#6B7280" }}>Billed ${fmt(plan.price.yearly)}/year</div>}</>}
               </div>
               <button onClick={() => { if (isCurrentPlan || !plan.stripePlans) return; handleSubscribe(plan.id, billing); }} disabled={isCurrentPlan || isLoading} style={{ width: "100%", padding: "12px", borderRadius: "8px", border: "none", background: isCurrentPlan ? "#f3f4f6" : plan.color, color: isCurrentPlan ? "#6B7280" : "white", fontWeight: "600", fontSize: "14px", cursor: isCurrentPlan ? "default" : "pointer", marginBottom: "20px" }}>
                 {isLoading ? "Loading..." : isCurrentPlan ? "Current Plan" : plan.price.monthly === 0 ? "Get Started Free" : "Start 14-Day Free Trial"}

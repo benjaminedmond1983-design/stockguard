@@ -22,3 +22,8 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .vercel
+
+# StockGuard patch tooling
+*.bak_*
+recon*.py
+patch_*.py

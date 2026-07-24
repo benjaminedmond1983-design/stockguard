@@ -30,14 +30,14 @@ export const INIT_INVENTORY = [
 export const PLANS = [
   { name:"Starter", color:"#185FA5", price:0, ap:0, cta:"Start for free", badge:null,
     inc:["Up to 25 SKUs","Receiving and sales log","Low stock alerts","CSV import"],
-    exc:["Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary","Business Insights", "Shopify integration"] },
+    exc:["Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary","Business Insights", "Shopify integration","Tax Center & year-end reports"] },
   { name:"Growth", color:"#3B6D11", price:29, ap:23.20, cta:"Start 14-Day Free Trial", badge:"Most popular",
     badgeBg:"#EAF3DE", badgeColor:"#3B6D11", featured:true,
-    inc:["Up to 500 SKUs","Everything in Starter","Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary + 7-day chart"],
+    inc:["Up to 500 SKUs","Everything in Starter","Profit margin tracking","CSV export","AI reorder analysis","Daily sales summary + 7-day chart","Tax Center & year-end reports"],
     exc:["Business Insights","Intelligence module","Priority support","Custom branding","Shopify integration"] },
   { name:"Pro", color:"#534AB7", price:79, ap:63.20, cta:"Start 14-Day Free Trial", badge:"Best value",
     badgeBg:"#EEEDFE", badgeColor:"#534AB7",
-    inc:["Unlimited SKUs","Everything in Growth","Business Insights","Intelligence module","Shopify integration","Priority support","Custom branding"],
+    inc:["Unlimited SKUs","Everything in Growth","Business Insights","Intelligence module","Shopify integration","Priority support","Custom branding","Tax Center & year-end reports"],
     exc:[] },
 ];
 
